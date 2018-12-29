@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     defaultConfig {
-        applicationId "com.huawang.dongxiangjun.myapplication"
+        applicationId "com.dds.webrtc"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1

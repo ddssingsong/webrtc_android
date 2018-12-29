@@ -42,7 +42,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 /**
- * Created by dongxiangjun on 2017/10/20.
+ * Created by dds on 2017/10/20.
  */
 
 enum Role {
@@ -74,7 +74,7 @@ public class WebRTCHelper {
 
     // stun服务器
     final private String RTCSTUNServerURL = "stun:stun.l.google.com:19302";
-    final private String RTCSTUNServerURL2 = "stun:47.254.34.146";
+    final private String RTCSTUNServerURL2 = "stun:47.254.34.146:3478";
 
     final private String TAG = "dds_webrtc";
 

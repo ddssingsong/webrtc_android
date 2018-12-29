@@ -24,13 +24,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
     <Button
         android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center_horizontal"
         android:text="切换摄像头"
         app:layout_anchor="@+id/glview_call"
-        app:layout_anchorGravity="bottom|center_horizontal" />
+        app:layout_anchorGravity="bottom" />
 
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="静音"
+        app:layout_anchor="@+id/glview_call"
+        app:layout_anchorGravity="bottom" />
 </android.support.design.widget.CoordinatorLayout>

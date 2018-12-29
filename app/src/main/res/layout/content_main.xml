@@ -12,16 +12,19 @@
 
 
     <EditText
+        android:id="@+id/et_signal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="信令地址(wss://...../wss)" />
 
     <EditText
+        android:id="@+id/et_stun"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="stun服务器地址(stun:host:port)" />
 
     <EditText
+        android:id="@+id/et_room"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="房间号(123456)" />
