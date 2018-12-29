@@ -7,19 +7,30 @@
     android:orientation="vertical"
     android:padding="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.huawang.dongxiangjun.myapplication.MainActivity"
+    tools:context="com.dds.MainActivity"
     tools:showIn="@layout/activity_main">
 
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="房间号" />
+        android:hint="信令地址(wss://...../wss)" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="stun服务器地址(stun:host:port)" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="房间号(123456)" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:onClick="WebRTCHelper"
         android:text="加入房间"
         tools:ignore="OnClick" />

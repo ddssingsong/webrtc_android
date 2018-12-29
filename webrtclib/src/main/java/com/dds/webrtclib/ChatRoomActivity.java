@@ -1,4 +1,4 @@
-package com.huawang.dongxiangjun.myapplication;
+package com.dds.webrtclib;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -18,7 +18,7 @@ import org.webrtc.VideoTrack;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Main2Activity extends AppCompatActivity implements IWebRTCHelper{
+public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper{
 
 
     private WebRTCHelper helper;
@@ -53,7 +53,7 @@ public class Main2Activity extends AppCompatActivity implements IWebRTCHelper{
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_chat_room);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -77,7 +77,7 @@ public class Main2Activity extends AppCompatActivity implements IWebRTCHelper{
         y = 70;
 
 
-        vsv = (GLSurfaceView) findViewById(R.id.glview_call);
+        vsv = findViewById(R.id.glview_call);
         vsv.setPreserveEGLContextOnPause(true);
         vsv.setKeepScreenOn(true);
 
@@ -89,7 +89,7 @@ public class Main2Activity extends AppCompatActivity implements IWebRTCHelper{
                 Log.i("dds_webrtc","surfaceView准备完毕");
 
 
-                helper = new WebRTCHelper(Main2Activity.this);
+                helper = new WebRTCHelper(ChatRoomActivity.this);
 
                 helper.initSocket("wss://47.254.34.146/wss","3000");
             }

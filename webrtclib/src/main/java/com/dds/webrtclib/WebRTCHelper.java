@@ -1,4 +1,4 @@
-package com.huawang.dongxiangjun.myapplication;
+package com.dds.webrtclib;
 
 
 import android.util.Log;
