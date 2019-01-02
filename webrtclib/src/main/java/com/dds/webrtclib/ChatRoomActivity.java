@@ -2,8 +2,10 @@ package com.dds.webrtclib;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -62,6 +64,10 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         initVar();
         chatRoomFragment = new ChatRoomFragment();
         replaceFragment(chatRoomFragment);
+
+
+        startCall();
+
     }
 
 
@@ -86,22 +92,26 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         x = 0;
         y = 70;
 
+
+    }
+
+    private void startCall() {
         VideoRendererGui.setView(vsv, new Runnable() {
             @Override
             public void run() {
                 Log.i("dds_webrtc", "surfaceView准备完毕");
-                helper = new WebRTCHelper(ChatRoomActivity.this);
-                helper.initSocket(signal);
+                if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
+                    helper = new WebRTCHelper(ChatRoomActivity.this, stun);
+                    helper.initSocket(signal, room);
+                }
+
             }
         });
 
-        try {
-            localRender = VideoRendererGui.create(
-                    0, 0,
-                    100, 100, scalingType, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        localRender = VideoRendererGui.create(0, 0,
+                100, 100, scalingType, true);
+
 
     }
 
@@ -164,11 +174,16 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    protected void onDestroy() {
+        helper.exitRoom();
+        super.onDestroy();
+    }
 
-    private void replaceFragment(Fragment department) {
+    private void replaceFragment(Fragment fragment) {
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction()
-                .add(R.id.wr_container, department)
+                .replace(R.id.wr_container, fragment)
                 .commit();
 
     }
@@ -184,8 +199,25 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         this.finish();
     }
 
-    public void toogleMic(boolean enable) {
+    // 静音
+    public void toggleMic(boolean enable) {
         helper.toggleMute(enable);
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        for (int i = 0; i < permissions.length; i++) {
+            Log.i(WebRTCHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
+            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                finish();
+                break;
+            }
+        }
+
+        helper = new WebRTCHelper(ChatRoomActivity.this, stun);
+        helper.initSocket(signal, room);
+
+
+    }
 }

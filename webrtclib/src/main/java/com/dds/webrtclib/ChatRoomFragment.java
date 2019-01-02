@@ -43,7 +43,7 @@ public class ChatRoomFragment extends Fragment {
 
 
     private View onInitloadView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.wr_fragment_room_control, container);
+        return inflater.inflate(R.layout.wr_fragment_room_control, container, false);
     }
 
     private void initView(View rootView) {
@@ -58,13 +58,19 @@ public class ChatRoomFragment extends Fragment {
             public void onClick(View v) {
                 enableMic = !enableMic;
                 if (enableMic) {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
+                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
+                    if (drawable != null) {
+                        drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
+                    }
                     wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
                 } else {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default_click);
+                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
+                    if (drawable != null) {
+                        drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
+                    }
                     wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
                 }
-                chatRoomActivity.toogleMic(enableMic);
+                chatRoomActivity.toggleMic(enableMic);
 
             }
         });
@@ -92,4 +98,6 @@ public class ChatRoomFragment extends Fragment {
             }
         }
     }
+
+
 }

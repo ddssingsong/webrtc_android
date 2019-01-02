@@ -59,7 +59,7 @@ public class WebRTCHelper {
     private AudioTrack _localAudioTrack;
     private boolean enableAudio;
 
-    private ArrayList<String> _connectionIdArray;
+    private ArrayList _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
     // 我在这个房间的id
@@ -70,8 +70,6 @@ public class WebRTCHelper {
 
     // stun服务器
     final private String RTCSTUNServerURL = "stun:stun.l.google.com:19302";
-    final private String RTCSTUNServerURL2 = "stun:47.254.34.146:3478";
-
 
     // socket 服务器地址
     private URI uri;
@@ -82,20 +80,24 @@ public class WebRTCHelper {
     private VideoSource videoSource;
 
     // 用户角色
-    Role _role;
+    private Role _role;
 
 
     // 构造器
-    public WebRTCHelper(IWebRTCHelper IHelper) {
+    public WebRTCHelper(IWebRTCHelper IHelper, String stun) {
         this.IHelper = IHelper;
         this._connectionPeerDic = new HashMap<>();
         this._connectionIdArray = new ArrayList();
+        this.ICEServers = new ArrayList<>();
+        PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(RTCSTUNServerURL);
+        PeerConnection.IceServer iceServer2 = new PeerConnection.IceServer(stun);
+        ICEServers.add(iceServer1);
+        ICEServers.add(iceServer2);
     }
 
 
     // 初始化WebSocket
-    public void initSocket(String ws) {
-
+    public void initSocket(String ws, final String room) {
         try {
             uri = new URI(ws);
         } catch (URISyntaxException e) {
@@ -106,16 +108,13 @@ public class WebRTCHelper {
                 @Override
                 public void onOpen(ServerHandshake serverHandshake) {
                     Log.i(TAG, "onOpen: ");
-                    joinTheRoom();
+                    joinTheRoom(room);
                 }
 
                 @Override
                 public void onMessage(String s) {
                     Log.i(TAG, "onMessage: " + s);
-
-
                     Map map = JSON.parseObject(s, Map.class);
-
                     socketGetMessage(map);
                 }
 
@@ -178,12 +177,11 @@ public class WebRTCHelper {
     }
 
     // 加入房间
-    private void joinTheRoom() {
-
-        Map<String, Object> map = new HashMap<String, Object>();
+    private void joinTheRoom(String room) {
+        Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__join");
-        Map<String, String> childMap = new HashMap<String, String>();
-        childMap.put("room", "123456");
+        Map<String, String> childMap = new HashMap<>();
+        childMap.put("room", room);
         map.put("data", childMap);
 
         JSONObject object = new JSONObject(map);
@@ -220,26 +218,17 @@ public class WebRTCHelper {
 
     // socket接收到数据之后的数据处理
     private void socketGetMessage(Map map) {
-
-
         String eventName = (String) map.get("eventName");
-
-
         //1.0这条消息类型是_peers，意思为房间新用户
         if (eventName.equals("_peers")) {
-
             Log.v(TAG, "收到socket数据------1.0");
-
             Map data = (Map) map.get("data");
             JSONArray arr = (JSONArray) data.get("connections");
             //将array数组转换成字符串
             String js = JSONObject.toJSONString(arr, SerializerFeature.WriteClassName);
             //把字符串转换成集合
             ArrayList<String> connections = (ArrayList<String>) JSONObject.parseArray(js, String.class);
-
-
             _connectionIdArray.addAll(connections);
-
             _myId = (String) data.get("you");
 
             if (_factory == null) {
@@ -376,9 +365,9 @@ public class WebRTCHelper {
     // 创建所有连接
     private void createPeerConnections() {
 
-        for (String str : _connectionIdArray) {
-            Peer peer = new Peer(str);
-            _connectionPeerDic.put(str, peer);
+        for (Object str : _connectionIdArray) {
+            Peer peer = new Peer((String) str);
+            _connectionPeerDic.put((String) str, peer);
         }
     }
 
@@ -409,20 +398,22 @@ public class WebRTCHelper {
 
     // 退出房间
     public void exitRoom() {
-
         if (videoSource != null) {
             videoSource.stop();
         }
-        ArrayList<String> mycopy;
-        mycopy = (ArrayList) _connectionIdArray.clone();
-
-        for (String Id : mycopy) {
-            closePeerConnection(Id);
+        ArrayList myCopy;
+        myCopy = (ArrayList) _connectionIdArray.clone();
+        for (Object Id : myCopy) {
+            closePeerConnection((String) Id);
         }
-
-        mWebSocketClient.close();
-
+        if (mWebSocketClient != null) {
+            mWebSocketClient.close();
+        }
+        if (_connectionIdArray != null) {
+            _connectionIdArray.clear();
+        }
         _localStream = null;
+
     }
 
     // 关闭通道流
@@ -451,7 +442,6 @@ public class WebRTCHelper {
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minHeight", "120"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "5"));
-
         mediaConstraints.mandatory.addAll(keyValuePairs);
         return mediaConstraints;
     }
@@ -490,8 +480,6 @@ public class WebRTCHelper {
 
 
         /****************************PeerConnection.Observer****************************/
-
-
         @Override
         public void onSignalingChange(PeerConnection.SignalingState signalingState) {
             Log.v(TAG, "ice 状态改变 " + signalingState);
@@ -671,12 +659,8 @@ public class WebRTCHelper {
 
             if (ICEServers == null) {
                 ICEServers = new ArrayList<>();
-
-
                 PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(RTCSTUNServerURL, "", "");
-                PeerConnection.IceServer iceServer2 = new PeerConnection.IceServer(RTCSTUNServerURL2, "", "");
                 ICEServers.add(iceServer1);
-                ICEServers.add(iceServer2);
             }
             // 管道连接抽象类实现方法
 
