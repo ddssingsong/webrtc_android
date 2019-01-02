@@ -16,7 +16,7 @@
         android:drawablePadding="5dp"
         android:drawableTop="@drawable/webrtc_btn_voice_mute"
         android:gravity="center_horizontal"
-        android:text="静音"
+        android:text="@string/webrtc_chat_mute"
         android:textSize="@dimen/wr_control_text_size" />
 
     <!--挂断-->
@@ -28,9 +28,8 @@
         android:drawablePadding="5dp"
         android:drawableTop="@drawable/webrtc_cancel"
         android:gravity="center_horizontal"
-        android:text="挂断"
+        android:text="@string/webrtc_chat_hang_up"
         android:textSize="@dimen/wr_control_text_size" />
-
 
     <!--切换摄像头-->
     <TextView
@@ -42,6 +41,7 @@
         android:drawablePadding="5dp"
         android:drawableTop="@drawable/webrtc_switch_camera"
         android:gravity="center_horizontal"
-        android:text="切换摄像头"
+        android:text="@string/webrtc_switch_camera"
         android:textSize="@dimen/wr_control_text_size" />
+
 </RelativeLayout>

@@ -32,8 +32,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private VideoRendererGui.ScalingType scalingType = VideoRendererGui.ScalingType.SCALE_ASPECT_FILL;
 
 
-
-
     private String signal;
     private String stun;
     private String room;
@@ -99,12 +97,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         VideoRendererGui.setView(vsv, new Runnable() {
             @Override
             public void run() {
-
                 Log.i("dds_webrtc", "surfaceView准备完毕");
-
-
                 helper = new WebRTCHelper(ChatRoomActivity.this);
-
                 helper.initSocket(signal);
             }
         });
@@ -112,11 +106,9 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         // local and remote render
 
         try {
-
             localRender = VideoRendererGui.create(
                     0, 0,
                     100, 100, scalingType, true);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
