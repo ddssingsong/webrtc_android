@@ -20,7 +20,7 @@
         <activity
             android:name=".ChatRoomActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/Webrtc.AppTheme.NoActionBar" />
     </application>
 
 </manifest>

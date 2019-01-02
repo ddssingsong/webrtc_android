@@ -41,10 +41,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-/**
- * Created by dds on 2017/10/20.
- */
-
 enum Role {
     //发送者
     Caller,

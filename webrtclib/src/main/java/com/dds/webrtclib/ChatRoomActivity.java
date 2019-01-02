@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -28,9 +27,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private static int y;
     private GLSurfaceView vsv;
     private VideoRenderer.Callbacks localRender;
-    private double width;
-    private double height;
+    private double width = 480;
+    private double height = 640;
     private VideoRendererGui.ScalingType scalingType = VideoRendererGui.ScalingType.SCALE_ASPECT_FILL;
+
+
 
 
     private String signal;
@@ -56,34 +57,44 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
                         | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_room);
+        setContentView(R.layout.wr_activity_chat_room);
         initView();
         initVar();
 
-        //设置摄像头切换
-        View btn = findViewById(R.id.button3);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchCamera();
-            }
-        });
 
+        //设置摄像头切换
+//        View btn = findViewById(R.id.button3);
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                switchCamera();
+//            }
+//        });
+
+
+    }
+
+
+    private void initView() {
+        vsv = findViewById(R.id.wr_glview_call);
+        vsv.setPreserveEGLContextOnPause(true);
+        vsv.setKeepScreenOn(true);
+    }
+
+    private void initVar() {
+        Intent intent = getIntent();
+        signal = intent.getStringExtra("signal");
+        stun = intent.getStringExtra("stun");
+        room = intent.getStringExtra("room");
 
         // 设置宽高比例
         WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        width = manager.getDefaultDisplay().getWidth() / 3.0;
+        if (manager != null) {
+            width = manager.getDefaultDisplay().getWidth() / 3.0;
+        }
         height = width * 32.0 / 24.0;
-
-
         x = 0;
         y = 70;
-
-
-        vsv = findViewById(R.id.glview_call);
-        vsv.setPreserveEGLContextOnPause(true);
-        vsv.setKeepScreenOn(true);
-
         ///surface准备好后会调用runnable里的run()函数
         VideoRendererGui.setView(vsv, new Runnable() {
             @Override
@@ -110,18 +121,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             e.printStackTrace();
         }
 
-    }
-
-
-    private void initView() {
-
-    }
-
-    private void initVar() {
-        Intent intent = getIntent();
-        signal = intent.getStringExtra("signal");
-        stun = intent.getStringExtra("stun");
-        room = intent.getStringExtra("room");
     }
 
     @Override
@@ -183,10 +182,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            // 退出房间
             helper.exitRoom();
             this.finish();
-
             return false;
         }
         return super.onKeyDown(keyCode, event);
@@ -194,7 +191,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
     // 切换摄像头
     public void switchCamera() {
-
         helper.switchCamera();
     }
 
