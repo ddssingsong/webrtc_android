@@ -54,7 +54,7 @@ enum Role {
 
 
 public class WebRTCHelper {
-
+    public final static String TAG = "dds_webrtc";
     private WebSocketClient mWebSocketClient;
     // 通道工厂
     private PeerConnectionFactory _factory;
@@ -76,7 +76,6 @@ public class WebRTCHelper {
     final private String RTCSTUNServerURL = "stun:stun.l.google.com:19302";
     final private String RTCSTUNServerURL2 = "stun:47.254.34.146:3478";
 
-    final private String TAG = "dds_webrtc";
 
     // socket 服务器地址
     private URI uri;
@@ -99,7 +98,7 @@ public class WebRTCHelper {
 
 
     /// 初始化WebSocket
-    public void initSocket(String ws, String point) {
+    public void initSocket(String ws) {
 
         try {
             uri = new URI(ws);
@@ -188,7 +187,7 @@ public class WebRTCHelper {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("eventName", "__join");
         Map<String, String> childMap = new HashMap<String, String>();
-        childMap.put("room", "100");
+        childMap.put("room", "123456");
         map.put("data", childMap);
 
         JSONObject object = new JSONObject(map);
@@ -489,8 +488,6 @@ public class WebRTCHelper {
 
     /**************************************内部类******************************************/
 
-
-/// 内部类
     private class Peer implements SdpObserver, PeerConnection.Observer {
         private PeerConnection pc;
         private String socketId;

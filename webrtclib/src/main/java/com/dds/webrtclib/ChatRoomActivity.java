@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -58,8 +57,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         initView();
         initVar();
 
@@ -97,7 +94,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
                 helper = new WebRTCHelper(ChatRoomActivity.this);
 
-                helper.initSocket("wss://47.254.34.146/wss", "3000");
+                helper.initSocket(signal);
             }
         });
 
@@ -130,7 +127,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     @Override
     public void webRTCHelper_SetLocalStream(MediaStream stream, String userId) {
 
-        Log.i("dds", "在本地添加视频");
+        Log.i("dds_webrtc", "在本地添加视频");
 
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
 
@@ -143,7 +140,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     @Override
     public void webRTCHelper_AddRemoteStream(MediaStream stream, String userId) {
 
-        Log.i("dds", "接受到远端视频流     " + userId);
+        Log.i("dds_webrtc", "接受到远端视频流     " + userId);
 
         _remoteVideoTracks.put(userId, stream.videoTracks.get(0));
 
@@ -167,7 +164,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
     @Override
     public void webRTCHelper_CloseWithUserId(String userId) {
-        Log.i("dds", "有用户离开    " + userId);
+        Log.i("dds_webrtc", "有用户离开    " + userId);
 
 
         VideoRenderer.Callbacks callbacks = _remoteVideoView.get(userId);
