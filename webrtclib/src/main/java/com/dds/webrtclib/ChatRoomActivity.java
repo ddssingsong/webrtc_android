@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,11 +33,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private double height = 640;
     private VideoRendererGui.ScalingType scalingType = VideoRendererGui.ScalingType.SCALE_ASPECT_FILL;
 
+    private ChatRoomFragment chatRoomFragment;
 
     private String signal;
     private String stun;
     private String room;
-
 
     public static void openActivity(Activity activity, String signal, String stun, String room) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
@@ -58,18 +60,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         setContentView(R.layout.wr_activity_chat_room);
         initView();
         initVar();
-
-
-        //设置摄像头切换
-//        View btn = findViewById(R.id.button3);
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                switchCamera();
-//            }
-//        });
-
-
+        chatRoomFragment = new ChatRoomFragment();
+        replaceFragment(chatRoomFragment);
     }
 
 
@@ -93,7 +85,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         height = width * 32.0 / 24.0;
         x = 0;
         y = 70;
-        ///surface准备好后会调用runnable里的run()函数
+
         VideoRendererGui.setView(vsv, new Runnable() {
             @Override
             public void run() {
@@ -102,8 +94,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
                 helper.initSocket(signal);
             }
         });
-
-        // local and remote render
 
         try {
             localRender = VideoRendererGui.create(
@@ -156,8 +146,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     @Override
     public void webRTCHelper_CloseWithUserId(String userId) {
         Log.i("dds_webrtc", "有用户离开    " + userId);
-
-
         VideoRenderer.Callbacks callbacks = _remoteVideoView.get(userId);
         VideoRendererGui.remove(callbacks);
 
@@ -171,19 +159,33 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
     }
 
-    @Override
+    @Override  // 屏蔽返回键
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            helper.exitRoom();
-            this.finish();
-            return false;
-        }
-        return super.onKeyDown(keyCode, event);
+        return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event);
+    }
+
+
+    private void replaceFragment(Fragment department) {
+        FragmentManager manager = getSupportFragmentManager();
+        manager.beginTransaction()
+                .add(R.id.wr_container, department)
+                .commit();
+
     }
 
     // 切换摄像头
     public void switchCamera() {
         helper.switchCamera();
+    }
+
+    // 挂断
+    public void hangUp() {
+        helper.exitRoom();
+        this.finish();
+    }
+
+    public void toogleMic(boolean enable) {
+        helper.toggleMute(enable);
     }
 
 }

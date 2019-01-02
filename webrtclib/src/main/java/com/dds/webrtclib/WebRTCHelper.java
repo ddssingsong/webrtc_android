@@ -56,14 +56,14 @@ public class WebRTCHelper {
     private PeerConnectionFactory _factory;
     //本地视频流
     private MediaStream _localStream;
-
+    private AudioTrack _localAudioTrack;
+    private boolean enableAudio;
 
     private ArrayList<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
     // 我在这个房间的id
     private String _myId;
-    // 接口
     private IWebRTCHelper IHelper;
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
@@ -76,7 +76,7 @@ public class WebRTCHelper {
     // socket 服务器地址
     private URI uri;
 
-    //切换摄像头
+    // 切换摄像头
     private VideoCapturerAndroid capturerAndroid;
 
     private VideoSource videoSource;
@@ -93,7 +93,7 @@ public class WebRTCHelper {
     }
 
 
-    /// 初始化WebSocket
+    // 初始化WebSocket
     public void initSocket(String ws) {
 
         try {
@@ -177,7 +177,7 @@ public class WebRTCHelper {
         }
     }
 
-    //加入房间
+    // 加入房间
     private void joinTheRoom() {
 
         Map<String, Object> map = new HashMap<String, Object>();
@@ -208,7 +208,17 @@ public class WebRTCHelper {
     }
 
 
-    //socket接收到数据之后的数据处理
+    // 设置自己静音
+    public void toggleMute(boolean enable) {
+        if (_localAudioTrack != null) {
+            enableAudio = enable;
+            _localAudioTrack.setEnabled(enableAudio);
+        }
+
+    }
+
+
+    // socket接收到数据之后的数据处理
     private void socketGetMessage(Map map) {
 
 
@@ -336,16 +346,13 @@ public class WebRTCHelper {
     }
 
 
-    //创建本地流
+    // 创建本地流
     private void createLocalStream() {
-
-
         _localStream = _factory.createLocalMediaStream("ARDAMS");
-
         // 音频
         AudioSource audioSource = _factory.createAudioSource(new MediaConstraints());
-        AudioTrack audioTrack = _factory.createAudioTrack("ARDAMSa0", audioSource);
-        _localStream.addTrack(audioTrack);
+        _localAudioTrack = _factory.createAudioTrack("ARDAMSa0", audioSource);
+        _localStream.addTrack(_localAudioTrack);
 
         String frontFacingDevice = VideoCapturerAndroid.getNameOfFrontFacingDevice();
         //创建需要传入设备的名称
@@ -366,7 +373,7 @@ public class WebRTCHelper {
 
     }
 
-    //创建所有连接
+    // 创建所有连接
     private void createPeerConnections() {
 
         for (String str : _connectionIdArray) {
@@ -376,13 +383,10 @@ public class WebRTCHelper {
     }
 
 
-    //为所有连接添加流
+    // 为所有连接添加流
     private void addStreams() {
-
         Log.v(TAG, "为所有连接添加流");
-
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
-
             if (_localStream == null) {
                 createLocalStream();
             }
@@ -391,21 +395,19 @@ public class WebRTCHelper {
 
     }
 
-    //为所有连接创建offer
+    // 为所有连接创建offer
     private void createOffers() {
         Log.v(TAG, "为所有连接创建offer");
 
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
             _role = Role.Caller;
             Peer mPeer = entry.getValue();
-            mPeer.pc.createOffer(mPeer, offerOranswerConstraint());
+            mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
         }
 
     }
 
-    /**
-     * 退出房间
-     */
+    // 退出房间
     public void exitRoom() {
 
         if (videoSource != null) {
@@ -440,10 +442,7 @@ public class WebRTCHelper {
 
 
     /**************************************各种约束******************************************/
-
     private MediaConstraints localVideoConstraints() {
-
-
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "320"));
@@ -457,9 +456,7 @@ public class WebRTCHelper {
         return mediaConstraints;
     }
 
-
     private MediaConstraints peerConnectionConstraints() {
-
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
@@ -470,9 +467,7 @@ public class WebRTCHelper {
         return mediaConstraints;
     }
 
-    private MediaConstraints offerOranswerConstraint() {
-
-
+    private MediaConstraints offerOrAnswerConstraint() {
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
@@ -483,7 +478,6 @@ public class WebRTCHelper {
 
 
     /**************************************内部类******************************************/
-
     private class Peer implements SdpObserver, PeerConnection.Observer {
         private PeerConnection pc;
         private String socketId;
@@ -580,7 +574,7 @@ public class WebRTCHelper {
             if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
 
                 //创建一个answer,会把自己的SDP信息返回出去
-                pc.createAnswer(Peer.this, offerOranswerConstraint());
+                pc.createAnswer(Peer.this, offerOrAnswerConstraint());
 
             }
             //判断连接状态为本地发送offer

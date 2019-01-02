@@ -1,9 +1,11 @@
 package com.dds.webrtclib;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,8 @@ public class ChatRoomFragment extends Fragment {
     private TextView wr_switch_hang_up;
     private TextView wr_switch_camera;
     private ChatRoomActivity chatRoomActivity;
+
+    private boolean enableMic;
 
     @Override
     public void onAttach(Context context) {
@@ -52,13 +56,22 @@ public class ChatRoomFragment extends Fragment {
         wr_switch_mute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                enableMic = !enableMic;
+                if (enableMic) {
+                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
+                    wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+                } else {
+                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default_click);
+                    wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+                }
+                chatRoomActivity.toogleMic(enableMic);
 
             }
         });
         wr_switch_hang_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                chatRoomActivity.hangUp();
             }
         });
         wr_switch_camera.setOnClickListener(new View.OnClickListener() {
