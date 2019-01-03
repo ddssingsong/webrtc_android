@@ -1,0 +1,174 @@
+package com.dds.webrtclib.ws;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.webrtc.IceCandidate;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by dds on 2019/1/3.
+ * android_shuai@163.com
+ */
+public class JavaWebSocket extends AbstractWebSocket {
+
+    private WebSocketClient mWebSocketClient;
+
+    private ISignalingEvents events;
+
+    public JavaWebSocket(ISignalingEvents events) {
+        this.events = events;
+    }
+
+    @Override
+    public void connect(String wss) {
+        URI uri;
+        try {
+            uri = new URI(wss);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (mWebSocketClient == null) {
+            mWebSocketClient = new WebSocketClient(uri) {
+                @Override
+                public void onOpen(ServerHandshake handshake) {
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    handleMessage(message);
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                }
+
+                @Override
+                public void onError(Exception ex) {
+                }
+            };
+        }
+    }
+
+    @Override
+    public void joinRoom(String room) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("eventName", "__join");
+        Map<String, String> childMap = new HashMap<>();
+        childMap.put("room", room);
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        final String jsonString = object.toString();
+        mWebSocketClient.send(jsonString);
+    }
+
+
+    //发送Candidate
+    public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
+        HashMap<String, Object> childMap = new HashMap();
+        childMap.put("id", iceCandidate.sdpMid);
+        childMap.put("label", iceCandidate.sdpMLineIndex);
+        childMap.put("candidate", iceCandidate.sdp);
+        childMap.put("socketId", socketId);
+        HashMap<String, Object> map = new HashMap();
+        map.put("eventName", "__ice_candidate");
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        String jsonString = object.toString();
+        mWebSocketClient.send(jsonString);
+    }
+
+
+    @Override
+    public void handleMessage(String message) {
+        Map map = JSON.parseObject(message, Map.class);
+        String eventName = (String) map.get("eventName");
+        if (eventName.equals("_peers")) {
+            handleJoinToRoom(map);
+        }
+        if (eventName.equals("_new_peer")) {
+            handleRemoteInRoom(map);
+        }
+        if (eventName.equals("_ice_candidate")) {
+            handleRemoteCandidate(map);
+        }
+        if (eventName.equals("_remove_peer")) {
+            handleRemoteOutRoom(map);
+        }
+        if (eventName.equals("_offer")) {
+            handleOffer(map);
+        }
+
+        if (eventName.equals("_answer")) {
+            handleAnswer(map);
+        }
+    }
+
+
+    // 自己进入房间
+    private void handleJoinToRoom(Map map) {
+        Map data = (Map) map.get("data");
+        JSONArray arr = (JSONArray) data.get("connections");
+        String js = JSONObject.toJSONString(arr, SerializerFeature.WriteClassName);
+        ArrayList<String> connections = (ArrayList<String>) JSONObject.parseArray(js, String.class);
+        String myId = (String) data.get("you");
+        events.onJoinToRoom(connections, myId);
+    }
+
+    // 自己已经在房间，有人进来
+    private void handleRemoteInRoom(Map map) {
+        Map data = (Map) map.get("data");
+        String socketId = (String) data.get("socketId");
+        events.onRemoteJoinToRoom(socketId);
+    }
+
+    // 处理交换信息
+    private void handleRemoteCandidate(Map map) {
+        Map data = (Map) map.get("data");
+        String socketId = (String) data.get("socketId");
+        String sdpMid = (String) data.get("id");
+        sdpMid = (null == sdpMid) ? "video" : sdpMid;
+        Integer sdpMLineIndex = (Integer) data.get("label");
+        String candidate = (String) data.get("candidate");
+        IceCandidate iceCandidate = new IceCandidate(sdpMid, sdpMLineIndex, candidate);
+        events.onRemoteIceCandidate(socketId, iceCandidate);
+
+    }
+
+    // 有人离开了房间
+    private void handleRemoteOutRoom(Map map) {
+        Map data = (Map) map.get("data");
+        String socketId = (String) data.get("socketId");
+        events.onRemoteOutRoom(socketId);
+    }
+
+    // 处理Offer
+    private void handleOffer(Map map) {
+        Map data = (Map) map.get("data");
+        Map sdpDic = (Map) data.get("sdp");
+        String socketId = (String) data.get("socketId");
+        String sdp = (String) sdpDic.get("sdp");
+        events.onReceiveOffer(socketId, sdp);
+    }
+
+    // 处理Answer
+    private void handleAnswer(Map map) {
+        Map data = (Map) map.get("data");
+        Map sdpDic = (Map) data.get("sdp");
+        String socketId = (String) data.get("socketId");
+        String sdp = (String) sdpDic.get("sdp");
+        events.onReceiverAnswer(socketId, sdp);
+    }
+
+
+}

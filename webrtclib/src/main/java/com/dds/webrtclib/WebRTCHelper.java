@@ -41,15 +41,9 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-enum Role {
-    //发送者
-    Caller,
-    //被发送者
-    Callee,
-}
-
 
 public class WebRTCHelper {
+
     public final static String TAG = "dds_webrtc";
     private WebSocketClient mWebSocketClient;
     // 通道工厂
@@ -57,9 +51,8 @@ public class WebRTCHelper {
     //本地视频流
     private MediaStream _localStream;
     private AudioTrack _localAudioTrack;
-    private boolean enableAudio;
 
-    private ArrayList _connectionIdArray;
+    private ArrayList<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
     // 我在这个房间的id
@@ -75,11 +68,12 @@ public class WebRTCHelper {
     private URI uri;
 
     // 切换摄像头
-    private VideoCapturerAndroid capturerAndroid;
+    private VideoCapturerAndroid captureAndroid;
 
     private VideoSource videoSource;
 
-    // 用户角色
+    enum Role {Caller, Receiver,}
+
     private Role _role;
 
 
@@ -186,8 +180,6 @@ public class WebRTCHelper {
 
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
-        //将jsonString发送到服务器解析即可
-
         mWebSocketClient.send(jsonString);
 
     }
@@ -196,7 +188,7 @@ public class WebRTCHelper {
     // 调整摄像头前置后置
     public void switchCamera() {
 
-        capturerAndroid.switchCamera(new Runnable() {
+        captureAndroid.switchCamera(new Runnable() {
             @Override
             public void run() {
                 Log.i(TAG, "切换摄像头");
@@ -209,10 +201,8 @@ public class WebRTCHelper {
     // 设置自己静音
     public void toggleMute(boolean enable) {
         if (_localAudioTrack != null) {
-            enableAudio = enable;
-            _localAudioTrack.setEnabled(enableAudio);
+            _localAudioTrack.setEnabled(enable);
         }
-
     }
 
 
@@ -275,7 +265,7 @@ public class WebRTCHelper {
             String socketId = (String) data.get("socketId");
             String sdpMid = (String) data.get("id");
 
-            sdpMid = null == sdpMid ? "video" : sdpMid;
+            sdpMid = (null == sdpMid) ? "video" : sdpMid;
 
             Integer sdpMLineIndex = (Integer) data.get("label");
             String sdp = (String) data.get("candidate");
@@ -310,7 +300,7 @@ public class WebRTCHelper {
             String sdp = (String) sdpDic.get("sdp");
 
             //设置当前角色状态为被呼叫，（被发offer）
-            _role = Role.Callee;
+            _role = Role.Receiver;
 
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
@@ -345,12 +335,12 @@ public class WebRTCHelper {
 
         String frontFacingDevice = VideoCapturerAndroid.getNameOfFrontFacingDevice();
         //创建需要传入设备的名称
-        capturerAndroid = VideoCapturerAndroid.create(frontFacingDevice);
+        captureAndroid = VideoCapturerAndroid.create(frontFacingDevice);
 
         // 视频
         MediaConstraints audioConstraints = localVideoConstraints();
         videoSource =
-                _factory.createVideoSource(capturerAndroid, audioConstraints);
+                _factory.createVideoSource(captureAndroid, audioConstraints);
         VideoTrack localVideoTrack =
                 _factory.createVideoTrack("ARDAMSv0", videoSource);
 
@@ -432,7 +422,7 @@ public class WebRTCHelper {
     }
 
 
-    /**************************************各种约束******************************************/
+    //**************************************各种约束******************************************/
     private MediaConstraints localVideoConstraints() {
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
@@ -467,7 +457,7 @@ public class WebRTCHelper {
     }
 
 
-    /**************************************内部类******************************************/
+    //**************************************内部类******************************************/
     private class Peer implements SdpObserver, PeerConnection.Observer {
         private PeerConnection pc;
         private String socketId;
@@ -479,7 +469,7 @@ public class WebRTCHelper {
         }
 
 
-        /****************************PeerConnection.Observer****************************/
+        //****************************PeerConnection.Observer****************************/
         @Override
         public void onSignalingChange(PeerConnection.SignalingState signalingState) {
             Log.v(TAG, "ice 状态改变 " + signalingState);
@@ -496,23 +486,17 @@ public class WebRTCHelper {
 
         @Override
         public void onIceCandidate(IceCandidate iceCandidate) {
-
             Log.v(TAG, "ice候选人许可");
-
             Map childMap = new HashMap();
             childMap.put("id", iceCandidate.sdpMid);
             childMap.put("label", iceCandidate.sdpMLineIndex);
             childMap.put("candidate", iceCandidate.sdp);
             childMap.put("socketId", socketId);
-
             Map map = new HashMap();
             map.put("eventName", "__ice_candidate");
             map.put("data", childMap);
-
             JSONObject object = new JSONObject(map);
             String jsonString = object.toString();
-
-
             mWebSocketClient.send(jsonString);
         }
 
@@ -541,33 +525,27 @@ public class WebRTCHelper {
         }
 
 
-        /****************************SdpObserver****************************/
+        //****************************SdpObserver****************************/
 
         @Override
         public void onCreateSuccess(SessionDescription sessionDescription) {
-
             Log.v(TAG, "sdp创建成功       " + sessionDescription.type);
-
             //设置本地的SDP
             pc.setLocalDescription(Peer.this, sessionDescription);
         }
 
         @Override
         public void onSetSuccess() {
-
             Log.v(TAG, "sdp连接成功        " + pc.signalingState().toString());
-
-
             //判断，当前连接状态为，收到了远程点发来的offer，这个是进入房间的时候，尚且没人，来人就调到这里
             if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
-
                 //创建一个answer,会把自己的SDP信息返回出去
                 pc.createAnswer(Peer.this, offerOrAnswerConstraint());
 
             }
             //判断连接状态为本地发送offer
             else if (pc.signalingState() == PeerConnection.SignalingState.HAVE_LOCAL_OFFER) {
-                if (_role == Role.Callee) {
+                if (_role == Role.Receiver) {
 
                     Map<String, Object> childMap1 = new HashMap();
                     childMap1.put("type", "answer");
@@ -614,7 +592,7 @@ public class WebRTCHelper {
             // Stable 稳定的
             else if (pc.signalingState() == PeerConnection.SignalingState.STABLE) {
 
-                if (_role == Role.Callee) {
+                if (_role == Role.Receiver) {
 
                     Map childMap1 = new HashMap();
                     childMap1.put("type", "answer");
