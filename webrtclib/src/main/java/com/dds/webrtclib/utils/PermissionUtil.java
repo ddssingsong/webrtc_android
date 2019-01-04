@@ -1,4 +1,4 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.utils;
 
 import android.Manifest;
 import android.app.Activity;

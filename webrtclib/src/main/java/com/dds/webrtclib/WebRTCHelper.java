@@ -192,7 +192,7 @@ public class WebRTCHelper implements ISignalingEvents {
         _localStream.addTrack(localVideoTrack);
 
         if (IHelper != null) {
-            IHelper.webRTCHelper_SetLocalStream(_localStream, _myId);
+            IHelper.onSetLocalStream(_localStream, _myId);
         }
 
     }
@@ -243,7 +243,7 @@ public class WebRTCHelper implements ISignalingEvents {
         _connectionPeerDic.remove(connectionId);
         _connectionIdArray.remove(connectionId);
 
-        IHelper.webRTCHelper_CloseWithUserId(connectionId);
+        IHelper.onCloseWithId(connectionId);
     }
 
 
@@ -318,14 +318,14 @@ public class WebRTCHelper implements ISignalingEvents {
         @Override
         public void onAddStream(MediaStream mediaStream) {
             if (IHelper != null) {
-                IHelper.webRTCHelper_AddRemoteStream(mediaStream, socketId);
+                IHelper.onAddRemoteStream(mediaStream, socketId);
             }
         }
 
         @Override
         public void onRemoveStream(MediaStream mediaStream) {
             if (IHelper != null) {
-                IHelper.webRTCHelper_CloseWithUserId(socketId);
+                IHelper.onCloseWithId(socketId);
             }
         }
 

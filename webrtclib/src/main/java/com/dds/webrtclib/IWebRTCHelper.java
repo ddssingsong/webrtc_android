@@ -8,10 +8,10 @@ import org.webrtc.MediaStream;
 
 public interface IWebRTCHelper {
 
-    void webRTCHelper_SetLocalStream(MediaStream stream, String userId);
+    void onSetLocalStream(MediaStream stream, String socketId);
 
-    void webRTCHelper_AddRemoteStream(MediaStream stream, String userId);
+    void onAddRemoteStream(MediaStream stream, String socketId);
 
-    void webRTCHelper_CloseWithUserId(String userId);
+    void onCloseWithId(String socketId);
 
 }

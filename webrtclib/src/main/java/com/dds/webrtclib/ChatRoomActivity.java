@@ -14,6 +14,8 @@ import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.dds.webrtclib.utils.PermissionUtil;
+
 import org.webrtc.MediaStream;
 import org.webrtc.VideoRenderer;
 import org.webrtc.VideoRendererGui;
@@ -116,7 +118,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     }
 
     @Override
-    public void webRTCHelper_SetLocalStream(MediaStream stream, String userId) {
+    public void onSetLocalStream(MediaStream stream, String userId) {
 
         Log.i("dds_webrtc", "在本地添加视频");
 
@@ -129,7 +131,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     }
 
     @Override
-    public void webRTCHelper_AddRemoteStream(MediaStream stream, String userId) {
+    public void onAddRemoteStream(MediaStream stream, String userId) {
 
         Log.i("dds_webrtc", "接受到远端视频流     " + userId);
 
@@ -154,7 +156,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
 
     @Override
-    public void webRTCHelper_CloseWithUserId(String userId) {
+    public void onCloseWithId(String userId) {
         Log.i("dds_webrtc", "有用户离开    " + userId);
         VideoRenderer.Callbacks callbacks = _remoteVideoView.get(userId);
         VideoRendererGui.remove(callbacks);
