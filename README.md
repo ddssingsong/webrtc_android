@@ -14,3 +14,4 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 3. 移动到library，供项目调用
 4. 优化界面
 5. 动态权限申请
+6. 分离Websocket逻辑，可替换和自定义信令

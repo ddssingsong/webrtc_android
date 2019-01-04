@@ -30,7 +30,7 @@ public class JavaWebSocket extends AbstractWebSocket {
     }
 
     @Override
-    public void connect(String wss) {
+    public void connect(String wss, final String room) {
         URI uri;
         try {
             uri = new URI(wss);
@@ -42,6 +42,7 @@ public class JavaWebSocket extends AbstractWebSocket {
             mWebSocketClient = new WebSocketClient(uri) {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
+                    joinRoom(room);
                 }
 
                 @Override
@@ -61,6 +62,15 @@ public class JavaWebSocket extends AbstractWebSocket {
     }
 
     @Override
+    public void close() {
+        if (mWebSocketClient != null) {
+            mWebSocketClient.close();
+        }
+
+    }
+
+
+    @Override
     public void joinRoom(String room) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__join");
@@ -72,7 +82,6 @@ public class JavaWebSocket extends AbstractWebSocket {
         mWebSocketClient.send(jsonString);
     }
 
-
     //发送Candidate
     public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
         HashMap<String, Object> childMap = new HashMap();
@@ -83,6 +92,39 @@ public class JavaWebSocket extends AbstractWebSocket {
         HashMap<String, Object> map = new HashMap();
         map.put("eventName", "__ice_candidate");
         map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        String jsonString = object.toString();
+        mWebSocketClient.send(jsonString);
+    }
+
+
+    public void sendAnswer(String socketId, String sdp) {
+        Map<String, Object> childMap1 = new HashMap();
+        childMap1.put("type", "answer");
+        childMap1.put("sdp", sdp);
+        HashMap<String, Object> childMap2 = new HashMap();
+        childMap2.put("socketId", socketId);
+        childMap2.put("sdp", childMap1);
+        HashMap<String, Object> map = new HashMap();
+        map.put("eventName", "__answer");
+        map.put("data", childMap2);
+        JSONObject object = new JSONObject(map);
+        String jsonString = object.toString();
+        mWebSocketClient.send(jsonString);
+    }
+
+
+    public void sendOffer(String socketId, String sdp) {
+        HashMap<String, Object> childMap1 = new HashMap();
+        childMap1.put("type", "offer");
+        childMap1.put("sdp", sdp);
+        HashMap<String, Object> childMap2 = new HashMap();
+        childMap2.put("socketId", socketId);
+        childMap2.put("sdp", childMap1);
+        HashMap<String, Object> map = new HashMap();
+        map.put("eventName", "__offer");
+        map.put("data", childMap2);
+
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
         mWebSocketClient.send(jsonString);
