@@ -10,16 +10,18 @@ import java.util.ArrayList;
  */
 public interface ISignalingEvents {
 
+    // 进入房间
     void onJoinToRoom(ArrayList<String> connections, String myId);
 
+    // 有新人进入房间
     void onRemoteJoinToRoom(String socketId);
 
     void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate);
 
     void onRemoteOutRoom(String socketId);
 
-    void onReceiveOffer(String socketId,String sdp);
+    void onReceiveOffer(String socketId, String sdp);
 
-    void onReceiverAnswer(String socketId,String sdp);
+    void onReceiverAnswer(String socketId, String sdp);
 
 }

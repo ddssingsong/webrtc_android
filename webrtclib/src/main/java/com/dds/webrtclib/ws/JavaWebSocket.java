@@ -32,7 +32,7 @@ import javax.net.ssl.X509TrustManager;
  * Created by dds on 2019/1/3.
  * android_shuai@163.com
  */
-public class JavaWebSocket extends AbstractWebSocket {
+public class JavaWebSocket implements IWebSocket {
 
     private final static String TAG = "dds_JavaWebSocket";
 
@@ -44,7 +44,6 @@ public class JavaWebSocket extends AbstractWebSocket {
         this.events = events;
     }
 
-    @Override
     public void connect(String wss, final String room) {
         URI uri;
         try {
@@ -100,7 +99,6 @@ public class JavaWebSocket extends AbstractWebSocket {
         mWebSocketClient.connect();
     }
 
-    @Override
     public void close() {
         if (mWebSocketClient != null) {
             mWebSocketClient.close();
@@ -117,21 +115,6 @@ public class JavaWebSocket extends AbstractWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
-        mWebSocketClient.send(jsonString);
-    }
-
-    //发送Candidate
-    public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
-        HashMap<String, Object> childMap = new HashMap();
-        childMap.put("id", iceCandidate.sdpMid);
-        childMap.put("label", iceCandidate.sdpMLineIndex);
-        childMap.put("candidate", iceCandidate.sdp);
-        childMap.put("socketId", socketId);
-        HashMap<String, Object> map = new HashMap();
-        map.put("eventName", "__ice_candidate");
-        map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
-        String jsonString = object.toString();
         mWebSocketClient.send(jsonString);
     }
 
@@ -192,6 +175,20 @@ public class JavaWebSocket extends AbstractWebSocket {
         if (eventName.equals("_answer")) {
             handleAnswer(map);
         }
+    }
+
+    public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
+        HashMap<String, Object> childMap = new HashMap();
+        childMap.put("id", iceCandidate.sdpMid);
+        childMap.put("label", iceCandidate.sdpMLineIndex);
+        childMap.put("candidate", iceCandidate.sdp);
+        childMap.put("socketId", socketId);
+        HashMap<String, Object> map = new HashMap();
+        map.put("eventName", "__ice_candidate");
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        String jsonString = object.toString();
+        mWebSocketClient.send(jsonString);
     }
 
 

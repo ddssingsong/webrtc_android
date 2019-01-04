@@ -4,6 +4,7 @@ package com.dds.webrtclib;
 import android.util.Log;
 
 import com.dds.webrtclib.ws.ISignalingEvents;
+import com.dds.webrtclib.ws.IWebSocket;
 import com.dds.webrtclib.ws.JavaWebSocket;
 
 import org.webrtc.AudioSource;
@@ -55,7 +56,7 @@ public class WebRTCHelper implements ISignalingEvents {
     private Role _role;
 
 
-    private JavaWebSocket webSocket;
+    private IWebSocket webSocket;
 
     // 构造器
     public WebRTCHelper(IWebRTCHelper IHelper, String stun) {
@@ -233,9 +234,7 @@ public class WebRTCHelper implements ISignalingEvents {
 
     // 关闭通道流
     private void closePeerConnection(String connectionId) {
-
         Log.v(TAG, "关闭通道流");
-
         Peer mPeer = _connectionPeerDic.get(connectionId);
         if (mPeer != null) {
             mPeer.pc.close();

@@ -24,6 +24,9 @@ import org.webrtc.VideoTrack;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 视频会议
+ */
 public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper {
 
     private WebRTCHelper helper;
