@@ -44,14 +44,14 @@ public class WebRTCHelper implements ISignalingEvents {
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
 
-    // stun服务器
-    final private String RTCSTUNServerURL = "stun:stun.l.google.com:19302";
+    final private String TURN = "turn:47.254.34.146:3478";
 
     // 切换摄像头
     private VideoCapturerAndroid captureAndroid;
     private VideoSource videoSource;
 
     enum Role {Caller, Receiver,}
+
     private Role _role;
 
 
@@ -63,7 +63,7 @@ public class WebRTCHelper implements ISignalingEvents {
         this._connectionPeerDic = new HashMap<>();
         this._connectionIdArray = new ArrayList();
         this.ICEServers = new ArrayList<>();
-        PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(RTCSTUNServerURL);
+        PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(TURN, "dds", "123456");
         PeerConnection.IceServer iceServer2 = new PeerConnection.IceServer(stun);
         ICEServers.add(iceServer1);
         ICEServers.add(iceServer2);
@@ -397,7 +397,7 @@ public class WebRTCHelper implements ISignalingEvents {
 
             if (ICEServers == null) {
                 ICEServers = new ArrayList<>();
-                PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(RTCSTUNServerURL, "", "");
+                PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(TURN, "dds", "123456");
                 ICEServers.add(iceServer1);
             }
             // 管道连接抽象类实现方法

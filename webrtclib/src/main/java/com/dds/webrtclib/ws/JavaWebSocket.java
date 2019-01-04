@@ -1,5 +1,7 @@
 package com.dds.webrtclib.ws;
 
+import android.util.Log;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,17 +11,30 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.webrtc.IceCandidate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by dds on 2019/1/3.
  * android_shuai@163.com
  */
 public class JavaWebSocket extends AbstractWebSocket {
+
+    private final static String TAG = "dds_JavaWebSocket";
 
     private WebSocketClient mWebSocketClient;
 
@@ -52,13 +67,37 @@ public class JavaWebSocket extends AbstractWebSocket {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
+                    Log.e(TAG, "onClose:" + reason);
                 }
 
                 @Override
                 public void onError(Exception ex) {
+                    Log.e(TAG, ex.toString());
                 }
             };
         }
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            if (sslContext != null) {
+                sslContext.init(null, new TrustManager[]{new TrustManagerTest()}, new SecureRandom());
+            }
+
+            SSLSocketFactory factory = null;
+            if (sslContext != null) {
+                factory = sslContext.getSocketFactory();
+            }
+
+            if (factory != null) {
+                mWebSocketClient.setSocket(factory.createSocket());
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mWebSocketClient.connect();
     }
 
     @Override
@@ -209,6 +248,26 @@ public class JavaWebSocket extends AbstractWebSocket {
         String socketId = (String) data.get("socketId");
         String sdp = (String) sdpDic.get("sdp");
         events.onReceiverAnswer(socketId, sdp);
+    }
+
+
+    // 忽略证书
+    class TrustManagerTest implements X509TrustManager {
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
     }
 
 

@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initVar() {
+        //这里配置服务器
         et_signal.setText("wss://47.254.34.146/wss");
         et_stun.setText("stun:47.254.34.146:3478");
         et_room.setText("123456");
