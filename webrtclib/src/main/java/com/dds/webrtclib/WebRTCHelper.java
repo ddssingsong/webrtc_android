@@ -21,7 +21,6 @@ import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,17 +47,11 @@ public class WebRTCHelper implements ISignalingEvents {
     // stun服务器
     final private String RTCSTUNServerURL = "stun:stun.l.google.com:19302";
 
-    // socket 服务器地址
-    private URI uri;
-
     // 切换摄像头
     private VideoCapturerAndroid captureAndroid;
-
     private VideoSource videoSource;
 
-
     enum Role {Caller, Receiver,}
-
     private Role _role;
 
 

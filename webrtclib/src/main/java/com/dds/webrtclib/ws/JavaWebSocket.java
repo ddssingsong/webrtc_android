@@ -69,7 +69,6 @@ public class JavaWebSocket extends AbstractWebSocket {
 
     }
 
-
     @Override
     public void joinRoom(String room) {
         Map<String, Object> map = new HashMap<>();
