@@ -9,13 +9,13 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 #### 二、本demo实现的功能
 
-1. 基本视频会议功能
-2. 可配置服务器，包括wss和stun服务器
-3. 移动到library，供项目调用
-4. 优化界面
-5. 动态权限申请
-6. 分离Websocket逻辑，可替换和自定义信令
-7. 
+1. 一对一视频聊天
+2. 基本视频会议功能
+3. 可配置服务器，包括wss和stun服务器
+4. 移动到library，供项目调用
+5. 优化界面
+6. 动态权限申请
+7. 分离Websocket逻辑，可替换和自定义信令
 
 #### 三、实现效果 
 
