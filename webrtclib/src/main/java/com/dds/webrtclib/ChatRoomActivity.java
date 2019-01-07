@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import com.dds.webrtclib.utils.PermissionUtil;
 
 import org.webrtc.MediaStream;
+import org.webrtc.RendererCommon;
 import org.webrtc.VideoRenderer;
 import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoTrack;
@@ -38,7 +39,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private VideoRenderer.Callbacks localRender;
     private double width = 480;
     private double height = 640;
-    private VideoRendererGui.ScalingType scalingType = VideoRendererGui.ScalingType.SCALE_ASPECT_FILL;
+    private RendererCommon.ScalingType scalingType = RendererCommon.ScalingType.SCALE_ASPECT_FILL;
 
     private ChatRoomFragment chatRoomFragment;
 
@@ -126,7 +127,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         Log.i("dds_webrtc", "在本地添加视频");
 
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
-
         VideoRendererGui.update(localRender,
                 0, 0,
                 100, 100,
@@ -181,7 +181,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
     @Override
     protected void onDestroy() {
-        helper.exitRoom();
+        exit();
         super.onDestroy();
     }
 
@@ -200,13 +200,17 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
     // 挂断
     public void hangUp() {
-        helper.exitRoom();
+        exit();
         this.finish();
     }
 
     // 静音
     public void toggleMic(boolean enable) {
         helper.toggleMute(enable);
+    }
+
+    private void exit() {
+        helper.exitRoom();
     }
 
 

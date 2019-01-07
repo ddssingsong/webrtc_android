@@ -25,7 +25,7 @@ public class ChatRoomFragment extends Fragment {
     private TextView wr_switch_camera;
     private ChatRoomActivity chatRoomActivity;
 
-    private boolean enableMic;
+    private boolean enableMic = true;
 
     @Override
     public void onAttach(Context context) {
@@ -60,13 +60,13 @@ public class ChatRoomFragment extends Fragment {
             public void onClick(View v) {
                 enableMic = !enableMic;
                 if (enableMic) {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
+                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
                     if (drawable != null) {
                         drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
                     }
                     wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
                 } else {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
+                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
                     if (drawable != null) {
                         drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
                     }

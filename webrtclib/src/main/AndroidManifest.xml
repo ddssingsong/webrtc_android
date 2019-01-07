@@ -16,9 +16,12 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application>
-
         <activity
             android:name=".ChatRoomActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Webrtc.AppTheme.NoActionBar" />
+        <activity
+            android:name=".ChatSingleActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
     </application>

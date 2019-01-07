@@ -6,9 +6,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 
-import com.dds.webrtclib.ChatRoomActivity;
 import com.huawang.dongxiangjun.myapplication.R;
 
+/**
+ * Created by dds on 2018/11/7.
+ * android_shuai@163.com
+ */
 public class MainActivity extends AppCompatActivity {
     private EditText et_signal;
     private EditText et_stun;
@@ -33,18 +36,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void initVar() {
         //这里配置服务器
-        et_signal.setText("wss://47.254.34.146/wss");
-        et_stun.setText("stun:47.254.34.146:3478");
-        et_room.setText("dds123456");
+        et_room.setText("room123");
     }
 
 
-    public void WebRTCHelper(View view) {
-        ChatRoomActivity.openActivity(this,
-                et_signal.getText().toString().trim(),
-                et_stun.getText().toString().trim(),
-                et_room.getText().toString().trim()
-        );
+    public void JoinRoom(View view) {
+        WebrtcUtil.call(this, et_room.getText().toString().trim());
+
+    }
+
+
+    public void JoinRoomSingle(View view) {
+        WebrtcUtil.callSingle(this, et_room.getText().toString().trim());
 
     }
 }

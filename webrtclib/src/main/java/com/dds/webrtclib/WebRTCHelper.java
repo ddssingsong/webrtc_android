@@ -9,6 +9,7 @@ import com.dds.webrtclib.ws.JavaWebSocket;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
+import org.webrtc.CameraEnumerationAndroid;
 import org.webrtc.DataChannel;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
@@ -18,7 +19,6 @@ import org.webrtc.PeerConnectionFactory;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.VideoCapturerAndroid;
-import org.webrtc.VideoRendererGui;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
@@ -83,7 +83,7 @@ public class WebRTCHelper implements ISignalingEvents {
         _connectionIdArray.addAll(connections);
         _myId = myId;
         if (_factory == null) {
-            PeerConnectionFactory.initializeAndroidGlobals(IHelper, true, true, true, VideoRendererGui.getEGLContext());
+            PeerConnectionFactory.initializeAndroidGlobals(IHelper, true, true, true);
             _factory = new PeerConnectionFactory();
         }
         if (_localStream == null) {
@@ -137,10 +137,15 @@ public class WebRTCHelper implements ISignalingEvents {
     // 调整摄像头前置后置
     public void switchCamera() {
 
-        captureAndroid.switchCamera(new Runnable() {
+        captureAndroid.switchCamera(new VideoCapturerAndroid.CameraSwitchHandler() {
             @Override
-            public void run() {
+            public void onCameraSwitchDone(boolean b) {
                 Log.i(TAG, "切换摄像头");
+            }
+
+            @Override
+            public void onCameraSwitchError(String s) {
+                Log.i(TAG, "切换摄像头失败");
             }
         });
 
@@ -178,17 +183,40 @@ public class WebRTCHelper implements ISignalingEvents {
         AudioSource audioSource = _factory.createAudioSource(new MediaConstraints());
         _localAudioTrack = _factory.createAudioTrack("ARDAMSa0", audioSource);
         _localStream.addTrack(_localAudioTrack);
-
-        String frontFacingDevice = VideoCapturerAndroid.getNameOfFrontFacingDevice();
+        String frontFacingDevice = CameraEnumerationAndroid.getNameOfFrontFacingDevice();
         //创建需要传入设备的名称
-        captureAndroid = VideoCapturerAndroid.create(frontFacingDevice);
+        captureAndroid = VideoCapturerAndroid.create(frontFacingDevice, new VideoCapturerAndroid.CameraEventsHandler() {
+            @Override
+            public void onCameraError(String s) {
+
+            }
+
+            @Override
+            public void onCameraFreezed(String s) {
+
+            }
+
+            @Override
+            public void onCameraOpening(int i) {
+
+            }
+
+            @Override
+            public void onFirstFrameAvailable() {
+
+            }
+
+            @Override
+            public void onCameraClosed() {
+
+            }
+        });
 
         // 视频
         MediaConstraints audioConstraints = localVideoConstraints();
-        videoSource =
-                _factory.createVideoSource(captureAndroid, audioConstraints);
-        VideoTrack localVideoTrack =
-                _factory.createVideoTrack("ARDAMSv0", videoSource);
+        videoSource = _factory.createVideoSource(captureAndroid, audioConstraints);
+
+        VideoTrack localVideoTrack = _factory.createVideoTrack("ARDAMSv0", videoSource);
 
         _localStream.addTrack(localVideoTrack);
 
@@ -200,7 +228,6 @@ public class WebRTCHelper implements ISignalingEvents {
 
     // 创建所有连接
     private void createPeerConnections() {
-
         for (Object str : _connectionIdArray) {
             Peer peer = new Peer((String) str);
             _connectionPeerDic.put((String) str, peer);
@@ -304,6 +331,11 @@ public class WebRTCHelper implements ISignalingEvents {
         }
 
         @Override
+        public void onIceConnectionReceivingChange(boolean b) {
+
+        }
+
+        @Override
         public void onIceGatheringChange(PeerConnection.IceGatheringState iceGatheringState) {
         }
 
@@ -390,7 +422,7 @@ public class WebRTCHelper implements ISignalingEvents {
         private PeerConnection createPeerConnection() {
 
             if (_factory == null) {
-                PeerConnectionFactory.initializeAndroidGlobals(IHelper, true, true, true, VideoRendererGui.getEGLContext());
+                PeerConnectionFactory.initializeAndroidGlobals(IHelper, true, true, true);
                 _factory = new PeerConnectionFactory();
             }
 
