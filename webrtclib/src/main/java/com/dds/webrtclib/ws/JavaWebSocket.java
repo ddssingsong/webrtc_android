@@ -151,6 +151,20 @@ public class JavaWebSocket implements IWebSocket {
         mWebSocketClient.send(jsonString);
     }
 
+    public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
+        HashMap<String, Object> childMap = new HashMap();
+        childMap.put("id", iceCandidate.sdpMid);
+        childMap.put("label", iceCandidate.sdpMLineIndex);
+        childMap.put("candidate", iceCandidate.sdp);
+        childMap.put("socketId", socketId);
+        HashMap<String, Object> map = new HashMap();
+        map.put("eventName", "__ice_candidate");
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        String jsonString = object.toString();
+        mWebSocketClient.send(jsonString);
+    }
+
 
     @Override
     public void handleMessage(String message) {
@@ -175,20 +189,6 @@ public class JavaWebSocket implements IWebSocket {
         if (eventName.equals("_answer")) {
             handleAnswer(map);
         }
-    }
-
-    public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
-        HashMap<String, Object> childMap = new HashMap();
-        childMap.put("id", iceCandidate.sdpMid);
-        childMap.put("label", iceCandidate.sdpMLineIndex);
-        childMap.put("candidate", iceCandidate.sdp);
-        childMap.put("socketId", socketId);
-        HashMap<String, Object> map = new HashMap();
-        map.put("eventName", "__ice_candidate");
-        map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
-        String jsonString = object.toString();
-        mWebSocketClient.send(jsonString);
     }
 
 

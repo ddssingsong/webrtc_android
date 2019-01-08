@@ -30,16 +30,13 @@ import java.util.Map;
 public class WebRTCHelper implements ISignalingEvents {
 
     public final static String TAG = "dds_webrtc";
-    // 通道工厂
     private PeerConnectionFactory _factory;
-    //本地视频流
     private MediaStream _localStream;
     private AudioTrack _localAudioTrack;
 
     private ArrayList<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
-    // 我在这个房间的id
     private String _myId;
     private IWebRTCHelper IHelper;
 
@@ -47,7 +44,6 @@ public class WebRTCHelper implements ISignalingEvents {
 
     final private String TURN = "turn:47.254.34.146:3478";
 
-    // 切换摄像头
     private VideoCapturerAndroid captureAndroid;
     private VideoSource videoSource;
 
@@ -58,7 +54,6 @@ public class WebRTCHelper implements ISignalingEvents {
 
     private IWebSocket webSocket;
 
-    // 构造器
     public WebRTCHelper(IWebRTCHelper IHelper, String stun) {
         this.IHelper = IHelper;
         this._connectionPeerDic = new HashMap<>();
@@ -71,7 +66,6 @@ public class WebRTCHelper implements ISignalingEvents {
         webSocket = new JavaWebSocket(this);
     }
 
-    // 初始化WebSocket
     public void initSocket(String ws, final String room) {
         webSocket.connect(ws, room);
     }
