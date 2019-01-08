@@ -148,6 +148,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
 
         _remoteVideoView.put(userId, vr);
 
+
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
         VideoRendererGui.update(vr,
                 x, y,

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -34,7 +35,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
     private String signal;
     private String stun;
     private String room;
-
+    private boolean isSwappedFeeds;
 
     public static void openActivity(Activity activity, String signal, String stun, String room) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
@@ -64,6 +65,12 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
     private void initView() {
         local_view = findViewById(R.id.local_view_render);
         remote_view = findViewById(R.id.remote_view_render);
+        local_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSwappedFeeds(!isSwappedFeeds);
+            }
+        });
     }
 
     private void initVar() {
@@ -80,15 +87,21 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
         local_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         local_view.setZOrderMediaOverlay(true);
         localRender = new ProxyRenderer();
-        localRender.setTarget(local_view);
         //远端图像初始化
         remote_view.init(rootEglBase.getEglBaseContext(), null);
         remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         remoteRender = new ProxyRenderer();
-        remoteRender.setTarget(remote_view);
+
+        setSwappedFeeds(true);
 
         startCall();
 
+    }
+
+    private void setSwappedFeeds(boolean isSwappedFeeds) {
+        this.isSwappedFeeds = isSwappedFeeds;
+        localRender.setTarget(isSwappedFeeds ? remote_view : local_view);
+        remoteRender.setTarget(isSwappedFeeds ? local_view : remote_view);
     }
 
     private void startCall() {
@@ -121,8 +134,11 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     @Override
     public void onAddRemoteStream(MediaStream stream, String socketId) {
+        setSwappedFeeds(false);
         stream.videoTracks.get(0).setEnabled(true);
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
+
+
     }
 
     @Override

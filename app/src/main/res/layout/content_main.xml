@@ -15,13 +15,13 @@
         android:id="@+id/et_signal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="信令地址(wss://...../wss)" />
+        android:hint="信令地址(wss://...../wss)不用填" />
 
     <EditText
         android:id="@+id/et_stun"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="stun服务器地址(stun:host:port)" />
+        android:hint="stun服务器地址(stun:host:port)不用填" />
 
     <EditText
         android:id="@+id/et_room"
