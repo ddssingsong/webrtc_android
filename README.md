@@ -1,4 +1,8 @@
 # Webrtc的Android端实现
+群名称：webrtc技术交流群
+
+群   号：601332720
+
 #### 一、开源借鉴
 
 ios端的实现：https://www.jianshu.com/p/c49da1d93df4（简书）
