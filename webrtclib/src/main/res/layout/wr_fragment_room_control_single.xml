@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:gravity="bottom"
     android:padding="20dp">
 
     <!--静音-->
@@ -45,5 +45,19 @@
         android:text="@string/webrtc_switch_camera"
         android:textColor="@android:color/white"
         android:textSize="@dimen/wr_control_text_size" />
+    <!--扬声器-->
+    <TextView
+        android:id="@+id/wr_hand_free"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:drawablePadding="5dp"
+        android:drawableTop="@drawable/webrtc_btn_voice_hand_free"
+        android:gravity="center_horizontal"
+        android:text="@string/webrtc_switch_camera"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/wr_control_text_size"
+        android:visibility="gone" />
 
 </RelativeLayout>

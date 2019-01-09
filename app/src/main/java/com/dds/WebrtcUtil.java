@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.dds.webrtclib.ChatRoomActivity;
 import com.dds.webrtclib.ChatSingleActivity;
+import com.dds.webrtclib.MyIceServer;
 
 /**
  * Created by dds on 2019/1/7.
@@ -11,16 +12,22 @@ import com.dds.webrtclib.ChatSingleActivity;
  */
 public class WebrtcUtil {
 
-    private static String stun = "stun:47.254.34.146:3478";
+
+    private static MyIceServer[] iceServers = {
+            new MyIceServer("stun:47.254.34.146"),
+            new MyIceServer("turn:47.254.34.146?transport=udp", "dds", "123456"),
+            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456")
+    };
     private static String signal = "wss://47.254.34.146/wss";
 
 
     public static void call(Activity activity, String roomId) {
-        ChatRoomActivity.openActivity(activity, signal, stun, roomId);
+        ChatRoomActivity.openActivity(activity, signal, iceServers, roomId);
     }
 
-    public static void callSingle(Activity activity, String roomId) {
-        ChatSingleActivity.openActivity(activity, signal, stun, roomId);
+    public static void callSingle(Activity activity, String roomId, boolean videoEnable) {
+        ChatSingleActivity.openActivity(activity, signal, iceServers, roomId, videoEnable);
     }
+
 
 }

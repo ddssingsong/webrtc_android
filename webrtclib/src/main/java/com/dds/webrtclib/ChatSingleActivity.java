@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,15 +34,17 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
     private ChatSingleFragment chatSingleFragment;
 
     private String signal;
-    private String stun;
+    private Parcelable[] iceServers;
     private String room;
+    private boolean videoEnable;
     private boolean isSwappedFeeds;
 
-    public static void openActivity(Activity activity, String signal, String stun, String room) {
+    public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room, boolean videoEnable) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
         intent.putExtra("signal", signal);
-        intent.putExtra("stun", stun);
+        intent.putExtra("ice", iceServers);
         intent.putExtra("room", room);
+        intent.putExtra("videoEnable", videoEnable);
         activity.startActivity(intent);
     }
 
@@ -57,42 +60,40 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wr_activity_chat_single);
-        initView();
         initVar();
     }
 
 
-    private void initView() {
-        local_view = findViewById(R.id.local_view_render);
-        remote_view = findViewById(R.id.remote_view_render);
-        local_view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setSwappedFeeds(!isSwappedFeeds);
-            }
-        });
-    }
-
     private void initVar() {
         Intent intent = getIntent();
         signal = intent.getStringExtra("signal");
-        stun = intent.getStringExtra("stun");
+        iceServers = intent.getParcelableArrayExtra("ice");
         room = intent.getStringExtra("room");
+        videoEnable = intent.getBooleanExtra("videoEnable", false);
         chatSingleFragment = new ChatSingleFragment();
-        replaceFragment(chatSingleFragment);
+        replaceFragment(chatSingleFragment, videoEnable);
 
-        rootEglBase = EglBase.create();
-        // 本地图像初始化
-        local_view.init(rootEglBase.getEglBaseContext(), null);
-        local_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
-        local_view.setZOrderMediaOverlay(true);
-        localRender = new ProxyRenderer();
-        //远端图像初始化
-        remote_view.init(rootEglBase.getEglBaseContext(), null);
-        remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
-        remoteRender = new ProxyRenderer();
-
-        setSwappedFeeds(true);
+        if (videoEnable) {
+            local_view = findViewById(R.id.local_view_render);
+            remote_view = findViewById(R.id.remote_view_render);
+            local_view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setSwappedFeeds(!isSwappedFeeds);
+                }
+            });
+            rootEglBase = EglBase.create();
+            // 本地图像初始化
+            local_view.init(rootEglBase.getEglBaseContext(), null);
+            local_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+            local_view.setZOrderMediaOverlay(true);
+            localRender = new ProxyRenderer();
+            //远端图像初始化
+            remote_view.init(rootEglBase.getEglBaseContext(), null);
+            remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+            remoteRender = new ProxyRenderer();
+            setSwappedFeeds(true);
+        }
 
         startCall();
 
@@ -106,13 +107,16 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     private void startCall() {
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
-            helper = new WebRTCHelper(ChatSingleActivity.this, stun);
-            helper.initSocket(signal, room);
+            helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers);
+            helper.initSocket(signal, room, videoEnable);
         }
 
     }
 
-    private void replaceFragment(Fragment fragment) {
+    private void replaceFragment(Fragment fragment, boolean videoEnable) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("videoEnable", videoEnable);
+        fragment.setArguments(bundle);
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction()
                 .replace(R.id.wr_container, fragment)
@@ -128,17 +132,20 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     @Override
     public void onSetLocalStream(MediaStream stream, String socketId) {
-        stream.videoTracks.get(0).setEnabled(true);
-        stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
+        if (videoEnable) {
+            stream.videoTracks.get(0).setEnabled(true);
+            stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
+        }
+
     }
 
     @Override
     public void onAddRemoteStream(MediaStream stream, String socketId) {
-        setSwappedFeeds(false);
-        stream.videoTracks.get(0).setEnabled(true);
-        stream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
-
-
+        if (videoEnable) {
+            setSwappedFeeds(false);
+            stream.videoTracks.get(0).setEnabled(true);
+            stream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
+        }
     }
 
     @Override
@@ -162,6 +169,11 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
         helper.toggleMute(enable);
     }
 
+    public void toggleSpeaker(boolean enable) {
+        helper.toggleSpeaker(enable);
+
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -170,7 +182,10 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     private void exit() {
         helper.exitRoom();
-        localRender.setTarget(null);
+        if (localRender != null) {
+            localRender.setTarget(null);
+        }
+
         if (local_view != null) {
             local_view.release();
             local_view = null;
@@ -194,8 +209,8 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
             }
         }
 
-        helper = new WebRTCHelper(ChatSingleActivity.this, stun);
-        helper.initSocket(signal, room);
+        helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers);
+        helper.initSocket(signal, room, videoEnable);
 
 
     }

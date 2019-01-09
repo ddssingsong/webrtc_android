@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initVar() {
         //这里配置服务器
-        et_room.setText("room123");
+        et_room.setText("room123456");
     }
 
 
@@ -46,8 +46,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void JoinRoomSingle(View view) {
-        WebrtcUtil.callSingle(this, et_room.getText().toString().trim());
+    public void JoinRoomSingleVideo(View view) {
+        WebrtcUtil.callSingle(this, et_room.getText().toString().trim(), true);
+    }
 
+    public void JoinRoomSingleAudio(View view) {
+        WebrtcUtil.callSingle(this, et_room.getText().toString().trim(), false);
     }
 }

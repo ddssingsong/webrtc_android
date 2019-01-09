@@ -23,13 +23,20 @@ public class ChatSingleFragment extends Fragment {
     private TextView wr_switch_mute;
     private TextView wr_switch_hang_up;
     private TextView wr_switch_camera;
+    private TextView wr_hand_free;
     private boolean enableMic = true;
+    private boolean enableSpeaker = false;
+    private boolean videoEnable;
     private ChatSingleActivity activity;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         activity = (ChatSingleActivity) getActivity();
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            videoEnable = bundle.getBoolean("videoEnable");
+        }
     }
 
     @Override
@@ -50,6 +57,14 @@ public class ChatSingleFragment extends Fragment {
         wr_switch_mute = rootView.findViewById(R.id.wr_switch_mute);
         wr_switch_hang_up = rootView.findViewById(R.id.wr_switch_hang_up);
         wr_switch_camera = rootView.findViewById(R.id.wr_switch_camera);
+        wr_hand_free = rootView.findViewById(R.id.wr_hand_free);
+        if (videoEnable) {
+            wr_hand_free.setVisibility(View.GONE);
+            wr_switch_camera.setVisibility(View.VISIBLE);
+        } else {
+            wr_hand_free.setVisibility(View.VISIBLE);
+            wr_switch_camera.setVisibility(View.GONE);
+        }
     }
 
     private void initListener() {
@@ -84,6 +99,27 @@ public class ChatSingleFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 activity.switchCamera();
+            }
+        });
+
+        wr_hand_free.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enableSpeaker = !enableSpeaker;
+                if (enableSpeaker) {
+                    Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.webrtc_hands_free);
+                    if (drawable != null) {
+                        drawable.setBounds(0, 0, Utils.dip2px(activity, 60), Utils.dip2px(activity, 60));
+                    }
+                    wr_hand_free.setCompoundDrawables(null, drawable, null, null);
+                } else {
+                    Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.webrtc_hands_free_default);
+                    if (drawable != null) {
+                        drawable.setBounds(0, 0, Utils.dip2px(activity, 60), Utils.dip2px(activity, 60));
+                    }
+                    wr_hand_free.setCompoundDrawables(null, drawable, null, null);
+                }
+                activity.toggleSpeaker(enableSpeaker);
             }
         });
     }

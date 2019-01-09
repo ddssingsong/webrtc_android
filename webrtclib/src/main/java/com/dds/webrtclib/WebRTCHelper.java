@@ -1,6 +1,9 @@
 package com.dds.webrtclib;
 
 
+import android.content.Context;
+import android.media.AudioManager;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.dds.webrtclib.ws.ISignalingEvents;
@@ -30,9 +33,15 @@ import java.util.Map;
 public class WebRTCHelper implements ISignalingEvents {
 
     public final static String TAG = "dds_webrtc";
+
     private PeerConnectionFactory _factory;
     private MediaStream _localStream;
     private AudioTrack _localAudioTrack;
+    private VideoCapturerAndroid captureAndroid;
+    private VideoSource videoSource;
+
+    private AudioManager mAudioManager;
+
 
     private ArrayList<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
@@ -41,32 +50,30 @@ public class WebRTCHelper implements ISignalingEvents {
     private IWebRTCHelper IHelper;
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
-
-    final private String TURN = "turn:47.254.34.146:3478";
-
-    private VideoCapturerAndroid captureAndroid;
-    private VideoSource videoSource;
+    private boolean videoEnable;
 
     enum Role {Caller, Receiver,}
 
     private Role _role;
 
-
     private IWebSocket webSocket;
 
-    public WebRTCHelper(IWebRTCHelper IHelper, String stun) {
+    public WebRTCHelper(Context context, IWebRTCHelper IHelper, Parcelable[] servers) {
         this.IHelper = IHelper;
         this._connectionPeerDic = new HashMap<>();
-        this._connectionIdArray = new ArrayList();
+        this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
-        PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(TURN, "dds", "123456");
-        PeerConnection.IceServer iceServer2 = new PeerConnection.IceServer(stun);
-        ICEServers.add(iceServer1);
-        ICEServers.add(iceServer2);
+        for (int i = 0; i < servers.length; i++) {
+            MyIceServer myIceServer = (MyIceServer) servers[i];
+            PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.uri, myIceServer.username, myIceServer.password);
+            ICEServers.add(iceServer);
+        }
         webSocket = new JavaWebSocket(this);
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    public void initSocket(String ws, final String room) {
+    public void initSocket(String ws, final String room, boolean videoEnable) {
+        this.videoEnable = videoEnable;
         webSocket.connect(ws, room);
     }
 
@@ -152,6 +159,13 @@ public class WebRTCHelper implements ISignalingEvents {
         }
     }
 
+    public void toggleSpeaker(boolean enable) {
+        if (mAudioManager != null) {
+            mAudioManager.setSpeakerphoneOn(enable);
+        }
+
+    }
+
     // 退出房间
     public void exitRoom() {
         if (videoSource != null) {
@@ -177,42 +191,43 @@ public class WebRTCHelper implements ISignalingEvents {
         AudioSource audioSource = _factory.createAudioSource(new MediaConstraints());
         _localAudioTrack = _factory.createAudioTrack("ARDAMSa0", audioSource);
         _localStream.addTrack(_localAudioTrack);
-        String frontFacingDevice = CameraEnumerationAndroid.getNameOfFrontFacingDevice();
-        //创建需要传入设备的名称
-        captureAndroid = VideoCapturerAndroid.create(frontFacingDevice, new VideoCapturerAndroid.CameraEventsHandler() {
-            @Override
-            public void onCameraError(String s) {
 
-            }
+        if (videoEnable) {
+            String frontFacingDevice = CameraEnumerationAndroid.getNameOfFrontFacingDevice();
+            //创建需要传入设备的名称
+            captureAndroid = VideoCapturerAndroid.create(frontFacingDevice, new VideoCapturerAndroid.CameraEventsHandler() {
+                @Override
+                public void onCameraError(String s) {
 
-            @Override
-            public void onCameraFreezed(String s) {
+                }
 
-            }
+                @Override
+                public void onCameraFreezed(String s) {
 
-            @Override
-            public void onCameraOpening(int i) {
+                }
 
-            }
+                @Override
+                public void onCameraOpening(int i) {
 
-            @Override
-            public void onFirstFrameAvailable() {
+                }
 
-            }
+                @Override
+                public void onFirstFrameAvailable() {
 
-            @Override
-            public void onCameraClosed() {
+                }
 
-            }
-        });
+                @Override
+                public void onCameraClosed() {
 
-        // 视频
-        MediaConstraints audioConstraints = localVideoConstraints();
-        videoSource = _factory.createVideoSource(captureAndroid, audioConstraints);
+                }
+            });
+            // 视频
+            MediaConstraints audioConstraints = localVideoConstraints();
+            videoSource = _factory.createVideoSource(captureAndroid, audioConstraints);
+            VideoTrack localVideoTrack = _factory.createVideoTrack("ARDAMSv0", videoSource);
+            _localStream.addTrack(localVideoTrack);
+        }
 
-        VideoTrack localVideoTrack = _factory.createVideoTrack("ARDAMSv0", videoSource);
-
-        _localStream.addTrack(localVideoTrack);
 
         if (IHelper != null) {
             IHelper.onSetLocalStream(_localStream, _myId);
@@ -271,9 +286,9 @@ public class WebRTCHelper implements ISignalingEvents {
     private MediaConstraints localVideoConstraints() {
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "320"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "360"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minWidth", "160"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "240"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "640"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minHeight", "120"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "5"));
@@ -419,14 +434,7 @@ public class WebRTCHelper implements ISignalingEvents {
                 PeerConnectionFactory.initializeAndroidGlobals(IHelper, true, true, true);
                 _factory = new PeerConnectionFactory();
             }
-
-            if (ICEServers == null) {
-                ICEServers = new ArrayList<>();
-                PeerConnection.IceServer iceServer1 = new PeerConnection.IceServer(TURN, "dds", "123456");
-                ICEServers.add(iceServer1);
-            }
             // 管道连接抽象类实现方法
-
             return _factory.createPeerConnection(ICEServers, peerConnectionConstraints(), this);
         }
 

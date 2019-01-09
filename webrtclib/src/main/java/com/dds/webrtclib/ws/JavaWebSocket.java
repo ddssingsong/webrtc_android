@@ -106,6 +106,7 @@ public class JavaWebSocket implements IWebSocket {
 
     }
 
+    //============================需要发送的=====================================
     @Override
     public void joinRoom(String room) {
         Map<String, Object> map = new HashMap<>();
@@ -139,9 +140,11 @@ public class JavaWebSocket implements IWebSocket {
         HashMap<String, Object> childMap1 = new HashMap();
         childMap1.put("type", "offer");
         childMap1.put("sdp", sdp);
+
         HashMap<String, Object> childMap2 = new HashMap();
         childMap2.put("socketId", socketId);
         childMap2.put("sdp", childMap1);
+
         HashMap<String, Object> map = new HashMap();
         map.put("eventName", "__offer");
         map.put("data", childMap2);
@@ -149,6 +152,7 @@ public class JavaWebSocket implements IWebSocket {
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
         mWebSocketClient.send(jsonString);
+
     }
 
     public void sendIceCandidate(String socketId, IceCandidate iceCandidate) {
@@ -164,7 +168,9 @@ public class JavaWebSocket implements IWebSocket {
         String jsonString = object.toString();
         mWebSocketClient.send(jsonString);
     }
+    //============================需要发送的=====================================
 
+    //============================需要接收的=====================================
 
     @Override
     public void handleMessage(String message) {
@@ -246,6 +252,7 @@ public class JavaWebSocket implements IWebSocket {
         String sdp = (String) sdpDic.get("sdp");
         events.onReceiverAnswer(socketId, sdp);
     }
+    //============================需要接收的=====================================
 
 
     // 忽略证书

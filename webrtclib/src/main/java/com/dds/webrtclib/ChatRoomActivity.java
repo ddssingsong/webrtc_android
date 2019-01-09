@@ -44,13 +44,13 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private ChatRoomFragment chatRoomFragment;
 
     private String signal;
-    private String stun;
+    private MyIceServer[] iceServers;
     private String room;
 
-    public static void openActivity(Activity activity, String signal, String stun, String room) {
+    public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
         intent.putExtra("signal", signal);
-        intent.putExtra("stun", stun);
+        intent.putExtra("ice", iceServers);
         intent.putExtra("room", room);
         activity.startActivity(intent);
     }
@@ -86,8 +86,9 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private void initVar() {
         Intent intent = getIntent();
         signal = intent.getStringExtra("signal");
-        stun = intent.getStringExtra("stun");
+        iceServers = (MyIceServer[]) intent.getParcelableArrayExtra("ice");
         room = intent.getStringExtra("room");
+
 
         // 设置宽高比例
         WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -107,8 +108,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             public void run() {
                 Log.i("dds_webrtc", "surfaceView准备完毕");
                 if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
-                    helper = new WebRTCHelper(ChatRoomActivity.this, stun);
-                    helper.initSocket(signal, room);
+                    helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers);
+                    helper.initSocket(signal, room, true);
                 }
 
             }
@@ -225,8 +226,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             }
         }
 
-        helper = new WebRTCHelper(ChatRoomActivity.this, stun);
-        helper.initSocket(signal, room);
+        helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers);
+        helper.initSocket(signal, room, true);
 
 
     }
