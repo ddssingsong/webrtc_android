@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -44,7 +45,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private ChatRoomFragment chatRoomFragment;
 
     private String signal;
-    private MyIceServer[] iceServers;
+    private Parcelable[] iceServers;
     private String room;
 
     public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room) {
@@ -86,7 +87,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private void initVar() {
         Intent intent = getIntent();
         signal = intent.getStringExtra("signal");
-        iceServers = (MyIceServer[]) intent.getParcelableArrayExtra("ice");
+        iceServers = intent.getParcelableArrayExtra("ice");
         room = intent.getStringExtra("room");
 
 
