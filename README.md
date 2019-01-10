@@ -1,4 +1,4 @@
-# Webrtc的Android端实现
+# Webrtc的Android端多人视频实现
 群名称：webrtc技术交流群
 
 群   号：601332720
@@ -13,8 +13,8 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 #### 二、本demo实现的功能
 
-1. 一对一视频聊天
-2. 基本视频会议功能
+1. 支持多人视频
+2. 支持一对一视频和语音
 3. 可配置服务器，包括wss和stun服务器
 4. 移动到library，供项目调用
 5. 优化界面

@@ -11,6 +11,8 @@ public interface IWebSocket {
 
     void connect(String wss, final String room);
 
+
+
     void close();
 
     // 加入房间
