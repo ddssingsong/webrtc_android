@@ -27,8 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 视频会议
+ * 群聊界面
+ * 1. 一对一视频通话
+ * 2. 一对一语音通话
  */
+
+
 public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper {
 
     private WebRTCHelper helper;

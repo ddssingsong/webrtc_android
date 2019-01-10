@@ -23,6 +23,11 @@ import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoRenderer;
 
+/**
+ * 单聊界面
+ * 1. 一对一视频通话
+ * 2. 一对一语音通话
+ */
 public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelper {
     private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
@@ -169,6 +174,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
         helper.toggleMute(enable);
     }
 
+    // 扬声器
     public void toggleSpeaker(boolean enable) {
         helper.toggleSpeaker(enable);
 

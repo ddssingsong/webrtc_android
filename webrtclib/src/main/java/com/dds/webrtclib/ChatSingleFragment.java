@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.dds.webrtclib.utils.Utils;
 
 /**
+ * 单聊控制界面
  * Created by dds on 2019/1/7.
  * android_shuai@163.com
  */
