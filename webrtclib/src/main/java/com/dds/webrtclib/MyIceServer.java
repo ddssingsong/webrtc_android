@@ -24,9 +24,9 @@ public class MyIceServer implements Parcelable {
 
 
     protected MyIceServer(Parcel in) {
-        uri = in.readStringNoHelper();
-        username = in.readStringNoHelper();
-        password = in.readStringNoHelper();
+        uri = in.readString();
+        username = in.readString();
+        password = in.readString();
     }
 
     public static final Creator<MyIceServer> CREATOR = new Creator<MyIceServer>() {
@@ -48,8 +48,8 @@ public class MyIceServer implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringNoHelper(uri);
-        dest.writeStringNoHelper(username);
-        dest.writeStringNoHelper(password);
+        dest.writeString(uri);
+        dest.writeString(username);
+        dest.writeString(password);
     }
 }
