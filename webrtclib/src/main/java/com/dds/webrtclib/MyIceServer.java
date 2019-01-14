@@ -8,25 +8,25 @@ import android.os.Parcelable;
  * android_shuai@163.com
  */
 public class MyIceServer implements Parcelable {
-    public final String uri;
+    public final String urls;
     public final String username;
-    public final String password;
+    public final String credential;
 
     public MyIceServer(String uri) {
         this(uri, "", "");
     }
 
     public MyIceServer(String uri, String username, String password) {
-        this.uri = uri;
+        this.urls = uri;
         this.username = username;
-        this.password = password;
+        this.credential = password;
     }
 
 
     protected MyIceServer(Parcel in) {
-        uri = in.readString();
+        urls = in.readString();
         username = in.readString();
-        password = in.readString();
+        credential = in.readString();
     }
 
     public static final Creator<MyIceServer> CREATOR = new Creator<MyIceServer>() {
@@ -48,8 +48,8 @@ public class MyIceServer implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(uri);
+        dest.writeString(urls);
         dest.writeString(username);
-        dest.writeString(password);
+        dest.writeString(credential);
     }
 }

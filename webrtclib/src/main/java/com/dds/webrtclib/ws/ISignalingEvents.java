@@ -1,5 +1,7 @@
 package com.dds.webrtclib.ws;
 
+import com.dds.webrtclib.MyIceServer;
+
 import org.webrtc.IceCandidate;
 
 import java.util.ArrayList;
@@ -10,18 +12,32 @@ import java.util.ArrayList;
  */
 public interface ISignalingEvents {
 
+    void onWebSocketOpen();
+
+    void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId);
+
+    void onCreateRoomSuccess(String room);
+
     // 进入房间
     void onJoinToRoom(ArrayList<String> connections, String myId);
 
+    void onUserAck(String userId);
+
+    void onUserInvite(String socketId, String room);
+
     // 有新人进入房间
     void onRemoteJoinToRoom(String socketId);
+
+    void onReceiveOffer(String socketId, String sdp);
+
+    void onReceiverAnswer(String socketId, String sdp);
 
     void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate);
 
     void onRemoteOutRoom(String socketId);
 
-    void onReceiveOffer(String socketId, String sdp);
+    void onDecline(EnumMsg.Decline decline);
 
-    void onReceiverAnswer(String socketId, String sdp);
+    void onError(String msg);
 
 }

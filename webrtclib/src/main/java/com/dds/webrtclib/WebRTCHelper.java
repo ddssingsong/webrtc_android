@@ -3,12 +3,9 @@ package com.dds.webrtclib;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.os.Parcelable;
 import android.util.Log;
 
-import com.dds.webrtclib.ws.ISignalingEvents;
 import com.dds.webrtclib.ws.IWebSocket;
-import com.dds.webrtclib.ws.JavaWebSocket;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -30,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class WebRTCHelper implements ISignalingEvents {
+public class WebRTCHelper{
 
     public final static String TAG = "dds_webrtc";
 
@@ -47,7 +44,8 @@ public class WebRTCHelper implements ISignalingEvents {
     private Map<String, Peer> _connectionPeerDic;
 
     private String _myId;
-    private IWebRTCHelper IHelper;
+    private String room;
+    private IWebrtcViewCallback IHelper;
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
     private boolean videoEnable;
@@ -58,28 +56,32 @@ public class WebRTCHelper implements ISignalingEvents {
 
     private IWebSocket webSocket;
 
-    public WebRTCHelper(Context context, IWebRTCHelper IHelper, Parcelable[] servers) {
-        this.IHelper = IHelper;
+
+    public WebRTCHelper(Context context, IWebSocket webSocket) {
         this._connectionPeerDic = new HashMap<>();
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
-        for (int i = 0; i < servers.length; i++) {
-            MyIceServer myIceServer = (MyIceServer) servers[i];
-            PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.uri, myIceServer.username, myIceServer.password);
-            ICEServers.add(iceServer);
-        }
-        webSocket = new JavaWebSocket(this);
+        this.webSocket = webSocket;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
     }
 
-    public void initSocket(String ws, final String room, boolean videoEnable) {
-        this.videoEnable = videoEnable;
-        webSocket.connect(ws, room);
+    public void setViewCallback(IWebrtcViewCallback callback) {
+        IHelper = callback;
     }
-
 
     // ===================================webSocket回调信息=======================================
-    @Override  // 我加入到房间
+
+    public void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId) {
+        for (MyIceServer myIceServer : iceServers) {
+            PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.urls,
+                    myIceServer.username, myIceServer.credential);
+            ICEServers.add(iceServer);
+        }
+
+    }
+
+
     public void onJoinToRoom(ArrayList<String> connections, String myId) {
         _connectionIdArray.addAll(connections);
         _myId = myId;
@@ -95,7 +97,7 @@ public class WebRTCHelper implements ISignalingEvents {
         createOffers();
     }
 
-    @Override  // 其他人加入到房间
+
     public void onRemoteJoinToRoom(String socketId) {
         if (_localStream == null) {
             createLocalStream();
@@ -107,18 +109,15 @@ public class WebRTCHelper implements ISignalingEvents {
         _connectionPeerDic.put(socketId, mPeer);
     }
 
-    @Override
     public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
         Peer peer = _connectionPeerDic.get(socketId);
         peer.pc.addIceCandidate(iceCandidate);
     }
 
-    @Override
     public void onRemoteOutRoom(String socketId) {
         closePeerConnection(socketId);
     }
 
-    @Override
     public void onReceiveOffer(String socketId, String sdp) {
         _role = Role.Receiver;
         Peer mPeer = _connectionPeerDic.get(socketId);
@@ -126,7 +125,6 @@ public class WebRTCHelper implements ISignalingEvents {
         mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
     }
 
-    @Override
     public void onReceiverAnswer(String socketId, String sdp) {
         Peer mPeer = _connectionPeerDic.get(socketId);
         SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);

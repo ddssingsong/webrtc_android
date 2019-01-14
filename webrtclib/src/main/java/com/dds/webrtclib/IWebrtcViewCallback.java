@@ -6,7 +6,7 @@ import org.webrtc.MediaStream;
  * Created by dds on 2017/10/23.
  */
 
-public interface IWebRTCHelper {
+public interface IWebrtcViewCallback {
 
     void onSetLocalStream(MediaStream stream, String socketId);
 

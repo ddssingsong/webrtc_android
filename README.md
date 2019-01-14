@@ -23,6 +23,219 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 #### 三、实现效果 
 
-![图片](https://github.com/ddssingsong/webrtc_android/blob/master/image/test.png)
+
 
 #### 四、具体实现过程
+
+
+
+#### 五、自定义信令
+
+
+
+```json
+1. 登录
+{
+       "action":"user_login",
+       "data":{
+           "sessionID":"sessionId"
+       } 
+
+   }
+处理返回结果
+ {
+       "action":"user_login_success",
+       "data":{
+           "socketId":"socketId",
+           "iceServers":{
+                   "urls":[],
+                   "username":"trust",
+                   "credential":"trust"
+           }
+       }
+   }
+=========================================================================   
+   
+2. 创建房间
+  {
+       "action":"room_create",
+       "data":{
+           "ids":"100001,100000",//通话被邀请人用户ID
+           "type":1//类型 1=语音，2=视频
+       } 
+   }
+处理返回结果
+ {
+       "action":"room_create_success",
+       "data":{
+           "room":"sexsaa23s"
+       } 
+
+   }
+==========================================================================
+3. 加入房间
+   {
+       "action":"room_join",
+       "data":{
+           "room":"5tkls0012ld"
+       } 
+   }
+ 处理返回结果（下行数据）
+   {
+       "action":"room_join_success",
+       "data":{
+           "connections":["123","345"],
+           "you":"myId"
+       } 
+
+   }
+
+ 有人进入房间（下行数据）
+  {
+       "action":"new_user_join",
+       "data":{
+           "socketId":"socketId"
+       } 
+
+   }
+
+============================================================================
+4. 发送回应信息
+{
+       "action":"user_ack",
+       "data":{
+           "toId":"100002"
+       } 
+   }
+对方收到回应
+{
+       "action":"user_ack",
+       "data":{
+           "fromId":"fromId"
+       }
+   }
+
+
+
+5. 邀请通话
+  {
+       "action":"user_invite",
+       "data":{
+           "toID":"100001"
+       } 
+   }
+对方收到邀请 并开始响铃
+  {
+       "action":"user_invite",
+       "data":{
+           "socketId":"32434344",
+           "room":"room123"
+       } 
+   }
+=================================================================================
+6. 发送offer 
+ {
+       "action":"user_sendOffer",
+       "data":{
+           "sdp":"sdp",
+           "socketId":"socketId"
+          }
+       } 
+   }
+
+对方收到数据
+
+  {
+       "action":"user_sendOffer_success",
+       "data":{
+           "sdp":"sdp",
+           "socketId":"other socketId"
+          }
+       } 
+   }
+7. 发送answer
+   {
+       "action":"user_sendAnswer",
+       "data":{
+           "sdp":"sdp",
+           "socketId":"other socketid"
+       } 
+   }
+对方收到的数据
+  {
+       "action":"user_sendAnswer_success",
+       "data":{
+           "sdp":"sdp",
+           "socketId":"other socketId"
+          }
+       } 
+   }
+
+8.发送IceCandidate
+ {
+       "action":"user_sendIceCandidate",
+       "data":{
+           "socketId":"socketId",
+           "id":"sdpMid",
+           "label":"sdpMLineIndex信息",
+           "candidate":"sdp信息"
+       } 
+   }
+对方收到的数据
+ {
+       "action":"user_sendIceCandidate",
+       "data":{
+           "socketId":"socketId",
+           "label":"sdpMLineIndex信息",
+           "candidate":"sdp信息"
+       } 
+   }
+======================================================================================
+ 8.有人退出房间
+{
+       "action":"user_leave",
+       "data":{
+           "socketId":"socketId"
+       } 
+
+   }
+
+9.挂断
+  {
+       "action":"decline_reason",
+       "data":{
+           "reason":"hang_up"  //hang_up=对方挂断，busy = 对方正在通话中
+       } 
+
+   }
+
+10.发生错误
+ {
+       "action":"show_error",
+       "data":{
+           "errMessage":"message"
+       } 
+
+   }
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

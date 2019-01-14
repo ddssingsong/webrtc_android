@@ -33,7 +33,7 @@ import java.util.Map;
  */
 
 
-public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper {
+public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCallback {
 
     private WebRTCHelper helper;
     private Map<String, VideoTrack> _remoteVideoTracks = new HashMap();
@@ -113,8 +113,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             public void run() {
                 Log.i("dds_webrtc", "surfaceView准备完毕");
                 if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
-                    helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers);
-                    helper.initSocket(signal, room, true);
+                   // helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers);
+                  //  helper.initSocket(signal, room, true);
                 }
 
             }
@@ -231,8 +231,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             }
         }
 
-        helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers);
-        helper.initSocket(signal, room, true);
+      //  helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers);
+      //  helper.initSocket(signal, room, true);
 
 
     }

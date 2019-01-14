@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,7 +27,7 @@ import org.webrtc.VideoRenderer;
  * 1. 一对一视频通话
  * 2. 一对一语音通话
  */
-public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelper {
+public class ChatSingleActivity extends AppCompatActivity implements IWebrtcViewCallback {
     private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
     private ProxyRenderer localRender;
@@ -38,17 +37,11 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
     private WebRTCHelper helper;
     private ChatSingleFragment chatSingleFragment;
 
-    private String signal;
-    private Parcelable[] iceServers;
-    private String room;
     private boolean videoEnable;
     private boolean isSwappedFeeds;
 
-    public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room, boolean videoEnable) {
+    public static void openActivity(Activity activity,boolean videoEnable) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
-        intent.putExtra("signal", signal);
-        intent.putExtra("ice", iceServers);
-        intent.putExtra("room", room);
         intent.putExtra("videoEnable", videoEnable);
         activity.startActivity(intent);
     }
@@ -71,9 +64,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     private void initVar() {
         Intent intent = getIntent();
-        signal = intent.getStringExtra("signal");
-        iceServers = intent.getParcelableArrayExtra("ice");
-        room = intent.getStringExtra("room");
         videoEnable = intent.getBooleanExtra("videoEnable", false);
         chatSingleFragment = new ChatSingleFragment();
         replaceFragment(chatSingleFragment, videoEnable);
@@ -112,8 +102,8 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     private void startCall() {
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
-            helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers);
-            helper.initSocket(signal, room, videoEnable);
+          //  helper = new WebRTCHelper(this, ChatSingleActivity.this);
+           // helper.initSocket(signal, room, videoEnable);
         }
 
     }
@@ -215,8 +205,8 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
             }
         }
 
-        helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers);
-        helper.initSocket(signal, room, videoEnable);
+      //  helper = new WebRTCHelper(this, ChatSingleActivity.this);
+       // helper.initSocket(signal, room, videoEnable);
 
 
     }
