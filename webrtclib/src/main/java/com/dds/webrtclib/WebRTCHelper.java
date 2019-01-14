@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class WebRTCHelper{
+public class WebRTCHelper {
 
     public final static String TAG = "dds_webrtc";
 
@@ -44,7 +44,6 @@ public class WebRTCHelper{
     private Map<String, Peer> _connectionPeerDic;
 
     private String _myId;
-    private String room;
     private IWebrtcViewCallback IHelper;
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
@@ -72,7 +71,8 @@ public class WebRTCHelper{
 
     // ===================================webSocket回调信息=======================================
 
-    public void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId) {
+    public void onLoginSuccess(ArrayList<MyIceServer> iceServers, boolean videoEnable) {
+        this.videoEnable = videoEnable;
         for (MyIceServer myIceServer : iceServers) {
             PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.urls,
                     myIceServer.username, myIceServer.credential);
@@ -265,13 +265,12 @@ public class WebRTCHelper{
 
     }
 
-
     // 关闭通道流
     private void closePeerConnection(String connectionId) {
         Log.v(TAG, "关闭通道流");
         Peer mPeer = _connectionPeerDic.get(connectionId);
         if (mPeer != null) {
-            mPeer.pc.close();
+            mPeer.pc.dispose();
         }
         _connectionPeerDic.remove(connectionId);
         _connectionIdArray.remove(connectionId);

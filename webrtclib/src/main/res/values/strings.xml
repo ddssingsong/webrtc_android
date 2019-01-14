@@ -7,5 +7,6 @@
     <string name="webrtc_switch_voice">切到语音</string>
     <string name="webrtc_switch_camera">切换</string>
 
-
+    <string name="pref_speakerphone_key">speakerphone_preference</string>
+    <string name="pref_speakerphone_default">auto</string>
 </resources>

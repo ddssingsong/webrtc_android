@@ -15,7 +15,7 @@ public interface IWebSocket {
 
     void login(String sessionId);
 
-    void createRoom(String ids, String type);//1=语音，2=视频
+    void createRoom(String ids, boolean videoEnable);//1=语音，2=视频
 
     void sendInvite(String userId);
 

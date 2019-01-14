@@ -98,12 +98,12 @@ public class MxWebSocket implements IWebSocket {
     }
 
     @Override
-    public void createRoom(String ids, String type) {
+    public void createRoom(String ids, boolean videoEnable) {
         Map<String, Object> map = new HashMap<>();
         map.put("action", "room_create");
         Map<String, String> childMap = new HashMap<>();
         childMap.put("ids", ids);
-        childMap.put("type", type);
+        childMap.put("type", videoEnable ? "2" : "1");
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
@@ -341,9 +341,9 @@ public class MxWebSocket implements IWebSocket {
         Map data = (Map) map.get("data");
         String reason = (String) data.get("reason");
         EnumMsg.Decline decline;
-        if(reason.equals("cancel")){
+        if (reason.equals("cancel")) {
             decline = EnumMsg.Decline.Cancel;
-        }else if(reason.equals("busy")){
+        } else if (reason.equals("busy")) {
             decline = EnumMsg.Decline.Cancel;
         }
 

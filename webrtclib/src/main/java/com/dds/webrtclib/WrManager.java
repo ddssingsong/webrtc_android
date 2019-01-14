@@ -1,5 +1,6 @@
 package com.dds.webrtclib;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.dds.webrtclib.ws.EnumMsg;
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 public class WrManager implements ISignalingEvents {
 
     private IWebSocket webSocket;
-    private WebRTCHelper.Role _role;
-    private EnumMsg.Type _type;
+    private EnumMsg.Direction _direction;
+    private boolean _videoEnable;
     private String _sessionId;
     private String _myUserId;
     private String _ids;
@@ -44,23 +45,70 @@ public class WrManager implements ISignalingEvents {
     }
 
 
-    public void init(Context context, String ids, String myUserId, String sessionId, EnumMsg.Type type) {
+    public void init(Context context, String ids, String myUserId, String sessionId,
+                     boolean videoEnable, EnumMsg.Direction direction) {
         _context = context;
         _myUserId = myUserId;
         _ids = ids;
         _sessionId = sessionId;
-        _type = type;
-        this.webSocket = new MxWebSocket(this);
-        webRTCHelper = new WebRTCHelper(context, this.webSocket);
+        _videoEnable = videoEnable;
+        _direction = direction;
+        if (this.webSocket == null) {
+            this.webSocket = new MxWebSocket(this);
+        }
+        if (webRTCHelper == null) {
+            webRTCHelper = new WebRTCHelper(context, this.webSocket);
+        }
+
     }
 
-    public void connectSocket(String wss, WebRTCHelper.Role role) {
-        _role = role;
+    public void connectSocket(String wss) {
         if (webSocket != null) {
             webSocket.connect(wss);
         }
     }
 
+
+    public void createRoom(String ids, boolean videoEnable) {
+        if (webSocket != null) {
+            webSocket.createRoom(_ids, _videoEnable);
+        }
+
+    }
+
+    // 调整摄像头前置后置
+    public void switchCamera() {
+        if (webRTCHelper != null) {
+            webRTCHelper.switchCamera();
+        }
+
+
+    }
+
+    // 设置自己静音
+    public void toggleMute(boolean enable) {
+        if (webRTCHelper != null) {
+            webRTCHelper.toggleMute(enable);
+        }
+
+    }
+
+    //扬声器
+    public void toggleSpeaker(boolean enable) {
+        if (webRTCHelper != null) {
+            webRTCHelper.toggleSpeaker(enable);
+        }
+    }
+
+    // 退出房间
+    public void exitRoom() {
+        if (webRTCHelper != null) {
+            webRTCHelper.exitRoom();
+        }
+
+    }
+
+    //==============================================================================================
     @Override
     public void onWebSocketOpen() {
         // webSocket打开成功
@@ -69,9 +117,13 @@ public class WrManager implements ISignalingEvents {
 
     @Override
     public void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId) {
-        if (_role == WebRTCHelper.Role.Caller) {
-            //createRoom
-            webSocket.createRoom(_ids, _type.value);
+        if (_direction == EnumMsg.Direction.Outgoing) {
+            //进入通话界面
+            if (webRTCHelper != null) {
+                webRTCHelper.onLoginSuccess(iceServers, _videoEnable);
+            }
+            ChatSingleActivity.openActivity((Activity) _context, _ids, _videoEnable);
+
 
         } else {
             // 发送回执

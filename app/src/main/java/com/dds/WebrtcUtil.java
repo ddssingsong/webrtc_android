@@ -3,7 +3,6 @@ package com.dds;
 import android.app.Activity;
 
 import com.dds.webrtclib.ChatRoomActivity;
-import com.dds.webrtclib.ChatSingleActivity;
 import com.dds.webrtclib.MyIceServer;
 
 /**
@@ -26,7 +25,7 @@ public class WebrtcUtil {
     }
 
     public static void callSingle(Activity activity, String roomId, boolean videoEnable) {
-        ChatSingleActivity.openActivity(activity, signal, iceServers, roomId, videoEnable);
+       // ChatSingleActivity.openActivity(activity, signal, iceServers, roomId, videoEnable);
     }
 
 

@@ -34,14 +34,17 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     private ProxyRenderer remoteRender;
     private EglBase rootEglBase;
 
-    private WebRTCHelper helper;
+    private WrManager helper;
     private ChatSingleFragment chatSingleFragment;
-
-    private boolean videoEnable;
     private boolean isSwappedFeeds;
 
-    public static void openActivity(Activity activity,boolean videoEnable) {
+    private boolean videoEnable;
+    private String ids;
+
+
+    public static void openActivity(Activity activity, String ids, boolean videoEnable) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
+        intent.putExtra("ids", ids);
         intent.putExtra("videoEnable", videoEnable);
         activity.startActivity(intent);
     }
@@ -65,6 +68,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     private void initVar() {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
+        ids = intent.getStringExtra("ids");
         chatSingleFragment = new ChatSingleFragment();
         replaceFragment(chatSingleFragment, videoEnable);
 
@@ -101,9 +105,11 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     }
 
     private void startCall() {
+        helper = WrManager.getInstance();
+        helper.setCallback(this);
+
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
-          //  helper = new WebRTCHelper(this, ChatSingleActivity.this);
-           // helper.initSocket(signal, room, videoEnable);
+            helper.createRoom(ids, videoEnable);
         }
 
     }
@@ -205,9 +211,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
             }
         }
 
-      //  helper = new WebRTCHelper(this, ChatSingleActivity.this);
-       // helper.initSocket(signal, room, videoEnable);
-
+        helper.createRoom(ids, videoEnable);
 
     }
 }

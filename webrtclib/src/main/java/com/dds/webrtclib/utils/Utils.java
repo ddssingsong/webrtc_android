@@ -7,6 +7,14 @@ import android.content.Context;
  * android_shuai@163.com
  */
 public class Utils {
+
+    /**
+     * dip to px
+     *
+     * @param context context
+     * @param dpValue dpValue
+     * @return px
+     */
     public static int dip2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);

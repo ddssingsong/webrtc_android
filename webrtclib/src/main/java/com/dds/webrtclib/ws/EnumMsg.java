@@ -11,10 +11,17 @@ public class EnumMsg {
         Busy, Refuse, Cancel
     }
 
+
+    //是拨出方还是接听方
+    public enum Direction {
+        Outgoing, Incoming
+    }
+
+    //通话类型
     public enum Type {
         //1=语音，2=视频
-        AGREE("1"),
-        DELETE("2");
+        Audio("1"),
+        Video("2");
 
         public final String value;
 
