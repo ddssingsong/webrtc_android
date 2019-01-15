@@ -23,7 +23,7 @@ public interface ISignalingEvents {
 
     void onUserAck(String userId);
 
-    void onUserInvite(String socketId, String room);
+    void onUserInvite(String socketId);
 
     // 有新人进入房间
     void onRemoteJoinToRoom(String socketId);

@@ -37,7 +37,7 @@ public class WebRTCHelper {
     private VideoCapturerAndroid captureAndroid;
     private VideoSource videoSource;
 
-    private AudioManager mAudioManager;
+
 
 
     private ArrayList<String> _connectionIdArray;
@@ -61,7 +61,7 @@ public class WebRTCHelper {
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
         this.webSocket = webSocket;
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
 
     }
 
@@ -135,7 +135,6 @@ public class WebRTCHelper {
     //**************************************逻辑控制**************************************
     // 调整摄像头前置后置
     public void switchCamera() {
-
         captureAndroid.switchCamera(new VideoCapturerAndroid.CameraSwitchHandler() {
             @Override
             public void onCameraSwitchDone(boolean b) {
@@ -155,13 +154,6 @@ public class WebRTCHelper {
         if (_localAudioTrack != null) {
             _localAudioTrack.setEnabled(enable);
         }
-    }
-
-    public void toggleSpeaker(boolean enable) {
-        if (mAudioManager != null) {
-            mAudioManager.setSpeakerphoneOn(enable);
-        }
-
     }
 
     // 退出房间

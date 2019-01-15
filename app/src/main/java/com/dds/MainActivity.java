@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText et_signal;
     private EditText et_stun;
     private EditText et_room;
+    private EditText et_wss;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
         et_signal = findViewById(R.id.et_signal);
         et_stun = findViewById(R.id.et_stun);
         et_room = findViewById(R.id.et_room);
+        et_wss = findViewById(R.id.et_wss);
     }
 
     private void initVar() {
         et_room.setText("room123456");
+
+        et_wss.setText("ws://192.168.1.31:8282");
     }
 
 
@@ -53,5 +57,10 @@ public class MainActivity extends AppCompatActivity {
     // 单人语音
     public void JoinRoomSingleAudio(View view) {
         WebrtcUtil.callSingle(this, et_room.getText().toString().trim(), false);
+    }
+
+    //测试wss
+    public void wss(View view) {
+        WebrtcUtil.testWs(et_wss.getText().toString());
     }
 }

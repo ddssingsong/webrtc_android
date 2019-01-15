@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/webrtc_hands_free_default_click" android:state_enabled="false" />
+    <item android:drawable="@drawable/webrtc_hands_free_default" android:state_pressed="false" />
+    <item android:drawable="@drawable/webrtc_hands_free_default_click" android:state_pressed="true" />
+</selector>

@@ -47,11 +47,11 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
        "action":"user_login_success",
        "data":{
            "socketId":"socketId",
-           "iceServers":{
-                   "urls":[],
+           "iceServers":[{
+                   "urls":"",
                    "username":"trust",
                    "credential":"trust"
-           }
+           }]
        }
    }
 =========================================================================   
@@ -146,7 +146,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 对方收到数据
 
   {
-       "action":"user_sendOffer_success",
+       "action":"user_sendOffer",
        "data":{
            "sdp":"sdp",
            "socketId":"other socketId"
@@ -163,7 +163,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
    }
 对方收到的数据
   {
-       "action":"user_sendAnswer_success",
+       "action":"user_sendAnswer",
        "data":{
            "sdp":"sdp",
            "socketId":"other socketId"
@@ -185,6 +185,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
  {
        "action":"user_sendIceCandidate",
        "data":{
+           "id":"sdpMid",
            "socketId":"socketId",
            "label":"sdpMLineIndex信息",
            "candidate":"sdp信息"
@@ -200,14 +201,24 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
    }
 
-9.挂断
-  {
-       "action":"decline_reason",
+9.拒绝接受
+    {
+       "action":"room_refuse",
        "data":{
-           "reason":"hang_up"  //hang_up=对方挂断，busy = 对方正在通话中
+            "room":"roomid",
+            "toID":"toID"
        } 
 
    }
+  {
+       "action":"decline_reason",
+       "data":{
+           "reason":"cancel"  //refuse=对方挂断，busy = 对方正在通话中 cancel=未接通时，对方已取消
+       } 
+
+   }
+   
+   
 
 10.发生错误
  {

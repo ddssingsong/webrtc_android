@@ -8,9 +8,12 @@ import android.os.Parcelable;
  * android_shuai@163.com
  */
 public class MyIceServer implements Parcelable {
-    public final String urls;
-    public final String username;
-    public final String credential;
+    public String urls;
+    public String username;
+    public String credential;
+
+    public MyIceServer() {
+    }
 
     public MyIceServer(String uri) {
         this(uri, "", "");

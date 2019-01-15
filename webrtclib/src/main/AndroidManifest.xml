@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application>
         <activity
             android:name=".ChatRoomActivity"
@@ -23,6 +25,10 @@
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
         <activity
             android:name=".ChatSingleActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Webrtc.AppTheme.NoActionBar" />
+        <activity
+            android:name=".IncomingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
     </application>

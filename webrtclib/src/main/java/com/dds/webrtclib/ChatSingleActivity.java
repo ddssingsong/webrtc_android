@@ -1,6 +1,7 @@
 package com.dds.webrtclib;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.dds.webrtclib.utils.PermissionUtil;
 
@@ -39,14 +41,15 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     private boolean isSwappedFeeds;
 
     private boolean videoEnable;
-    private String ids;
 
 
-    public static void openActivity(Activity activity, String ids, boolean videoEnable) {
+    public static void openActivity(Context activity, boolean videoEnable, boolean isNoAnimation) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
-        intent.putExtra("ids", ids);
         intent.putExtra("videoEnable", videoEnable);
         activity.startActivity(intent);
+        if (isNoAnimation) {
+            ((Activity) activity).overridePendingTransition(0, 0);
+        }
     }
 
 
@@ -68,7 +71,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     private void initVar() {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
-        ids = intent.getStringExtra("ids");
         chatSingleFragment = new ChatSingleFragment();
         replaceFragment(chatSingleFragment, videoEnable);
 
@@ -107,9 +109,8 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     private void startCall() {
         helper = WrManager.getInstance();
         helper.setCallback(this);
-
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
-            helper.createRoom(ids, videoEnable);
+            helper.joinRoom();
         }
 
     }
@@ -151,7 +152,14 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
 
     @Override
     public void onCloseWithId(String socketId) {
-        exit();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(ChatSingleActivity.this, "对方已挂断", Toast.LENGTH_SHORT).show();
+                exit();
+            }
+        });
+
     }
 
     // 切换摄像头
@@ -210,8 +218,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
                 break;
             }
         }
-
-        helper.createRoom(ids, videoEnable);
+        helper.joinRoom();
 
     }
 }

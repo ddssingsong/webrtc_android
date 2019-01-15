@@ -12,14 +12,21 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.webrtc.IceCandidate;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 /**
@@ -52,24 +59,48 @@ public class MxWebSocket implements IWebSocket {
             mWebSocketClient = new WebSocketClient(uri) {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
-
+                    events.onWebSocketOpen();
                 }
 
                 @Override
                 public void onMessage(String message) {
+                    Log.d(TAG, "onMessage:" + message);
                     handleMessage(message);
                 }
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
                     Log.e(TAG, "onClose:" + reason);
+                    events.onError("onClose");
                 }
 
                 @Override
                 public void onError(Exception ex) {
                     Log.e(TAG, ex.toString());
+                    events.onError("onError:" + ex.toString());
                 }
             };
+        }
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            if (sslContext != null) {
+                sslContext.init(null, new TrustManager[]{new TrustManagerTest()}, new SecureRandom());
+            }
+
+            SSLSocketFactory factory = null;
+            if (sslContext != null) {
+                factory = sslContext.getSocketFactory();
+            }
+
+            if (factory != null) {
+                mWebSocketClient.setSocket(factory.createSocket());
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         mWebSocketClient.connect();
     }
@@ -92,6 +123,7 @@ public class MxWebSocket implements IWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
 
 
@@ -107,6 +139,7 @@ public class MxWebSocket implements IWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -115,10 +148,11 @@ public class MxWebSocket implements IWebSocket {
         Map<String, Object> map = new HashMap<>();
         map.put("action", "user_invite");
         Map<String, String> childMap = new HashMap<>();
-        childMap.put("toId", userId);
+        childMap.put("toID", userId);
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -127,10 +161,11 @@ public class MxWebSocket implements IWebSocket {
         Map<String, Object> map = new HashMap<>();
         map.put("action", "user_ack");
         Map<String, String> childMap = new HashMap<>();
-        childMap.put("fromId", userId);
+        childMap.put("toID", userId);
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -143,32 +178,35 @@ public class MxWebSocket implements IWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
     @Override
     public void sendOffer(String socketId, String sdp) {
         HashMap<String, Object> childMap2 = new HashMap();
-        childMap2.put("socketId", socketId);
+        childMap2.put("socketID", socketId);
         childMap2.put("sdp", sdp);
         HashMap<String, Object> map = new HashMap();
         map.put("action", "user_sendOffer");
         map.put("data", childMap2);
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
     @Override
     public void sendAnswer(String socketId, String sdp) {
         HashMap<String, Object> childMap2 = new HashMap();
-        childMap2.put("socketId", socketId);
+        childMap2.put("socketID", socketId);
         childMap2.put("sdp", sdp);
         HashMap<String, Object> map = new HashMap();
         map.put("action", "user_sendAnswer");
         map.put("data", childMap2);
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -182,10 +220,11 @@ public class MxWebSocket implements IWebSocket {
         childMap.put("id", iceCandidate.sdpMid);
         childMap.put("label", iceCandidate.sdpMLineIndex);
         childMap.put("candidate", iceCandidate.sdp);
-        childMap.put("socketId", socketId);
+        childMap.put("socketID", socketId);
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -204,6 +243,7 @@ public class MxWebSocket implements IWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -231,10 +271,10 @@ public class MxWebSocket implements IWebSocket {
             case "new_user_join":
                 handleRemoteInRoom(map);
                 break;
-            case "user_sendOffer_success":
+            case "user_sendOffer":
                 handleOffer(map);
                 break;
-            case "user_sendAnswer_success":
+            case "user_sendAnswer":
                 handleAnswer(map);
                 break;
             case "user_sendIceCandidate":
@@ -253,16 +293,18 @@ public class MxWebSocket implements IWebSocket {
     // 处理登录成功
     private void handleUserLoginSuccess(Map map) {
         Map data = (Map) map.get("data");
-        String myId = (String) data.get("socketId");
+        String myId = (String) data.get("socketID");
+
         JSONArray arr = (JSONArray) data.get("iceServers");
-        String js = JSONObject.toJSONString(arr, SerializerFeature.WriteClassName);
+        String js = JSONObject.toJSONString(arr);
         ArrayList<MyIceServer> iceServers = (ArrayList<MyIceServer>) JSONObject.parseArray(js, MyIceServer.class);
         events.onLoginSuccess(iceServers, myId);
     }
 
     //处理创建房间成功
     private void handleRoomCreateSuccess(Map map) {
-        String room = (String) map.get("room");
+        Map data = (Map) map.get("data");
+        String room = (String) data.get("room");
         events.onCreateRoomSuccess(room);
 
 
@@ -270,16 +312,17 @@ public class MxWebSocket implements IWebSocket {
 
     // 回应信息
     private void handleAck(Map map) {
-        String fromId = (String) map.get("fromId");
+        Map data = (Map) map.get("data");
+        String fromId = (String) data.get("fromID");
         events.onUserAck(fromId);
 
     }
 
     // 邀请进入房间
     private void handleInvite(Map map) {
-        String socketId = (String) map.get("socketId");
-        String room = (String) map.get("room");
-        events.onUserInvite(socketId, room);
+        Map data = (Map) map.get("data");
+        String socketId = (String) data.get("socketID");
+        events.onUserInvite(socketId);
 
 
     }
@@ -297,14 +340,14 @@ public class MxWebSocket implements IWebSocket {
     // 自己已经在房间，有人进来
     private void handleRemoteInRoom(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
+        String socketId = (String) data.get("socketID");
         events.onRemoteJoinToRoom(socketId);
     }
 
     // 处理Offer
     private void handleOffer(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
+        String socketId = (String) data.get("socketID");
         String sdp = (String) data.get("sdp");
         events.onReceiveOffer(socketId, sdp);
     }
@@ -312,7 +355,7 @@ public class MxWebSocket implements IWebSocket {
     // 处理Answer
     private void handleAnswer(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
+        String socketId = (String) data.get("socketID");
         String sdp = (String) data.get("sdp");
         events.onReceiverAnswer(socketId, sdp);
     }
@@ -320,7 +363,7 @@ public class MxWebSocket implements IWebSocket {
     // 处理交换信息
     private void handleRemoteCandidate(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
+        String socketId = (String) data.get("socketID");
         String sdpMid = (String) data.get("id");
         sdpMid = (null == sdpMid) ? "video" : sdpMid;
         Integer sdpMLineIndex = (Integer) data.get("label");
@@ -333,19 +376,20 @@ public class MxWebSocket implements IWebSocket {
     // 有人离开了房间
     private void handleRemoteOutRoom(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
+        String socketId = (String) data.get("socketID");
         events.onRemoteOutRoom(socketId);
     }
 
     private void handleDecline(Map map) {
         Map data = (Map) map.get("data");
         String reason = (String) data.get("reason");
-        EnumMsg.Decline decline;
+        EnumMsg.Decline decline = EnumMsg.Decline.Refuse;
         if (reason.equals("cancel")) {
             decline = EnumMsg.Decline.Cancel;
         } else if (reason.equals("busy")) {
-            decline = EnumMsg.Decline.Cancel;
+            decline = EnumMsg.Decline.Busy;
         }
+        events.onDecline(decline);
 
     }
 
@@ -367,5 +411,8 @@ public class MxWebSocket implements IWebSocket {
             return new X509Certificate[0];
         }
     }
+
+
+
 
 }
