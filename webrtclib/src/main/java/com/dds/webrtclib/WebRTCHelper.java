@@ -1,10 +1,11 @@
 package com.dds.webrtclib;
 
 
-import android.content.Context;
-import android.media.AudioManager;
 import android.util.Log;
 
+import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.callback.IViewCallback;
+import com.dds.webrtclib.utils.AppRTCUtils;
 import com.dds.webrtclib.ws.IWebSocket;
 
 import org.webrtc.AudioSource;
@@ -38,25 +39,24 @@ public class WebRTCHelper {
     private VideoSource videoSource;
 
 
-
-
-    private ArrayList<String> _connectionIdArray;
-    private Map<String, Peer> _connectionPeerDic;
+    private ArrayList<String> _connectionIdArray; // socketId 的集合
+    private Map<String, Peer> _connectionPeerDic; // Peer的集合
 
     private String _myId;
-    private IWebrtcViewCallback IHelper;
+    private IViewCallback IHelper;
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
     private boolean videoEnable;
 
+
     enum Role {Caller, Receiver,}
 
-    private Role _role;
+    private Role _role;// 判断是sendOffer还是sendAnswer
 
     private IWebSocket webSocket;
 
 
-    public WebRTCHelper(Context context, IWebSocket webSocket) {
+    public WebRTCHelper(IWebSocket webSocket) {
         this._connectionPeerDic = new HashMap<>();
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
@@ -65,14 +65,23 @@ public class WebRTCHelper {
 
     }
 
-    public void setViewCallback(IWebrtcViewCallback callback) {
+    // 设置界面的回调
+    public void setViewCallback(IViewCallback callback) {
         IHelper = callback;
+    }
+
+    // 添加ice服务器
+    public void addIceServer(MyIceServer myIceServer) {
+        PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.urls,
+                myIceServer.username, myIceServer.credential);
+        ICEServers.add(iceServer);
     }
 
     // ===================================webSocket回调信息=======================================
 
-    public void onLoginSuccess(ArrayList<MyIceServer> iceServers, boolean videoEnable) {
-        this.videoEnable = videoEnable;
+    // 登陆成功：返回stun和turn地址已经是否
+    public void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId) {
+        _myId = socketId;
         for (MyIceServer myIceServer : iceServers) {
             PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.urls,
                     myIceServer.username, myIceServer.credential);
@@ -81,8 +90,9 @@ public class WebRTCHelper {
 
     }
 
-
-    public void onJoinToRoom(ArrayList<String> connections, String myId) {
+    // 加入房间成功
+    public void onJoinToRoom(ArrayList<String> connections, String myId, boolean videoEnable) {
+        this.videoEnable = videoEnable;
         _connectionIdArray.addAll(connections);
         _myId = myId;
         if (_factory == null) {
@@ -99,6 +109,8 @@ public class WebRTCHelper {
 
 
     public void onRemoteJoinToRoom(String socketId) {
+        Log.d(TAG, "onRemoteJoinToRoom");
+        Log.d(TAG, AppRTCUtils.getThreadInfo());
         if (_localStream == null) {
             createLocalStream();
         }
@@ -107,18 +119,25 @@ public class WebRTCHelper {
 
         _connectionIdArray.add(socketId);
         _connectionPeerDic.put(socketId, mPeer);
+
     }
 
     public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
+        Log.d(TAG, "onRemoteIceCandidate");
+        Log.d(TAG, AppRTCUtils.getThreadInfo());
         Peer peer = _connectionPeerDic.get(socketId);
         peer.pc.addIceCandidate(iceCandidate);
     }
 
     public void onRemoteOutRoom(String socketId) {
+        Log.d(TAG, "onRemoteOutRoom");
+        Log.d(TAG, AppRTCUtils.getThreadInfo());
         closePeerConnection(socketId);
     }
 
     public void onReceiveOffer(String socketId, String sdp) {
+        Log.d(TAG, "onReceiveOffer");
+        Log.d(TAG, AppRTCUtils.getThreadInfo());
         _role = Role.Receiver;
         Peer mPeer = _connectionPeerDic.get(socketId);
         SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
@@ -126,6 +145,8 @@ public class WebRTCHelper {
     }
 
     public void onReceiverAnswer(String socketId, String sdp) {
+        Log.d(TAG, "onReceiverAnswer");
+        Log.d(TAG, AppRTCUtils.getThreadInfo());
         Peer mPeer = _connectionPeerDic.get(socketId);
         SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
         mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
@@ -166,7 +187,6 @@ public class WebRTCHelper {
         for (Object Id : myCopy) {
             closePeerConnection((String) Id);
         }
-        webSocket.close();
         if (_connectionIdArray != null) {
             _connectionIdArray.clear();
         }
@@ -178,7 +198,10 @@ public class WebRTCHelper {
     private void createLocalStream() {
         _localStream = _factory.createLocalMediaStream("ARDAMS");
         // 音频
-        AudioSource audioSource = _factory.createAudioSource(new MediaConstraints());
+        MediaConstraints audioConstraints = new MediaConstraints();
+//        audioConstraints.mandatory.add(
+//                new MediaConstraints.KeyValuePair("levelControl", "true"));
+        AudioSource audioSource = _factory.createAudioSource(audioConstraints);
         _localAudioTrack = _factory.createAudioTrack("ARDAMSa0", audioSource);
         _localStream.addTrack(_localAudioTrack);
 
@@ -212,13 +235,11 @@ public class WebRTCHelper {
                 }
             });
             // 视频
-            MediaConstraints audioConstraints = localVideoConstraints();
-            videoSource = _factory.createVideoSource(captureAndroid, audioConstraints);
+            MediaConstraints videoConstraints = localVideoConstraints();
+            videoSource = _factory.createVideoSource(captureAndroid, videoConstraints);
             VideoTrack localVideoTrack = _factory.createVideoTrack("ARDAMSv0", videoSource);
             _localStream.addTrack(localVideoTrack);
         }
-
-
         if (IHelper != null) {
             IHelper.onSetLocalStream(_localStream, _myId);
         }
@@ -247,7 +268,7 @@ public class WebRTCHelper {
 
     // 为所有连接创建offer
     private void createOffers() {
-        Log.v(TAG, "为所有连接创建offer");
+        Log.d(TAG, "为所有连接创建offer");
 
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
             _role = Role.Caller;
@@ -262,12 +283,15 @@ public class WebRTCHelper {
         Log.v(TAG, "关闭通道流");
         Peer mPeer = _connectionPeerDic.get(connectionId);
         if (mPeer != null) {
-            mPeer.pc.dispose();
+            mPeer.pc.close();
         }
         _connectionPeerDic.remove(connectionId);
         _connectionIdArray.remove(connectionId);
 
-        IHelper.onCloseWithId(connectionId);
+        if (IHelper != null) {
+            IHelper.onCloseWithId(connectionId);
+        }
+
     }
 
 
@@ -280,7 +304,7 @@ public class WebRTCHelper {
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "640"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minHeight", "120"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "5"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "10"));
         mediaConstraints.mandatory.addAll(keyValuePairs);
         return mediaConstraints;
     }
@@ -290,7 +314,7 @@ public class WebRTCHelper {
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "5"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "10"));
 
         mediaConstraints.optional.addAll(keyValuePairs);
         return mediaConstraints;
@@ -380,7 +404,7 @@ public class WebRTCHelper {
 
         @Override
         public void onSetSuccess() {
-            Log.v(TAG, "sdp连接成功        " + pc.signalingState().toString());
+            Log.v(TAG, "sdp连接成功 " + pc.signalingState().toString() + "," + _role);
 
             if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
                 pc.createAnswer(Peer.this, offerOrAnswerConstraint());

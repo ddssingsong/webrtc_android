@@ -1,11 +1,10 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.callback;
 
 import org.webrtc.VideoRenderer;
 
 /**
+ * Video界面渲染类
  * Created by dds on 2018/11/7.
- * android_shuai@163.com
- *
  */
 public class ProxyRenderer implements VideoRenderer.Callbacks {
     private VideoRenderer.Callbacks target;

@@ -63,7 +63,7 @@ public class ThreadUtils {
         return !thread.isAlive();
     }
 
-    public static void joinUninterruptibly(final Thread thread) {
+        public static void joinUninterruptibly(final Thread thread) {
         executeUninterruptibly(new org.webrtc.ThreadUtils.BlockingOperation() {
             public void run() throws InterruptedException {
                 thread.join();

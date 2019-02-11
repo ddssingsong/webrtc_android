@@ -20,21 +20,10 @@ import android.util.Log;
 
 import org.webrtc.ThreadUtils;
 
-/**
- * AppRTCProximitySensor manages functions related to the proximity sensor in
- * the AppRTC demo.
- * On most device, the proximity sensor is implemented as a boolean-sensor.
- * It returns just two values "NEAR" or "FAR". Thresholding is done on the LUX
- * value i.e. the LUX value of the light sensor is compared with a threshold.
- * A LUX-value more than the threshold means the proximity sensor returns "FAR".
- * Anything less than the threshold value and the sensor  returns "NEAR".
- */
+
 public class AppRTCProximitySensor implements SensorEventListener {
   private static final String TAG = "AppRTCProximitySensor";
 
-  // This class should be created, started and stopped on one thread
-  // (e.g. the main thread). We use |nonThreadSafe| to ensure that this is
-  // the case. Only active when |DEBUG| is set to true.
   private final ThreadUtils.ThreadChecker threadChecker = new ThreadUtils.ThreadChecker();
 
   private final Runnable onSensorStateListener;

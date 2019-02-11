@@ -29,9 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * AppRTCAudioManager manages all audio related parts of the AppRTC demo.
- */
+
 public class AppRTCAudioManager {
     private static final String TAG = "AppRTCAudioManager";
     private static final String SPEAKERPHONE_AUTO = "auto";
@@ -58,10 +56,9 @@ public class AppRTCAudioManager {
     /**
      * Selected audio device change event.
      */
-    public static interface AudioManagerEvents {
+    public interface AudioManagerEvents {
         // Callback fired once audio device is changed or list of available audio devices changed.
-        void onAudioDeviceChanged(
-                AudioDevice selectedAudioDevice, Set<AudioDevice> availableAudioDevices);
+        void onAudioDeviceChanged(AudioDevice selectedAudioDevice, Set<AudioDevice> availableAudioDevices);
     }
 
     private final Context apprtcContext;
@@ -105,7 +102,7 @@ public class AppRTCAudioManager {
 
     // Contains a list of available audio devices. A Set collection is used to
     // avoid duplicate elements.
-    private Set<AudioDevice> audioDevices = new HashSet<AudioDevice>();
+    private Set<AudioDevice> audioDevices = new HashSet<>();
 
     // Broadcast receiver for wired headset intent broadcasts.
     private BroadcastReceiver wiredHeadsetReceiver;

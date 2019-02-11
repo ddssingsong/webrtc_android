@@ -1,4 +1,4 @@
-package com.dds.webrtclib.ws;
+package com.dds.webrtclib;
 
 /**
  * Created by dds on 2019/1/11.
@@ -11,22 +11,23 @@ public class EnumMsg {
         Busy, Refuse, Cancel
     }
 
-
     //是拨出方还是接听方
     public enum Direction {
         Outgoing, Incoming
     }
 
     //通话类型
-    public enum Type {
+    public enum MediaType {
         //1=语音，2=视频
         Audio("1"),
-        Video("2");
+        Video("2"),
+        Meeting("3");
 
         public final String value;
 
-        Type(String value) {
+        MediaType(String value) {
             this.value = value;
         }
     }
+
 }

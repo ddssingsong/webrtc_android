@@ -6,7 +6,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.dds.webrtclib.MyIceServer;
+import com.dds.webrtclib.EnumMsg;
+import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.utils.AppRTCUtils;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -34,8 +36,6 @@ import javax.net.ssl.X509TrustManager;
  * android_shuai@163.com
  * 自定义协议
  */
-
-
 public class MxWebSocket implements IWebSocket {
     private final static String TAG = "dds_MxWebSocket";
 
@@ -116,6 +116,7 @@ public class MxWebSocket implements IWebSocket {
     //=================================上行数据=================================================
     @Override
     public void login(String sessionId) {
+        Log.d(TAG, "login:" + AppRTCUtils.getThreadInfo());
         Map<String, Object> map = new HashMap<>();
         map.put("action", "user_login");
         Map<String, String> childMap = new HashMap<>();
@@ -131,6 +132,7 @@ public class MxWebSocket implements IWebSocket {
 
     @Override
     public void createRoom(String ids, boolean videoEnable) {
+        Log.d(TAG, "createRoom:" + AppRTCUtils.getThreadInfo());
         Map<String, Object> map = new HashMap<>();
         map.put("action", "room_create");
         Map<String, String> childMap = new HashMap<>();
@@ -145,6 +147,7 @@ public class MxWebSocket implements IWebSocket {
 
     @Override
     public void sendInvite(String userId) {
+        Log.d(TAG, "sendInvite:" + AppRTCUtils.getThreadInfo());
         Map<String, Object> map = new HashMap<>();
         map.put("action", "user_invite");
         Map<String, String> childMap = new HashMap<>();
@@ -158,6 +161,7 @@ public class MxWebSocket implements IWebSocket {
 
     @Override
     public void sendAck(String userId) {
+        Log.d(TAG, "sendAck:" + AppRTCUtils.getThreadInfo());
         Map<String, Object> map = new HashMap<>();
         map.put("action", "user_ack");
         Map<String, String> childMap = new HashMap<>();
@@ -171,6 +175,7 @@ public class MxWebSocket implements IWebSocket {
 
     @Override
     public void joinRoom(String room) {
+        Log.d(TAG, "joinRoom:" + AppRTCUtils.getThreadInfo());
         Map<String, Object> map = new HashMap<>();
         map.put("action", "room_join");
         Map<String, String> childMap = new HashMap<>();
@@ -184,12 +189,18 @@ public class MxWebSocket implements IWebSocket {
 
     @Override
     public void sendOffer(String socketId, String sdp) {
+        HashMap<String, Object> childMap1 = new HashMap();
+        childMap1.put("sdp", sdp);
+        childMap1.put("type", "offer");
+
         HashMap<String, Object> childMap2 = new HashMap();
         childMap2.put("socketID", socketId);
-        childMap2.put("sdp", sdp);
+        childMap2.put("sdp", childMap1);
+
         HashMap<String, Object> map = new HashMap();
         map.put("action", "user_sendOffer");
         map.put("data", childMap2);
+
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
         Log.d(TAG, "send:" + jsonString);
@@ -198,15 +209,17 @@ public class MxWebSocket implements IWebSocket {
 
     @Override
     public void sendAnswer(String socketId, String sdp) {
+        Map<String, Object> childMap1 = new HashMap();
+        childMap1.put("sdp", sdp);
+        childMap1.put("type", "answer");
         HashMap<String, Object> childMap2 = new HashMap();
         childMap2.put("socketID", socketId);
-        childMap2.put("sdp", sdp);
+        childMap2.put("sdp", childMap1);
         HashMap<String, Object> map = new HashMap();
         map.put("action", "user_sendAnswer");
         map.put("data", childMap2);
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
-        Log.d(TAG, "send:" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -229,17 +242,11 @@ public class MxWebSocket implements IWebSocket {
     }
 
     @Override //拒绝接听
-    public void decline(EnumMsg.Decline decline) {
-        String reason = "refuse";
-        if (decline == EnumMsg.Decline.Busy) {
-            reason = "busy";
-        } else if (decline == EnumMsg.Decline.Cancel) {
-            reason = "cancel";
-        }
+    public void decline(String toId, EnumMsg.Decline decline) {
+        Map<String, String> childMap = new HashMap<>();
+        childMap.put("toID", toId);
         Map<String, Object> map = new HashMap<>();
         map.put("action", "room_refuse");
-        Map<String, String> childMap = new HashMap<>();
-        childMap.put("reason", reason);
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
@@ -294,7 +301,6 @@ public class MxWebSocket implements IWebSocket {
     private void handleUserLoginSuccess(Map map) {
         Map data = (Map) map.get("data");
         String myId = (String) data.get("socketID");
-
         JSONArray arr = (JSONArray) data.get("iceServers");
         String js = JSONObject.toJSONString(arr);
         ArrayList<MyIceServer> iceServers = (ArrayList<MyIceServer>) JSONObject.parseArray(js, MyIceServer.class);
@@ -347,16 +353,18 @@ public class MxWebSocket implements IWebSocket {
     // 处理Offer
     private void handleOffer(Map map) {
         Map data = (Map) map.get("data");
+        Map sdpDic = (Map) data.get("sdp");
         String socketId = (String) data.get("socketID");
-        String sdp = (String) data.get("sdp");
+        String sdp = (String) sdpDic.get("sdp");
         events.onReceiveOffer(socketId, sdp);
     }
 
     // 处理Answer
     private void handleAnswer(Map map) {
         Map data = (Map) map.get("data");
+        Map sdpDic = (Map) data.get("sdp");
         String socketId = (String) data.get("socketID");
-        String sdp = (String) data.get("sdp");
+        String sdp = (String) sdpDic.get("sdp");
         events.onReceiverAnswer(socketId, sdp);
     }
 
@@ -411,8 +419,6 @@ public class MxWebSocket implements IWebSocket {
             return new X509Certificate[0];
         }
     }
-
-
 
 
 }

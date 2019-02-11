@@ -1,6 +1,7 @@
 package com.dds.webrtclib.ws;
 
-import com.dds.webrtclib.MyIceServer;
+import com.dds.webrtclib.EnumMsg;
+import com.dds.webrtclib.bean.MyIceServer;
 
 import org.webrtc.IceCandidate;
 

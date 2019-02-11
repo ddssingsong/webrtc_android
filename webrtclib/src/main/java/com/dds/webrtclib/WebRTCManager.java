@@ -11,7 +11,12 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.dds.webrtclib.ws.EnumMsg;
+import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.callback.IViewCallback;
+import com.dds.webrtclib.callback.WrCallBack;
+import com.dds.webrtclib.ui.ChatRoomActivity;
+import com.dds.webrtclib.ui.ChatSingleActivity;
+import com.dds.webrtclib.ui.IncomingActivity;
 import com.dds.webrtclib.ws.ISignalingEvents;
 import com.dds.webrtclib.ws.MxWebSocket;
 
@@ -28,15 +33,15 @@ import static android.media.AudioManager.STREAM_RING;
  * Created by dds on 2019/1/11.
  * android_shuai@163.com
  */
-public class WrManager implements ISignalingEvents {
+public class WebRTCManager implements ISignalingEvents {
 
-    private final static String TAG = WrManager.class.getSimpleName();
+    private final static String TAG = "dds_WebRTCManager";
     private MxWebSocket webSocket;
     private EnumMsg.Direction _direction;
+    private EnumMsg.MediaType _mediaType;
     private boolean _videoEnable;
     private String _sessionId;
-    private String _myUserId;
-    private String _ids;
+    private String _fromId;
     private Context _context;
     private String _room;
 
@@ -45,30 +50,45 @@ public class WrManager implements ISignalingEvents {
     private AudioManager mAudioManager;
     private MediaPlayer mRingerPlayer;
     private Vibrator mVibrator;
+    private IViewCallback callback;
 
-    public static WrManager getInstance() {
+    public static WebRTCManager getInstance() {
         return Holder.wrManager;
     }
 
     private static class Holder {
-        private static WrManager wrManager = new WrManager();
+        private static WebRTCManager wrManager = new WebRTCManager();
     }
 
-    public void setCallback(IWebrtcViewCallback callback) {
+    public void setCallback(IViewCallback callback) {
+        this.callback = callback;
         if (webRTCHelper != null) {
             webRTCHelper.setViewCallback(callback);
         }
     }
 
 
-    public void init(Context context, String ids, String myUserId, String sessionId,
-                     boolean videoEnable, EnumMsg.Direction direction, String room) {
+    private WrCallBack wrCallBack;
+
+    public void setBussinessCallback(WrCallBack wrCallBack) {
+        this.wrCallBack = wrCallBack;
+    }
+
+    public WrCallBack getBussinessCallback() {
+        return wrCallBack;
+    }
+
+
+    public void init(Context context, String fromId, String sessionId,
+                     EnumMsg.MediaType mediaType, EnumMsg.Direction direction,
+                     String room) {
         _context = context;
-        _myUserId = myUserId;
-        _ids = ids;
+        _fromId = fromId;
         _sessionId = sessionId;
-        _videoEnable = videoEnable;
+        _mediaType = mediaType;
         _direction = direction;
+        _videoEnable = _mediaType.value.equals(EnumMsg.MediaType.Video.value) ||
+                _mediaType.value.equals(EnumMsg.MediaType.Meeting.value);
         _room = room;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
@@ -77,7 +97,7 @@ public class WrManager implements ISignalingEvents {
     public void connectSocket(String wss) {
         if (this.webSocket == null) {
             this.webSocket = new MxWebSocket(this);
-            this.webRTCHelper = new WebRTCHelper(_context, this.webSocket);
+            this.webRTCHelper = new WebRTCHelper(this.webSocket);
             webSocket.connect(wss);
         }
     }
@@ -92,14 +112,19 @@ public class WrManager implements ISignalingEvents {
     // 接听
     public void acceptCall(Activity activity) {
         stopRinging();
-        ChatSingleActivity.openActivity(activity, _videoEnable, true);
+        if (_mediaType.value.equals(EnumMsg.MediaType.Meeting.value)) {
+            ChatRoomActivity.openActivity(activity, true);
+        } else {
+            ChatSingleActivity.openActivity(activity, _videoEnable, true);
+        }
+
     }
 
     // 拒绝接听
     public void refuseCall() {
         stopRinging();
         if (webSocket != null) {
-            webSocket.decline(EnumMsg.Decline.Refuse);
+            webSocket.decline(_fromId, EnumMsg.Decline.Refuse);
         }
 
     }
@@ -132,6 +157,11 @@ public class WrManager implements ISignalingEvents {
     public void exitRoom() {
         if (webRTCHelper != null) {
             webRTCHelper.exitRoom();
+            this.webRTCHelper = null;
+        }
+        if (webSocket != null) {
+            webSocket.close();
+            webSocket = null;
         }
 
     }
@@ -146,15 +176,14 @@ public class WrManager implements ISignalingEvents {
     @Override
     public void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId) {
         if (webRTCHelper != null) {
-            webRTCHelper.onLoginSuccess(iceServers, _videoEnable);
+            webRTCHelper.onLoginSuccess(iceServers, socketId);
         }
         if (_direction == EnumMsg.Direction.Outgoing) {
             //进入通话界面
-            webSocket.createRoom(_ids, _videoEnable);
-
+            webSocket.createRoom(_fromId, _videoEnable);
         } else {
             // 发送回执
-            webSocket.sendAck(_ids);
+            webSocket.sendAck(_fromId);
         }
 
     }
@@ -163,14 +192,29 @@ public class WrManager implements ISignalingEvents {
     public void onCreateRoomSuccess(String room) {
         _room = room;
         // 进入房间
-        ChatSingleActivity.openActivity(_context, _videoEnable, false);
+        if (_mediaType.value.equals(EnumMsg.MediaType.Meeting.value)) {
+            ChatRoomActivity.openActivity(_context, false);
+        } else {
+            ChatSingleActivity.openActivity(_context, _videoEnable, false);
+        }
+
 
     }
 
     @Override
     public void onJoinToRoom(ArrayList<String> connections, String myId) {
+        Log.d(TAG, "joinRoom success:");
+        Log.d(TAG,
+                "fromID:" + _fromId
+                        + ",room:" + _room
+                        + ",videoEnable:" + _videoEnable
+                        + ",Direction:" + _direction);
+
         if (webRTCHelper != null) {
-            webRTCHelper.onJoinToRoom(connections, myId);
+            webRTCHelper.onJoinToRoom(connections, myId, _videoEnable);
+            if (_videoEnable) {
+                toggleSpeaker(true);
+            }
         }
     }
 
@@ -185,7 +229,8 @@ public class WrManager implements ISignalingEvents {
     @Override
     public void onUserInvite(String socketId) {
         //显示来电界面  开始响铃，
-        IncomingActivity.openActivity(_context);
+        Log.d(TAG, "来电开始响铃：mediaType:" + _mediaType);
+        IncomingActivity.openActivity(_context, _mediaType);
         startRinging();
 
 
@@ -227,19 +272,37 @@ public class WrManager implements ISignalingEvents {
         }
     }
 
-    @Override
+    @Override // 对方拒绝接听
     public void onDecline(EnumMsg.Decline decline) {
         if (webRTCHelper != null) {
             webRTCHelper.exitRoom();
+            webRTCHelper = null;
+        }
+        if (webSocket != null) {
+            webSocket.close();
+            webSocket = null;
         }
         stopRinging();
+        this.callback.onDecline();
+
     }
 
     @Override
     public void onError(String msg) {
-        this.webSocket = null;
-        this.webRTCHelper = null;
         stopRinging();
+        if (webRTCHelper != null) {
+            webRTCHelper.exitRoom();
+            this.webRTCHelper = null;
+        }
+        if (webSocket != null) {
+            webSocket.close();
+            webSocket = null;
+        }
+        if (this.callback != null) {
+            this.callback.onError(msg);
+        }
+
+
     }
 
 

@@ -1,5 +1,7 @@
 package com.dds.webrtclib.ws;
 
+import com.dds.webrtclib.EnumMsg;
+
 import org.webrtc.IceCandidate;
 
 /**
@@ -30,7 +32,7 @@ public interface IWebSocket {
 
     void sendIceCandidate(String socketId, IceCandidate iceCandidate);
 
-    void decline(EnumMsg.Decline decline);
+    void decline(String _fromId, EnumMsg.Decline decline);
 
     //处理回调消息
     void handleMessage(String message);

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.dds.webrtclib.ChatRoomActivity;
+import com.dds.webrtclib.ChatSingleActivity;
 import com.dds.webrtclib.MyIceServer;
 
 import org.java_websocket.client.WebSocketClient;
@@ -21,9 +22,13 @@ public class WebrtcUtil {
     private static WebSocketClient mWebSocketClient;
 
     private static MyIceServer[] iceServers = {
-            new MyIceServer("stun:47.254.34.146"),
-            new MyIceServer("turn:47.254.34.146?transport=udp", "dds", "123456"),
-            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456")
+//            new MyIceServer("stun:stun.l.google.com:19302"),
+//            new MyIceServer("stun:47.254.34.146"),
+//            new MyIceServer("turn:47.254.34.146?transport=udp", "dds", "123456"),
+//            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
+            new MyIceServer("stun:120.78.233.67"),
+            new MyIceServer("turn:120.78.233.67?transport=udp", "trust", "trust"),
+            new MyIceServer("turn:120.78.233.67?transport=tcp", "trust", "trust")
     };
     private static String signal = "wss://47.254.34.146/wss";
 
@@ -33,7 +38,7 @@ public class WebrtcUtil {
     }
 
     public static void callSingle(Activity activity, String roomId, boolean videoEnable) {
-        // ChatSingleActivity.openActivity(activity, signal, iceServers, roomId, videoEnable);
+         ChatSingleActivity.openActivity(activity, signal, iceServers, roomId, videoEnable);
     }
 
     public static void testWs(String wss) {

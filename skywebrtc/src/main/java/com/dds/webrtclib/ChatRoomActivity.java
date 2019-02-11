@@ -44,7 +44,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private VideoRenderer.Callbacks localRender;
     private double width = 480;
     private double height = 640;
-    private RendererCommon.ScalingType scalingType = RendererCommon.ScalingType.SCALE_ASPECT_FILL;
+    private RendererCommon.ScalingType scalingType = RendererCommon.ScalingType.SCALE_ASPECT_FIT;
 
     private ChatRoomFragment chatRoomFragment;
 
@@ -158,7 +158,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
         VideoRendererGui.update(vr,
                 x, y,
-                30, x + 30,
+                30, 20,
                 scalingType, false);
 
         x += 30;

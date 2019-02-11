@@ -1,11 +1,11 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,7 +14,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.dds.webrtclib.R;
+import com.dds.webrtclib.WebRTCHelper;
+import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.callback.IViewCallback;
 import com.dds.webrtclib.utils.PermissionUtil;
 
 import org.webrtc.MediaStream;
@@ -33,9 +38,9 @@ import java.util.Map;
  */
 
 
-public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCallback {
+public class ChatRoomActivity extends AppCompatActivity implements IViewCallback {
 
-    private WebRTCHelper helper;
+    private WebRTCManager helper;
     private Map<String, VideoTrack> _remoteVideoTracks = new HashMap();
     private Map<String, VideoRenderer.Callbacks> _remoteVideoView = new HashMap();
     private static int x;
@@ -48,16 +53,13 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
 
     private ChatRoomFragment chatRoomFragment;
 
-    private String signal;
-    private Parcelable[] iceServers;
-    private String room;
-
-    public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room) {
+    public static void openActivity(Context activity, boolean isNoAnimation) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
-        intent.putExtra("signal", signal);
-        intent.putExtra("ice", iceServers);
-        intent.putExtra("room", room);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         activity.startActivity(intent);
+        if (isNoAnimation) {
+            ((Activity) activity).overridePendingTransition(0, 0);
+        }
     }
 
     @Override
@@ -89,12 +91,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
     }
 
     private void initVar() {
-        Intent intent = getIntent();
-        signal = intent.getStringExtra("signal");
-        iceServers = intent.getParcelableArrayExtra("ice");
-        room = intent.getStringExtra("room");
-
-
         // 设置宽高比例
         WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (manager != null) {
@@ -108,13 +104,14 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
     }
 
     private void startCall() {
+        helper = WebRTCManager.getInstance();
+        helper.setCallback(this);
         VideoRendererGui.setView(vsv, new Runnable() {
             @Override
             public void run() {
                 Log.i("dds_webrtc", "surfaceView准备完毕");
                 if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
-                   // helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers);
-                  //  helper.initSocket(signal, room, true);
+                    helper.joinRoom();
                 }
 
             }
@@ -128,7 +125,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
     }
 
     @Override
-    public void onSetLocalStream(MediaStream stream, String userId) {
+    public void onSetLocalStream(MediaStream stream, String socketId) {
 
         Log.i("dds_webrtc", "在本地添加视频");
 
@@ -140,11 +137,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
     }
 
     @Override
-    public void onAddRemoteStream(MediaStream stream, String userId) {
+    public void onAddRemoteStream(MediaStream stream, String socketId) {
 
-        Log.i("dds_webrtc", "接受到远端视频流     " + userId);
+        Log.i("dds_webrtc", "接受到远端视频流     " + socketId);
 
-        _remoteVideoTracks.put(userId, stream.videoTracks.get(0));
+        _remoteVideoTracks.put(socketId, stream.videoTracks.get(0));
 
 
         VideoRenderer.Callbacks vr = VideoRendererGui.create(
@@ -152,7 +149,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
                 0, 0, scalingType, false);
 
 
-        _remoteVideoView.put(userId, vr);
+        _remoteVideoView.put(socketId, vr);
 
 
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
@@ -166,19 +163,34 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
 
 
     @Override
-    public void onCloseWithId(String userId) {
-        Log.i("dds_webrtc", "有用户离开    " + userId);
-        VideoRenderer.Callbacks callbacks = _remoteVideoView.get(userId);
+    public void onCloseWithId(String socketId) {
+        Log.i("dds_webrtc", "有用户离开    " + socketId);
+        VideoRenderer.Callbacks callbacks = _remoteVideoView.get(socketId);
         VideoRendererGui.remove(callbacks);
 
-        _remoteVideoTracks.remove(userId);
-        _remoteVideoView.remove(userId);
+        _remoteVideoTracks.remove(socketId);
+        _remoteVideoView.remove(socketId);
 
         if (_remoteVideoTracks.size() == 0) {
             x = 0;
         }
 
 
+    }
+
+    @Override
+    public void onDecline() {
+    }
+
+    @Override
+    public void onError(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), "通话结束", Toast.LENGTH_LONG).show();
+                ChatRoomActivity.this.finish();
+            }
+        });
     }
 
     @Override  // 屏蔽返回键
@@ -231,9 +243,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebrtcViewCa
             }
         }
 
-      //  helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers);
-      //  helper.initSocket(signal, room, true);
-
+        helper.joinRoom();
 
     }
 }

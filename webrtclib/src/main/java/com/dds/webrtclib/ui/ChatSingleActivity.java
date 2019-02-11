@@ -1,4 +1,4 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +16,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.dds.webrtclib.R;
+import com.dds.webrtclib.WebRTCHelper;
+import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.callback.IViewCallback;
+import com.dds.webrtclib.callback.ProxyRenderer;
 import com.dds.webrtclib.utils.PermissionUtil;
 
 import org.webrtc.EglBase;
@@ -29,14 +34,15 @@ import org.webrtc.VideoRenderer;
  * 1. 一对一视频通话
  * 2. 一对一语音通话
  */
-public class ChatSingleActivity extends AppCompatActivity implements IWebrtcViewCallback {
+public class ChatSingleActivity extends AppCompatActivity implements IViewCallback {
+    private static final String TAG = "dds_ChatSingleActivity";
     private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
     private ProxyRenderer localRender;
     private ProxyRenderer remoteRender;
     private EglBase rootEglBase;
 
-    private WrManager helper;
+    private WebRTCManager helper;
     private ChatSingleFragment chatSingleFragment;
     private boolean isSwappedFeeds;
 
@@ -107,7 +113,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     }
 
     private void startCall() {
-        helper = WrManager.getInstance();
+        helper = WebRTCManager.getInstance();
         helper.setCallback(this);
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
             helper.joinRoom();
@@ -144,10 +150,17 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
     @Override
     public void onAddRemoteStream(MediaStream stream, String socketId) {
         if (videoEnable) {
-            setSwappedFeeds(false);
             stream.videoTracks.get(0).setEnabled(true);
             stream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setSwappedFeeds(false);
+                }
+            });
         }
+
+
     }
 
     @Override
@@ -160,6 +173,28 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
             }
         });
 
+    }
+
+    @Override
+    public void onDecline() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ChatSingleActivity.this.finish();
+            }
+        });
+
+    }
+
+    @Override
+    public void onError(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), "通话结束", Toast.LENGTH_LONG).show();
+                ChatSingleActivity.this.finish();
+            }
+        });
     }
 
     // 切换摄像头
@@ -207,7 +242,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebrtcView
         this.finish();
 
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

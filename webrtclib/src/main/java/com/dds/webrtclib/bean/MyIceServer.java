@@ -1,4 +1,4 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;

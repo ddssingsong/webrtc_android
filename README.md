@@ -34,6 +34,20 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 
 ```json
+推送格式信息
+{
+    "type":"1",//1 语音 2 视频
+    "room":"roomId",
+    "fromID":"",  // 邀请人
+    "otherID":""  // 其他人的id,逗号分隔
+}
+====================================================================
+
+tips:注意事项 
+
+fromID , toID  代表用户ID
+socketID ,you  代表房间里通话成员的标识Id
+
 1. 登录
 {
        "action":"user_login",
@@ -46,7 +60,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
  {
        "action":"user_login_success",
        "data":{
-           "socketId":"socketId",
+           "socketID":"socketId", // socketID 代表人房间里这个人ID ,区别于userID
            "iceServers":[{
                    "urls":"",
                    "username":"trust",
@@ -94,7 +108,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
   {
        "action":"new_user_join",
        "data":{
-           "socketId":"socketId"
+           "socketID":"socketId"
        } 
 
    }
@@ -104,14 +118,14 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 {
        "action":"user_ack",
        "data":{
-           "toId":"100002"
+           "toID":"100002"
        } 
    }
 对方收到回应
 {
        "action":"user_ack",
        "data":{
-           "fromId":"fromId"
+           "fromID":"fromId"
        }
    }
 
@@ -128,7 +142,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
   {
        "action":"user_invite",
        "data":{
-           "socketId":"32434344",
+           "socketID":"32434344",
            "room":"room123"
        } 
    }
@@ -138,7 +152,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
        "action":"user_sendOffer",
        "data":{
            "sdp":"sdp",
-           "socketId":"socketId"
+           "socketID":"socketId"
           }
        } 
    }
@@ -149,7 +163,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
        "action":"user_sendOffer",
        "data":{
            "sdp":"sdp",
-           "socketId":"other socketId"
+           "socketID":"other socketId"
           }
        } 
    }
@@ -158,7 +172,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
        "action":"user_sendAnswer",
        "data":{
            "sdp":"sdp",
-           "socketId":"other socketid"
+           "socketID":"other socketid"
        } 
    }
 对方收到的数据
@@ -166,7 +180,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
        "action":"user_sendAnswer",
        "data":{
            "sdp":"sdp",
-           "socketId":"other socketId"
+           "socketID":"other socketId"
           }
        } 
    }
@@ -175,7 +189,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
  {
        "action":"user_sendIceCandidate",
        "data":{
-           "socketId":"socketId",
+           "socketID":"socketId",
            "id":"sdpMid",
            "label":"sdpMLineIndex信息",
            "candidate":"sdp信息"
@@ -186,7 +200,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
        "action":"user_sendIceCandidate",
        "data":{
            "id":"sdpMid",
-           "socketId":"socketId",
+           "socketID":"socketId",
            "label":"sdpMLineIndex信息",
            "candidate":"sdp信息"
        } 
@@ -196,7 +210,7 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 {
        "action":"user_leave",
        "data":{
-           "socketId":"socketId"
+           "socketID":"socketId"
        } 
 
    }

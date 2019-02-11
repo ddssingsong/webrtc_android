@@ -1,12 +1,13 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.callback;
 
 import org.webrtc.MediaStream;
 
 /**
+ * 界面回调类
  * Created by dds on 2017/10/23.
  */
 
-public interface IWebrtcViewCallback {
+public interface IViewCallback {
 
     void onSetLocalStream(MediaStream stream, String socketId);
 
@@ -14,4 +15,7 @@ public interface IWebrtcViewCallback {
 
     void onCloseWithId(String socketId);
 
+    void onDecline();
+
+    void onError(String msg);
 }

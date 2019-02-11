@@ -30,10 +30,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.Set;
 
-/**
- * AppRTCProximitySensor manages functions related to Bluetoth devices in the
- * AppRTC demo.
- */
+
 public class AppRTCBluetoothManager {
     private static final String TAG = "AppRTCBluetoothManager";
 
@@ -135,8 +132,7 @@ public class AppRTCBluetoothManager {
             // audio to BT over SCO. Typically received when user turns on a BT
             // headset while audio is active using another audio device.
             if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
-                final int state =
-                        intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED);
+                final int state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED);
                 Log.d(TAG, "BluetoothHeadsetBroadcastReceiver.onReceive: "
                         + "a=ACTION_CONNECTION_STATE_CHANGED, "
                         + "s=" + stateToString(state) + ", "
@@ -157,8 +153,7 @@ public class AppRTCBluetoothManager {
                 // Change in the audio (SCO) connection state of the Headset profile.
                 // Typically received after call to startScoAudio() has finalized.
             } else if (action.equals(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)) {
-                final int state = intent.getIntExtra(
-                        BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
+                final int state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_AUDIO_DISCONNECTED);
                 Log.d(TAG, "BluetoothHeadsetBroadcastReceiver.onReceive: "
                         + "a=ACTION_AUDIO_STATE_CHANGED, "
                         + "s=" + stateToString(state) + ", "

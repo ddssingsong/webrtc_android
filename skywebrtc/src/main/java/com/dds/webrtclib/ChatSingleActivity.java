@@ -95,7 +95,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
             localRender = new ProxyRenderer();
             //远端图像初始化
             remote_view.init(rootEglBase.getEglBaseContext(), null);
-            remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+            remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED);
             remoteRender = new ProxyRenderer();
             setSwappedFeeds(true);
         }
