@@ -5,8 +5,6 @@
 
 #### 一、开源借鉴
 
-ios端的实现：https://www.jianshu.com/p/c49da1d93df4（简书）
-
 android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 服务器端的实现：https://github.com/ddssingsong/webrtc_server.git （github）
