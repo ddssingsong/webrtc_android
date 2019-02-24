@@ -55,8 +55,12 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     public static void openActivity(Context activity, boolean isNoAnimation) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        activity.startActivity(intent);
+        if (activity instanceof Activity) {
+            activity.startActivity(intent);
+        } else {
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            activity.startActivity(intent);
+        }
         if (isNoAnimation) {
             ((Activity) activity).overridePendingTransition(0, 0);
         }
@@ -159,6 +163,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
                 scalingType, false);
 
         x += 30;
+    }
+
+    @Override
+    public void onReceiveAck() {
+
     }
 
 

@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.callback.ConnectCallback;
 import com.dds.webrtclib.callback.IViewCallback;
 import com.dds.webrtclib.callback.WrCallBack;
 import com.dds.webrtclib.ui.ChatRoomActivity;
@@ -70,11 +71,11 @@ public class WebRTCManager implements ISignalingEvents {
 
     private WrCallBack wrCallBack;
 
-    public void setBussinessCallback(WrCallBack wrCallBack) {
+    public void setBushinessCallback(WrCallBack wrCallBack) {
         this.wrCallBack = wrCallBack;
     }
 
-    public WrCallBack getBussinessCallback() {
+    public WrCallBack getBushinessCallback() {
         return wrCallBack;
     }
 
@@ -94,11 +95,11 @@ public class WebRTCManager implements ISignalingEvents {
         mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
-    public void connectSocket(String wss) {
+    public void connectSocket(String wss, ConnectCallback callback) {
         if (this.webSocket == null) {
             this.webSocket = new MxWebSocket(this);
             this.webRTCHelper = new WebRTCHelper(this.webSocket);
-            webSocket.connect(wss);
+            webSocket.connect(wss, callback);
         }
     }
 
@@ -115,7 +116,7 @@ public class WebRTCManager implements ISignalingEvents {
         if (_mediaType.value.equals(EnumMsg.MediaType.Meeting.value)) {
             ChatRoomActivity.openActivity(activity, true);
         } else {
-            ChatSingleActivity.openActivity(activity, _videoEnable, true);
+            ChatSingleActivity.openActivity(activity, _videoEnable, _fromId);
         }
 
     }
@@ -195,7 +196,7 @@ public class WebRTCManager implements ISignalingEvents {
         if (_mediaType.value.equals(EnumMsg.MediaType.Meeting.value)) {
             ChatRoomActivity.openActivity(_context, false);
         } else {
-            ChatSingleActivity.openActivity(_context, _videoEnable, false);
+            ChatSingleActivity.openActivity(_context, _videoEnable, _fromId);
         }
 
 
@@ -223,6 +224,9 @@ public class WebRTCManager implements ISignalingEvents {
         if (webSocket != null) {
             webSocket.sendInvite(userId);
         }
+        if (webRTCHelper != null) {
+            webRTCHelper.onReceiveAck();
+        }
 
     }
 
@@ -230,7 +234,7 @@ public class WebRTCManager implements ISignalingEvents {
     public void onUserInvite(String socketId) {
         //显示来电界面  开始响铃，
         Log.d(TAG, "来电开始响铃：mediaType:" + _mediaType);
-        IncomingActivity.openActivity(_context, _mediaType);
+        IncomingActivity.openActivity(_context, _mediaType, socketId);
         startRinging();
 
 
@@ -270,6 +274,8 @@ public class WebRTCManager implements ISignalingEvents {
         if (webRTCHelper != null) {
             webRTCHelper.onRemoteOutRoom(socketId);
         }
+
+        cancelTimer();
     }
 
     @Override // 对方拒绝接听
@@ -284,6 +290,7 @@ public class WebRTCManager implements ISignalingEvents {
         }
         stopRinging();
         this.callback.onDecline();
+        cancelTimer();
 
     }
 
@@ -302,6 +309,8 @@ public class WebRTCManager implements ISignalingEvents {
             this.callback.onError(msg);
         }
 
+        cancelTimer();
+
 
     }
 
@@ -312,9 +321,7 @@ public class WebRTCManager implements ISignalingEvents {
 
     public synchronized void startRinging() {
         int readExternalStorage = PackageManager.PERMISSION_DENIED;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            readExternalStorage = _context.getPackageManager().checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, _context.getPackageName());
-        }
+        readExternalStorage = _context.getPackageManager().checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, _context.getPackageName());
         if (readExternalStorage != PackageManager.PERMISSION_GRANTED) {
             mAudioManager.setSpeakerphoneOn(true);
             return;
@@ -382,6 +389,26 @@ public class WebRTCManager implements ISignalingEvents {
         }
     }
     //=============================================================================================
+
+    public void startTimer() {
+        if (webRTCHelper != null) {
+            webRTCHelper.startTimer();
+        }
+    }
+
+    public void cancelTimer() {
+        if (webRTCHelper != null) {
+            webRTCHelper.cancelTimer();
+        }
+
+    }
+
+    public long getTime() {
+        if (webRTCHelper != null) {
+            return webRTCHelper.getTime();
+        }
+        return 0;
+    }
 
 
 }

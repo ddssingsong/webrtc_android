@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.dds.webrtclib.EnumMsg;
 import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.callback.ConnectCallback;
 import com.dds.webrtclib.utils.AppRTCUtils;
 
 import org.java_websocket.client.WebSocketClient;
@@ -47,7 +48,7 @@ public class MxWebSocket implements IWebSocket {
     }
 
     @Override
-    public void connect(String wss) {
+    public void connect(String wss, final ConnectCallback callback) {
         URI uri;
         try {
             uri = new URI(wss);
@@ -60,6 +61,10 @@ public class MxWebSocket implements IWebSocket {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
                     events.onWebSocketOpen();
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+
                 }
 
                 @Override
@@ -72,12 +77,21 @@ public class MxWebSocket implements IWebSocket {
                 public void onClose(int code, String reason, boolean remote) {
                     Log.e(TAG, "onClose:" + reason);
                     events.onError("onClose");
+                    if (callback != null) {
+                        callback.onFailed();
+                    }
+
                 }
 
                 @Override
                 public void onError(Exception ex) {
                     Log.e(TAG, ex.toString());
                     events.onError("onError:" + ex.toString());
+                    if (callback != null) {
+                        callback.onFailed();
+                    }
+
+
                 }
             };
         }

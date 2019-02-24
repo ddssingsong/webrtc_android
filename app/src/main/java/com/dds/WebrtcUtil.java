@@ -26,9 +26,9 @@ public class WebrtcUtil {
 //            new MyIceServer("stun:47.254.34.146"),
 //            new MyIceServer("turn:47.254.34.146?transport=udp", "dds", "123456"),
 //            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
-            new MyIceServer("stun:120.78.233.67"),
-            new MyIceServer("turn:120.78.233.67?transport=udp", "trust", "trust"),
-            new MyIceServer("turn:120.78.233.67?transport=tcp", "trust", "trust")
+//            new MyIceServer("stun:120.78.233.67"),
+//            new MyIceServer("turn:120.78.233.67?transport=udp", "trust", "trust"),
+//            new MyIceServer("turn:120.78.233.67?transport=tcp", "trust", "trust")
     };
     private static String signal = "wss://47.254.34.146/wss";
 

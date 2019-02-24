@@ -26,6 +26,8 @@ import org.webrtc.VideoTrack;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class WebRTCHelper {
@@ -48,7 +50,6 @@ public class WebRTCHelper {
     private ArrayList<PeerConnection.IceServer> ICEServers;
     private boolean videoEnable;
 
-
     enum Role {Caller, Receiver,}
 
     private Role _role;// 判断是sendOffer还是sendAnswer
@@ -61,8 +62,7 @@ public class WebRTCHelper {
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
         this.webSocket = webSocket;
-
-
+        this.ICEServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
     }
 
     // 设置界面的回调
@@ -294,6 +294,12 @@ public class WebRTCHelper {
 
     }
 
+    public void onReceiveAck() {
+        if (IHelper != null) {
+            IHelper.onReceiveAck();
+        }
+    }
+
 
     //**************************************各种约束******************************************/
     private MediaConstraints localVideoConstraints() {
@@ -454,6 +460,40 @@ public class WebRTCHelper {
     }
 
 
+    // =====================================================================================
+    private Timer timer;
+    private TimerTask timerTask;
+    private long mTime; // 单位秒
+
+    public void startTimer() {
+        if (timer == null) {
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    mTime++;
+                }
+            };
+        } else {
+            timer.cancel();
+        }
+        timer.schedule(timerTask, 1000L, 1000L);
+
+
+    }
+
+    public void cancelTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+        mTime = 0;
+
+    }
+
+    public long getTime() {
+        return mTime;
+    }
 }
 
 

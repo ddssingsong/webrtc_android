@@ -21,14 +21,17 @@
     <application>
         <activity
             android:name=".ui.ChatRoomActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ChatSingleActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
         <activity
             android:name=".ui.IncomingActivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
     </application>

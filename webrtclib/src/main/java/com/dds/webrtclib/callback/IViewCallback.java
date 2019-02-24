@@ -13,6 +13,8 @@ public interface IViewCallback {
 
     void onAddRemoteStream(MediaStream stream, String socketId);
 
+    void onReceiveAck();
+
     void onCloseWithId(String socketId);
 
     void onDecline();

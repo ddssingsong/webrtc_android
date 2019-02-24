@@ -9,4 +9,14 @@
 
     <string name="pref_speakerphone_key">speakerphone_preference</string>
     <string name="pref_speakerphone_default">auto</string>
+
+    <string name="webrtc_invite_outgoing">呼出中&#8230;</string>
+    <string name="webrtc_invite_waiting">等待对方接听&#8230;</string>
+    <string name="webrtc_invite_connect">连接中&#8230;</string>
+
+    <string name="webrtc_receive_incoming">对方邀请您进行通话&#8230;</string>
+    <string name="webrtc_receive_connect">连接中&#8230;</string>
+    <string name="webrtc_receive_cancel">对方已取消&#8230;</string>
+
+
 </resources>

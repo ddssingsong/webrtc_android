@@ -1,6 +1,7 @@
 package com.dds.webrtclib.ws;
 
 import com.dds.webrtclib.EnumMsg;
+import com.dds.webrtclib.callback.ConnectCallback;
 
 import org.webrtc.IceCandidate;
 
@@ -11,7 +12,7 @@ import org.webrtc.IceCandidate;
 public interface IWebSocket {
 
 
-    void connect(String wss);
+    void connect(String wss, ConnectCallback callback);
 
     void close();
 

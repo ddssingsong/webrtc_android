@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/wr_background"
@@ -45,6 +46,7 @@
         android:gravity="center_horizontal"
         android:text="@string/webrtc_switch_camera"
         android:textColor="@android:color/white"
-        android:textSize="@dimen/wr_control_text_size" />
+        android:textSize="@dimen/wr_control_text_size"
+        tools:ignore="RtlHardcoded" />
 
 </RelativeLayout>

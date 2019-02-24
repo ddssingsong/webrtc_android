@@ -15,7 +15,7 @@
 
     <!--好友昵称-->
     <TextView
-        android:id="@+id/voice_chat_friend_name"
+        android:id="@+id/wr_invite_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/wr_invite_avatar"
@@ -25,4 +25,14 @@
         android:textColor="@android:color/white"
         android:textSize="28sp" />
 
+    <TextView
+        android:id="@+id/wr_receive_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wr_invite_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="@string/webrtc_receive_incoming"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
 </RelativeLayout>

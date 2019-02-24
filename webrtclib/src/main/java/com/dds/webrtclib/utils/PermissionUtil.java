@@ -25,6 +25,13 @@ public class PermissionUtil {
         return isNeedRequestPermission(activity, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
     }
 
+    public static boolean isNeedRequestAudioPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return false;
+        }
+        return isNeedRequestPermission(activity, Manifest.permission.RECORD_AUDIO);
+    }
+
     private static boolean isNeedRequestPermission(Activity activity, String... permissions) {
         List<String> mPermissionListDenied = new ArrayList<>();
         for (String permission : permissions) {

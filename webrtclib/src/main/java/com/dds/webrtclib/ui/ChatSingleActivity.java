@@ -35,7 +35,7 @@ import org.webrtc.VideoRenderer;
  * 2. 一对一语音通话
  */
 public class ChatSingleActivity extends AppCompatActivity implements IViewCallback {
-    private static final String TAG = "dds_ChatSingleActivity";
+    private static final String TAG = "dds_ChatSingle";
     private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
     private ProxyRenderer localRender;
@@ -47,15 +47,22 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
     private boolean isSwappedFeeds;
 
     private boolean videoEnable;
+    private String userId;
 
 
-    public static void openActivity(Context activity, boolean videoEnable, boolean isNoAnimation) {
+    public static void openActivity(Context activity, boolean videoEnable, String userId) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
         intent.putExtra("videoEnable", videoEnable);
-        activity.startActivity(intent);
-        if (isNoAnimation) {
+        intent.putExtra("userId", userId);
+        if (activity instanceof Activity) {
+            activity.startActivity(intent);
             ((Activity) activity).overridePendingTransition(0, 0);
+        } else {
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            activity.startActivity(intent);
         }
+
+
     }
 
 
@@ -77,8 +84,9 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
     private void initVar() {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
+        userId = intent.getStringExtra("userId");
         chatSingleFragment = new ChatSingleFragment();
-        replaceFragment(chatSingleFragment, videoEnable);
+        replaceFragment(chatSingleFragment, videoEnable, userId);
 
         if (videoEnable) {
             local_view = findViewById(R.id.local_view_render);
@@ -121,9 +129,10 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
 
     }
 
-    private void replaceFragment(Fragment fragment, boolean videoEnable) {
+    private void replaceFragment(Fragment fragment, boolean videoEnable, String userId) {
         Bundle bundle = new Bundle();
         bundle.putBoolean("videoEnable", videoEnable);
+        bundle.putString("userId", userId);
         fragment.setArguments(bundle);
         FragmentManager manager = getSupportFragmentManager();
         manager.beginTransaction()
@@ -156,10 +165,47 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
                 @Override
                 public void run() {
                     setSwappedFeeds(false);
+
+                    if (chatSingleFragment != null && chatSingleFragment.isAdded()) {
+                        chatSingleFragment.hideUserInfo();
+                        chatSingleFragment.startTimer();
+                    }
+                    // 开始计时
+                    WebRTCManager.getInstance().startTimer();
+
+
+                }
+            });
+        } else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (chatSingleFragment != null && chatSingleFragment.isAdded()) {
+                        chatSingleFragment.startTimer();
+                    }
+                    // 开始计时
+                    WebRTCManager.getInstance().startTimer();
+
+
                 }
             });
         }
 
+
+    }
+
+    @Override
+    public void onReceiveAck() {
+        // 等待对方接听
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (chatSingleFragment != null) {
+                    chatSingleFragment.setChatTips(getString(R.string.webrtc_invite_waiting));
+                }
+
+            }
+        });
 
     }
 

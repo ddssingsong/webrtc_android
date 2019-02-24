@@ -3,6 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#242424">
+
+    <SurfaceView
+        android:id="@+id/local_view_render"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     <!--头像-->
     <ImageView
         android:id="@+id/wr_invite_avatar"
@@ -25,4 +30,15 @@
         android:textColor="@android:color/white"
         android:textSize="20sp" />
 
+    <TextView
+        android:id="@+id/wr_receive_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wr_invite_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_toEndOf="@id/wr_invite_avatar"
+        android:text="@string/webrtc_receive_incoming"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
 </RelativeLayout>
