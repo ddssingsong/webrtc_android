@@ -144,7 +144,7 @@ public class WebrtcService extends Service {
         int callDuration = (int) WebRTCManager.getInstance().getTime();
         Chronometer timer = null;
         if (v == null) {
-            timer = narrowView.findViewById(R.id.netmonitor_tv);
+            timer = narrowView.findViewById(R.id.chronometer);
         }
         if (timer == null) {
             return;
