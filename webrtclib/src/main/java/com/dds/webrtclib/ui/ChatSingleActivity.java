@@ -16,6 +16,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.dds.webrtclib.EnumMsg;
 import com.dds.webrtclib.R;
 import com.dds.webrtclib.WebRTCHelper;
 import com.dds.webrtclib.WebRTCManager;
@@ -61,8 +62,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             activity.startActivity(intent);
         }
-
-
     }
 
 
@@ -80,6 +79,17 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
         initVar();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (WebRTCManager.getInstance().getDirection() == EnumMsg.Direction.Incoming) {
+            // 如果是來電話,隐藏用户信息
+            if (chatSingleFragment != null) {
+                chatSingleFragment.hideTips();
+            }
+
+        }
+    }
 
     private void initVar() {
         Intent intent = getIntent();
@@ -165,7 +175,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
                 @Override
                 public void run() {
                     setSwappedFeeds(false);
-
                     if (chatSingleFragment != null && chatSingleFragment.isAdded()) {
                         chatSingleFragment.hideUserInfo();
                         chatSingleFragment.startTimer();
@@ -182,6 +191,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
                 public void run() {
                     if (chatSingleFragment != null && chatSingleFragment.isAdded()) {
                         chatSingleFragment.startTimer();
+                        chatSingleFragment.hideTips();
                     }
                     // 开始计时
                     WebRTCManager.getInstance().startTimer();
@@ -195,7 +205,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
     }
 
     @Override
-    public void onReceiveAck() {
+    public void onReceiveAck(String userId) {
         // 等待对方接听
         runOnUiThread(new Runnable() {
             @Override
@@ -250,6 +260,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
 
     // 挂断
     public void hangUp() {
+        WebRTCManager.getInstance().cancelOutgoing();
         exit();
         this.finish();
     }
@@ -268,7 +279,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        exit();
     }
 
     private void exit() {

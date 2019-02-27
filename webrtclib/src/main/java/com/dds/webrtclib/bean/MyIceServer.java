@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
+ * ice实体类
  * Created by dds on 2019/1/9.
  * android_shuai@163.com
  */

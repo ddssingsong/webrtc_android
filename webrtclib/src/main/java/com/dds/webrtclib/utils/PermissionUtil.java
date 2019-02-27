@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 运行时权限
  * Created by dds on 2019/1/2.
  * android_shuai@163.com
  */
@@ -25,6 +26,7 @@ public class PermissionUtil {
         return isNeedRequestPermission(activity, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
     }
 
+    // 检查是否有语音权限
     public static boolean isNeedRequestAudioPermission(Activity activity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return false;

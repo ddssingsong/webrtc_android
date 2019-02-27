@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.dds.webrtclib.EnumMsg;
 import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.bean.OtherInfo;
 import com.dds.webrtclib.callback.ConnectCallback;
 import com.dds.webrtclib.utils.AppRTCUtils;
 
@@ -25,6 +26,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
@@ -64,7 +66,6 @@ public class MxWebSocket implements IWebSocket {
                     if (callback != null) {
                         callback.onSuccess();
                     }
-
                 }
 
                 @Override
@@ -152,6 +153,33 @@ public class MxWebSocket implements IWebSocket {
         Map<String, String> childMap = new HashMap<>();
         childMap.put("ids", ids);
         childMap.put("type", videoEnable ? "2" : "1");
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send:" + jsonString);
+        mWebSocketClient.send(jsonString);
+    }
+
+    @Override
+    public void createRoom(String ids, String groupID, List<OtherInfo> list) {
+        Log.d(TAG, "createRoom:" + AppRTCUtils.getThreadInfo());
+        List<Map<String, String>> childList = new ArrayList<>();
+        for (OtherInfo info : list) {
+            Map<String, String> childMap1 = new HashMap<>();
+            childMap1.put("id", info.getId());
+            childMap1.put("username", info.getId());
+            childMap1.put("avatar", info.getId());
+            childList.add(childMap1);
+        }
+
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("ids", ids);
+        childMap.put("type", "2");
+        childMap.put("groupID", groupID);
+        childMap.put("info", childList);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("action", "room_create");
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
@@ -402,6 +430,7 @@ public class MxWebSocket implements IWebSocket {
         events.onRemoteOutRoom(socketId);
     }
 
+    // 拒絕接聽
     private void handleDecline(Map map) {
         Map data = (Map) map.get("data");
         String reason = (String) data.get("reason");

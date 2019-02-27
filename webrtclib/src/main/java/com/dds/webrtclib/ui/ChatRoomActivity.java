@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.dds.webrtclib.R;
 import com.dds.webrtclib.WebRTCHelper;
@@ -81,8 +80,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         initVar();
         chatRoomFragment = new ChatRoomFragment();
         replaceFragment(chatRoomFragment);
-
-
         startCall();
 
     }
@@ -130,9 +127,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     @Override
     public void onSetLocalStream(MediaStream stream, String socketId) {
-
         Log.i("dds_webrtc", "在本地添加视频");
-
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
         VideoRendererGui.update(localRender,
                 0, 0,
@@ -142,20 +137,12 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     @Override
     public void onAddRemoteStream(MediaStream stream, String socketId) {
-
         Log.i("dds_webrtc", "接受到远端视频流     " + socketId);
-
         _remoteVideoTracks.put(socketId, stream.videoTracks.get(0));
-
-
         VideoRenderer.Callbacks vr = VideoRendererGui.create(
                 0, 0,
                 0, 0, scalingType, false);
-
-
         _remoteVideoView.put(socketId, vr);
-
-
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
         VideoRendererGui.update(vr,
                 x, y,
@@ -166,7 +153,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
     }
 
     @Override
-    public void onReceiveAck() {
+    public void onReceiveAck(String userId) {
+        // 收到对方的回执，显示此人的头像
 
     }
 
@@ -176,12 +164,18 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         Log.i("dds_webrtc", "有用户离开    " + socketId);
         VideoRenderer.Callbacks callbacks = _remoteVideoView.get(socketId);
         VideoRendererGui.remove(callbacks);
-
         _remoteVideoTracks.remove(socketId);
         _remoteVideoView.remove(socketId);
-
         if (_remoteVideoTracks.size() == 0) {
             x = 0;
+        }
+
+        if (_remoteVideoTracks.size() == 0) {
+            //
+            exit();
+            this.finish();
+
+
         }
 
 
@@ -196,7 +190,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(), "通话结束", Toast.LENGTH_LONG).show();
                 ChatRoomActivity.this.finish();
             }
         });

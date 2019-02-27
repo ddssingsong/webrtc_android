@@ -21,8 +21,8 @@ public interface WrCallBack {
 
 
     //获取需要在界面上显示的用户信息
-
     WrUserInfo getInviteInfo(String userId);
+
 
     List<WrUserInfo> getRoomMembers(String ids);
 

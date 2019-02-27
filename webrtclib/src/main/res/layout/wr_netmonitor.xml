@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/webrtc_netmonitor_background"
+        android:scaleX="0.8"
+        android:scaleY="0.8">
+
+        <Chronometer
+            android:id="@+id/chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:drawablePadding="10dp"
+            android:drawableTop="@drawable/webrtc_incoming_call"
+            android:duplicateParentState="true"
+            android:gravity="center"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:textColor="@android:color/holo_red_light" />
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

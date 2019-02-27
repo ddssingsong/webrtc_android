@@ -1,9 +1,12 @@
 package com.dds.webrtclib.ws;
 
 import com.dds.webrtclib.EnumMsg;
+import com.dds.webrtclib.bean.OtherInfo;
 import com.dds.webrtclib.callback.ConnectCallback;
 
 import org.webrtc.IceCandidate;
+
+import java.util.List;
 
 /**
  * Created by dds on 2019/1/3.
@@ -19,6 +22,8 @@ public interface IWebSocket {
     void login(String sessionId);
 
     void createRoom(String ids, boolean videoEnable);//1=语音，2=视频
+
+    void createRoom(String ids, String groupID, List<OtherInfo> list);
 
     void sendInvite(String userId);
 

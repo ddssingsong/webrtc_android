@@ -6,15 +6,15 @@
     <!--头像-->
     <ImageView
         android:id="@+id/wr_invite_avatar"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="130dp"
         android:src="@drawable/webrtc_avatar_default" />
 
     <!--好友昵称-->
     <TextView
-        android:id="@+id/wr_friend_name"
+        android:id="@+id/wr_invite_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/wr_invite_avatar"

@@ -30,6 +30,8 @@ public class IncomingActivity extends AppCompatActivity {
     private String mediaType;
     private String userId;
 
+    public static IncomingActivity incomingActivity;
+
 
     public static void openActivity(Context activity, EnumMsg.MediaType mediaType, String userId) {
         Intent intent = new Intent(activity, IncomingActivity.class);
@@ -42,6 +44,7 @@ public class IncomingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -49,6 +52,7 @@ public class IncomingActivity extends AppCompatActivity {
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        incomingActivity = this;
         setContentView(R.layout.wr_activity_incoming);
         initView();
         initVar();
@@ -120,6 +124,11 @@ public class IncomingActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        incomingActivity = null;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

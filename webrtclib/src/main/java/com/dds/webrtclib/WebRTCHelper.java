@@ -62,7 +62,13 @@ public class WebRTCHelper {
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
         this.webSocket = webSocket;
-        this.ICEServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
+//        this.ICEServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
+//        this.ICEServers.add(new PeerConnection.IceServer("turn:120.78.233.67?transport=udp", "trust", "trust"));
+//        this.ICEServers.add(new PeerConnection.IceServer("turn:120.78.233.67?transport=tcp", "trust", "trust"));
+        //this.ICEServers.add(new PeerConnection.IceServer("stun:120.78.233.67"));
+//        this.ICEServers.add(new PeerConnection.IceServer("turn:47.254.34.146?transport=udp", "trust", "trust"));
+//        this.ICEServers.add(new PeerConnection.IceServer("turn:47.254.34.146?transport=tcp", "trust", "trust"));
+        //this.ICEServers.add(new PeerConnection.IceServer("stun:47.254.34.146"));
     }
 
     // 设置界面的回调
@@ -82,6 +88,7 @@ public class WebRTCHelper {
     // 登陆成功：返回stun和turn地址已经是否
     public void onLoginSuccess(ArrayList<MyIceServer> iceServers, String socketId) {
         _myId = socketId;
+        // 设置服务器获取到的ice
         for (MyIceServer myIceServer : iceServers) {
             PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.urls,
                     myIceServer.username, myIceServer.credential);
@@ -133,6 +140,8 @@ public class WebRTCHelper {
         Log.d(TAG, "onRemoteOutRoom");
         Log.d(TAG, AppRTCUtils.getThreadInfo());
         closePeerConnection(socketId);
+        // 检查是否只剩下自己
+
     }
 
     public void onReceiveOffer(String socketId, String sdp) {
@@ -294,9 +303,9 @@ public class WebRTCHelper {
 
     }
 
-    public void onReceiveAck() {
+    public void onReceiveAck(String userId) {
         if (IHelper != null) {
-            IHelper.onReceiveAck();
+            IHelper.onReceiveAck(userId);
         }
     }
 
@@ -305,9 +314,9 @@ public class WebRTCHelper {
     private MediaConstraints localVideoConstraints() {
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "360"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "720"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minWidth", "160"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "640"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "1280"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minHeight", "120"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "10"));
@@ -321,7 +330,7 @@ public class WebRTCHelper {
         keyValuePairs.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "10"));
-
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("googCpuOveruseDetection", "true"));
         mediaConstraints.optional.addAll(keyValuePairs);
         return mediaConstraints;
     }

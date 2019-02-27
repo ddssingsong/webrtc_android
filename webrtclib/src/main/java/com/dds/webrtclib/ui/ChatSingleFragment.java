@@ -120,6 +120,7 @@ public class ChatSingleFragment extends Fragment {
     }
 
     private void initListener() {
+        // 静音
         wr_switch_mute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,12 +142,14 @@ public class ChatSingleFragment extends Fragment {
 
             }
         });
+        // 挂断
         wr_switch_hang_up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 activity.hangUp();
             }
         });
+        // 切换摄像头
         wr_switch_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,6 +157,7 @@ public class ChatSingleFragment extends Fragment {
             }
         });
 
+        // 扬声器
         wr_hand_free.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,10 +180,19 @@ public class ChatSingleFragment extends Fragment {
         });
     }
 
+    // 接听成功，隐藏用户信息
     public void hideUserInfo() {
         if (wr_invite_avatar != null) {
             wr_invite_avatar.setVisibility(View.GONE);
             wr_invite_name.setVisibility(View.GONE);
+            wr_invite_tips.setVisibility(View.GONE);
+        }
+
+    }
+
+    public void hideTips() {
+        if (wr_invite_tips != null) {
+            wr_invite_tips.setVisibility(View.GONE);
         }
 
     }

@@ -12,6 +12,8 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 
 /**
+ * 显示圆角矩形图片
+ * 配合Glide使用
  * Created by dds on 2018/7/13.
  * android_shuai@163.com
  */
