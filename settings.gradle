@@ -1,1 +1,1 @@
-include ':app', ':skywebrtc2'
+include ':app', ':skywebrtc2', ':skywebrtc3'

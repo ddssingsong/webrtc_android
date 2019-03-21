@@ -70,12 +70,12 @@ public class WebRTCHelper implements ISignalingEvents {
     private IWebSocket webSocket;
 
     private Context _context;
-    private EglBase _rootEglBase;
+    private EglBase.Context _eglContext;
 
-    public WebRTCHelper(Context context, IWebRTCHelper IHelper, Parcelable[] servers, EglBase rootEglBase) {
+    public WebRTCHelper(Context context, IWebRTCHelper IHelper, Parcelable[] servers, EglBase.Context eglContext) {
         this.IHelper = IHelper;
         _context = context;
-        _rootEglBase = rootEglBase;
+        _eglContext = eglContext;
         this._connectionPeerDic = new HashMap<>();
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
@@ -102,9 +102,7 @@ public class WebRTCHelper implements ISignalingEvents {
         if (_factory == null) {
             PeerConnectionFactory.initializeAndroidGlobals(_context, true, true, true);
             _factory = new PeerConnectionFactory(null);
-            if (_rootEglBase != null) {
-                _factory.setVideoHwAccelerationOptions(_rootEglBase.getEglBaseContext(), _rootEglBase.getEglBaseContext());
-            }
+            _factory.setVideoHwAccelerationOptions(_eglContext,_eglContext);
 
         }
         if (_localStream == null) {

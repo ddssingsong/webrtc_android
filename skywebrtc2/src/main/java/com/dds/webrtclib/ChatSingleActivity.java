@@ -112,7 +112,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     private void startCall() {
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
-            helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers,rootEglBase);
+            helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers,rootEglBase.getEglBaseContext());
             helper.initSocket(signal, room, videoEnable);
         }
 
@@ -215,7 +215,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
             }
         }
 
-        helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers, rootEglBase);
+        helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers, rootEglBase.getEglBaseContext());
         helper.initSocket(signal, room, videoEnable);
 
 
