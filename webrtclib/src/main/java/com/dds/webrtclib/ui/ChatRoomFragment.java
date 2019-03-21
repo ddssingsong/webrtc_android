@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.dds.webrtclib.EnumMsg;
 import com.dds.webrtclib.R;
+import com.dds.webrtclib.WebRTCManager;
 import com.dds.webrtclib.utils.Utils;
 
 /**
@@ -27,7 +29,7 @@ public class ChatRoomFragment extends Fragment {
     private TextView wr_switch_camera;
     private ChatRoomActivity chatRoomActivity;
 
-    private boolean enableMic = true;
+    private boolean enableMic = true;   // 麦克风
 
     @Override
     public void onAttach(Context context) {
@@ -54,6 +56,11 @@ public class ChatRoomFragment extends Fragment {
         wr_switch_mute = rootView.findViewById(R.id.wr_switch_mute);
         wr_switch_hang_up = rootView.findViewById(R.id.wr_switch_hang_up);
         wr_switch_camera = rootView.findViewById(R.id.wr_switch_camera);
+
+        // 接收会议端设置设置静音
+        boolean isMicEnable = WebRTCManager.getInstance().getDirection() == EnumMsg.Direction.Outgoing;
+        toggleMic(isMicEnable);
+
     }
 
     private void initListener() {
@@ -61,19 +68,7 @@ public class ChatRoomFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 enableMic = !enableMic;
-                if (enableMic) {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
-                    if (drawable != null) {
-                        drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
-                    }
-                    wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
-                } else {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
-                    if (drawable != null) {
-                        drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
-                    }
-                    wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
-                }
+                toggleMic(enableMic);
                 chatRoomActivity.toggleMic(enableMic);
 
             }
@@ -90,6 +85,23 @@ public class ChatRoomFragment extends Fragment {
                 chatRoomActivity.switchCamera();
             }
         });
+    }
+
+
+    private void toggleMic(boolean isMicEnable) {
+        if (isMicEnable) {
+            Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
+            if (drawable != null) {
+                drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
+            }
+            wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+        } else {
+            Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
+            if (drawable != null) {
+                drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
+            }
+            wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+        }
     }
 
     @Override

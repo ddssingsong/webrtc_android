@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Window;
 import android.view.WindowManager;
 
 import com.dds.webrtclib.R;
@@ -52,28 +51,23 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     private ChatRoomFragment chatRoomFragment;
 
-    public static void openActivity(Context activity, boolean isNoAnimation) {
+    public static void openActivity(Context activity) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
         if (activity instanceof Activity) {
             activity.startActivity(intent);
+            ((Activity) activity).overridePendingTransition(0, 0);
         } else {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             activity.startActivity(intent);
         }
-        if (isNoAnimation) {
-            ((Activity) activity).overridePendingTransition(0, 0);
-        }
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wr_activity_chat_room);
         initView();
@@ -84,6 +78,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
 
     private void initView() {
         vsv = findViewById(R.id.wr_glview_call);
@@ -98,8 +97,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             width = manager.getDefaultDisplay().getWidth() / 3.0;
         }
         height = width * 32.0 / 24.0;
-        x = 0;
-        y = 70;
+        x = 32;
+        y = 0;
 
 
     }
@@ -120,7 +119,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
 
         localRender = VideoRendererGui.create(0, 0,
-                100, 100, scalingType, true);
+                30, 30, scalingType, true);
 
 
     }
@@ -131,8 +130,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
         VideoRendererGui.update(localRender,
                 0, 0,
-                100, 100,
-                scalingType, false);
+                30, 30,
+                scalingType, true);
     }
 
     @Override
@@ -143,13 +142,20 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
                 0, 0,
                 0, 0, scalingType, false);
         _remoteVideoView.put(socketId, vr);
+
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
+
         VideoRendererGui.update(vr,
                 x, y,
-                30, x + 30,
+                30, 30,
                 scalingType, false);
 
-        x += 30;
+        x = x + 32;
+        if (x > 90) {
+            y += 32;
+            x = 0;
+        }
+
     }
 
     @Override

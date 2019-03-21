@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -18,20 +17,19 @@ import com.dds.webrtclib.EnumMsg;
 import com.dds.webrtclib.R;
 import com.dds.webrtclib.WebRTCHelper;
 import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.WebrtcService;
 import com.dds.webrtclib.utils.PermissionUtil;
 
 /**
  * 来电显示界面
  */
 public class IncomingActivity extends AppCompatActivity {
-
     private TextView wr_hang_up;
     private TextView wr_accept;
     private String mediaType;
     private String userId;
 
     public static IncomingActivity incomingActivity;
-
 
     public static void openActivity(Context activity, EnumMsg.MediaType mediaType, String userId) {
         Intent intent = new Intent(activity, IncomingActivity.class);
@@ -44,33 +42,42 @@ public class IncomingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        incomingActivity = this;
+        //设置锁屏状态下也能亮屏
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE;
         setContentView(R.layout.wr_activity_incoming);
+        incomingActivity = this;
         initView();
         initVar();
         initListener();
+
+        WebrtcService.incomingNotification(this);
 
     }
 
 
     private void initView() {
-        wr_accept = (TextView) findViewById(R.id.wr_accept);
-        wr_hang_up = (TextView) findViewById(R.id.wr_hang_up);
+        wr_accept = findViewById(R.id.wr_accept);
+        wr_hang_up = findViewById(R.id.wr_hang_up);
 
     }
 
     private void initVar() {
         Intent intent = getIntent();
-        mediaType = intent.getStringExtra("mediaType");
-        userId = intent.getStringExtra("userId");
+        if (intent.hasExtra("mediaType")) {
+            mediaType = intent.getStringExtra("mediaType");
+        } else {
+            mediaType = WebRTCManager.getInstance().get_mediaType().value;
+        }
+        if (intent.hasExtra("userId")) {
+            userId = intent.getStringExtra("userId");
+        } else {
+            userId = WebRTCManager.getInstance().get_userId();
+        }
 
 
         if (EnumMsg.MediaType.Meeting.value.equals(mediaType)) {
@@ -108,6 +115,7 @@ public class IncomingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 WebRTCManager.getInstance().refuseCall();
                 IncomingActivity.this.finish();
+
             }
         });
     }
@@ -128,6 +136,8 @@ public class IncomingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         incomingActivity = null;
+
+
     }
 
     @Override
@@ -135,6 +145,7 @@ public class IncomingActivity extends AppCompatActivity {
         for (int i = 0; i < permissions.length; i++) {
             Log.i(WebRTCHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                WebRTCManager.getInstance().exitRoom();
                 finish();
                 break;
             }

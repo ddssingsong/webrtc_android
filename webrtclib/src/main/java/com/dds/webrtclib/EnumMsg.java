@@ -30,4 +30,16 @@ public class EnumMsg {
         }
     }
 
+    //通话状态
+    public enum CallState {
+        Outgoing(0),
+        Incoming(1),
+        Calling(2);
+        public final int value;
+
+        CallState(int value) {
+            this.value = value;
+        }
+    }
+
 }

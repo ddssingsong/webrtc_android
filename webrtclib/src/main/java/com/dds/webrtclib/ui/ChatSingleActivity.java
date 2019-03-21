@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -50,9 +49,14 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
     private boolean videoEnable;
     private String userId;
 
+    public static ChatSingleActivity activity;
 
-    public static void openActivity(Context activity, boolean videoEnable, String userId) {
+    private int mCallState;
+
+
+    public static void openActivity(Context activity, boolean videoEnable, String userId, int state) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
+        intent.putExtra("callState", state);
         intent.putExtra("videoEnable", videoEnable);
         intent.putExtra("userId", userId);
         if (activity instanceof Activity) {
@@ -64,18 +68,20 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wr_activity_chat_single);
+        activity = this;
         initVar();
     }
 
@@ -95,6 +101,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
         userId = intent.getStringExtra("userId");
+        mCallState = intent.getIntExtra("callState", 0);
         chatSingleFragment = new ChatSingleFragment();
         replaceFragment(chatSingleFragment, videoEnable, userId);
 
@@ -128,6 +135,13 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
         this.isSwappedFeeds = isSwappedFeeds;
         localRender.setTarget(isSwappedFeeds ? remote_view : local_view);
         remoteRender.setTarget(isSwappedFeeds ? local_view : remote_view);
+        if (isSwappedFeeds) {
+            remote_view.setMirror(true);
+            local_view.setMirror(false);
+        } else {
+            remote_view.setMirror(false);
+            local_view.setMirror(true);
+        }
     }
 
     private void startCall() {
@@ -181,7 +195,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
                     }
                     // 开始计时
                     WebRTCManager.getInstance().startTimer();
-
+                    mCallState = EnumMsg.CallState.Calling.value;
 
                 }
             });
@@ -195,7 +209,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
                     }
                     // 开始计时
                     WebRTCManager.getInstance().startTimer();
-
+                    mCallState = EnumMsg.CallState.Calling.value;
 
                 }
             });
@@ -226,6 +240,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
             public void run() {
                 Toast.makeText(ChatSingleActivity.this, "对方已挂断", Toast.LENGTH_SHORT).show();
                 exit();
+
             }
         });
 
@@ -260,7 +275,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
 
     // 挂断
     public void hangUp() {
-        WebRTCManager.getInstance().cancelOutgoing();
+        WebRTCManager.getInstance().cancelOutgoing(mCallState);
         exit();
         this.finish();
     }
@@ -279,6 +294,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        activity = null;
     }
 
     private void exit() {

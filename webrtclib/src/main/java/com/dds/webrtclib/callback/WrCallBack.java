@@ -20,6 +20,9 @@ public interface WrCallBack {
     void terminateIncomingCall(boolean isVideo, String friendId, String message, boolean isMiss);
 
 
+    void startMeeting(String groupId);
+
+
     //获取需要在界面上显示的用户信息
     WrUserInfo getInviteInfo(String userId);
 

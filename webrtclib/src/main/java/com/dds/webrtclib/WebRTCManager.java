@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.Log;
@@ -58,6 +60,8 @@ public class WebRTCManager implements ISignalingEvents {
     private MediaPlayer mRingerPlayer;
     private Vibrator mVibrator;
     private IViewCallback callback;
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     public static WebRTCManager getInstance() {
         return Holder.wrManager;
@@ -157,10 +161,14 @@ public class WebRTCManager implements ISignalingEvents {
     public void acceptCall(Activity activity) {
         stopRinging();
         if (_mediaType.value.equals(EnumMsg.MediaType.Meeting.value)) {
-            ChatRoomActivity.openActivity(activity, true);
+            toggleMute(false);
+            ChatRoomActivity.openActivity(activity);
+            WebrtcService.callingMeetingNotification(_context);
         } else {
-            ChatSingleActivity.openActivity(activity, _videoEnable, _userId);
+            ChatSingleActivity.openActivity(activity, _videoEnable, _userId, EnumMsg.CallState.Incoming.value);
+            WebrtcService.callingNotification(_context);
         }
+
 
     }
 
@@ -172,11 +180,12 @@ public class WebRTCManager implements ISignalingEvents {
         }
         if (wrCallBack != null) {
             if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
-                wrCallBack.terminateCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_refuse));
+                // 已拒绝
+                wrCallBack.terminateIncomingCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_refuse), false);
             }
-
         }
 
+        WebrtcService.destory(_context);
 
     }
 
@@ -194,26 +203,37 @@ public class WebRTCManager implements ISignalingEvents {
         if (webRTCHelper != null) {
             webRTCHelper.toggleMute(enable);
         }
-
     }
 
     //扬声器
-    public void toggleSpeaker(boolean enable) {
+    public void toggleSpeaker(final boolean enable) {
         if (mAudioManager != null) {
             mAudioManager.setSpeakerphoneOn(enable);
+
+
         }
     }
 
 
     // 取消拨出
-    public void cancelOutgoing() {
+    public void cancelOutgoing(int callState) {
         stopMomo();
         if (webSocket != null) {
-            webSocket.decline(_userId, EnumMsg.Decline.Cancel);
+            if (callState == EnumMsg.CallState.Outgoing.value) {
+                webSocket.decline(_userId, EnumMsg.Decline.Cancel);
+            }
+
         }
         if (wrCallBack != null) {
             if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
-                wrCallBack.terminateCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_refuse));
+                if (getTime() > 0) {
+                    // 聊天时长
+                    wrCallBack.terminateCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_time, getTimeStr()));
+                } else {
+                    // 已取消
+                    wrCallBack.terminateCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_cancel));
+                }
+
             }
 
         }
@@ -229,7 +249,23 @@ public class WebRTCManager implements ISignalingEvents {
             webSocket.close();
             webSocket = null;
         }
+        WebrtcService.destory(_context);
 
+    }
+
+    //插入一条消息
+    public void insertMsg() {
+        if (wrCallBack != null) {
+            if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
+                if (_direction == EnumMsg.Direction.Incoming) {
+                    wrCallBack.terminateIncomingCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_time, getTimeStr()), false);
+                } else {
+                    wrCallBack.terminateCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_time, getTimeStr()));
+                }
+
+            }
+
+        }
     }
 
     //==============================================================================================
@@ -264,9 +300,9 @@ public class WebRTCManager implements ISignalingEvents {
         _room = room;
         // 进入房间
         if (_mediaType.value.equals(EnumMsg.MediaType.Meeting.value)) {
-            ChatRoomActivity.openActivity(_context, false);
+            ChatRoomActivity.openActivity(_context);
         } else {
-            ChatSingleActivity.openActivity(_context, _videoEnable, _userId);
+            ChatSingleActivity.openActivity(_context, _videoEnable, _userId, EnumMsg.CallState.Outgoing.value);
         }
 
 
@@ -285,6 +321,9 @@ public class WebRTCManager implements ISignalingEvents {
             webRTCHelper.onJoinToRoom(connections, myId, _videoEnable);
             if (_videoEnable) {
                 toggleSpeaker(true);
+                if (_mediaType == EnumMsg.MediaType.Meeting && _direction == EnumMsg.Direction.Incoming) {
+                    toggleMute(false);
+                }
             }
         }
     }
@@ -312,7 +351,7 @@ public class WebRTCManager implements ISignalingEvents {
     }
 
     @Override
-    public void onRemoteJoinToRoom(String socketId) {
+    public void onRemoteJoinToRoom(final String socketId) {
         if (webRTCHelper != null) {
             webRTCHelper.onRemoteJoinToRoom(socketId);
         }
@@ -320,39 +359,80 @@ public class WebRTCManager implements ISignalingEvents {
     }
 
     @Override
-    public void onReceiveOffer(String socketId, String sdp) {
-        if (webRTCHelper != null) {
-            webRTCHelper.onReceiveOffer(socketId, sdp);
-        }
+    public void onReceiveOffer(final String socketId, final String sdp) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (webRTCHelper != null) {
+                    webRTCHelper.onReceiveOffer(socketId, sdp);
+                }
+            }
+        });
+
+
         stopMomo();
     }
 
     @Override
-    public void onReceiverAnswer(String socketId, String sdp) {
-        if (webRTCHelper != null) {
-            webRTCHelper.onReceiverAnswer(socketId, sdp);
-        }
+    public void onReceiverAnswer(final String socketId, final String sdp) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (webRTCHelper != null) {
+                    webRTCHelper.onReceiverAnswer(socketId, sdp);
+                }
+            }
+        });
+
+
     }
 
     @Override
-    public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
-        if (webRTCHelper != null) {
-            webRTCHelper.onRemoteIceCandidate(socketId, iceCandidate);
-        }
+    public void onRemoteIceCandidate(final String socketId, final IceCandidate iceCandidate) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (webRTCHelper != null) {
+                    webRTCHelper.onRemoteIceCandidate(socketId, iceCandidate);
+                }
+            }
+        });
+
     }
 
+
     @Override
-    public void onRemoteOutRoom(String socketId) {
-        if (webRTCHelper != null) {
-            webRTCHelper.onRemoteOutRoom(socketId);
-        }
+    public void onRemoteOutRoom(final String socketId) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (webRTCHelper != null) {
+                    webRTCHelper.onRemoteOutRoom(socketId);
+                }
+
+            }
+        });
+        insertMsg();
         cancelTimer();
+        WebrtcService.destory(_context);
     }
 
     @Override // 1.对方拒绝接听 2.邀请者取消拨出
     public void onDecline(EnumMsg.Decline decline) {
         if (IncomingActivity.incomingActivity != null) {
             IncomingActivity.incomingActivity.finish();
+        }
+        // 对方已取消
+        if (wrCallBack != null && (decline == EnumMsg.Decline.Cancel)) {
+            if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
+                wrCallBack.terminateIncomingCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_other_has_cancel), true);
+            }
+        }
+        // 对方已拒绝
+        if (wrCallBack != null && (decline == EnumMsg.Decline.Refuse || decline == EnumMsg.Decline.Busy)) {
+            if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
+                wrCallBack.terminateCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_other_has_refuse));
+            }
         }
 
         if (_mediaType != EnumMsg.MediaType.Meeting) {
@@ -371,16 +451,7 @@ public class WebRTCManager implements ISignalingEvents {
             stopMomo();
             cancelTimer();
 
-            if (wrCallBack != null && (decline == EnumMsg.Decline.Refuse || decline == EnumMsg.Decline.Busy)) {
-                // 对方拒绝接听
-                if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
-                    wrCallBack.terminateIncomingCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_refuse), false);
-                }
-            } else if (wrCallBack != null && (decline == EnumMsg.Decline.Cancel)) {
-                if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
-                    wrCallBack.terminateIncomingCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_cancel), true);
-                }
-            }
+            WebrtcService.destory(_context);
         }
 
 
@@ -402,12 +473,8 @@ public class WebRTCManager implements ISignalingEvents {
             this.callback.onError(msg);
         }
         cancelTimer();
-        if (wrCallBack != null) {
-            if (_mediaType.value.equals(EnumMsg.MediaType.Video.value) || _mediaType.value.equals(EnumMsg.MediaType.Audio.value)) {
-                wrCallBack.terminateIncomingCall(_videoEnable, _userId, _context.getString(R.string.webrtc_chat_has_cancel), false);
 
-            }
-        }
+        WebrtcService.destory(_context);
 
     }
 
@@ -534,8 +601,7 @@ public class WebRTCManager implements ISignalingEvents {
 
     public String getTimeStr() {
         if (webRTCHelper != null) {
-            String time = formatTime((long) (webRTCHelper.getTime() * 1000));
-            return time;
+            return formatTime((long) (webRTCHelper.getTime() * 1000));
         }
         return "00:01";
     }
@@ -566,4 +632,11 @@ public class WebRTCManager implements ISignalingEvents {
 
     }
 
+    public EnumMsg.MediaType get_mediaType() {
+        return _mediaType;
+    }
+
+    public String get_userId() {
+        return _userId;
+    }
 }

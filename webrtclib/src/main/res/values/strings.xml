@@ -1,4 +1,5 @@
 <resources>
+    <string name="webrtc_chat_notify">媒体通话</string>
     <string name="webrtc_chat_mute">静音</string>
     <string name="webrtc_chat_hands_free">免提</string>
     <string name="webrtc_chat_refuse">拒接</string>
@@ -21,6 +22,8 @@
 
     <string name="webrtc_chat_has_refuse">已拒绝</string>
     <string name="webrtc_chat_has_cancel">已取消</string>
+    <string name="webrtc_chat_other_has_refuse">对方已拒绝</string>
+    <string name="webrtc_chat_other_has_cancel">对方已取消</string>
     <string name="webrtc_chat_time">通话时长：%s</string>
 
 

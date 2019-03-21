@@ -131,7 +131,7 @@ public class MxWebSocket implements IWebSocket {
     //=================================上行数据=================================================
     @Override
     public void login(String sessionId) {
-        Log.d(TAG, "login:" + AppRTCUtils.getThreadInfo());
+       // Log.d(TAG, "login:" + AppRTCUtils.getThreadInfo());
         Map<String, Object> map = new HashMap<>();
         map.put("action", "user_login");
         Map<String, String> childMap = new HashMap<>();
@@ -254,12 +254,15 @@ public class MxWebSocket implements IWebSocket {
         Map<String, Object> childMap1 = new HashMap();
         childMap1.put("sdp", sdp);
         childMap1.put("type", "answer");
+
         HashMap<String, Object> childMap2 = new HashMap();
         childMap2.put("socketID", socketId);
         childMap2.put("sdp", childMap1);
+
         HashMap<String, Object> map = new HashMap();
         map.put("action", "user_sendAnswer");
         map.put("data", childMap2);
+
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
         mWebSocketClient.send(jsonString);
@@ -430,7 +433,7 @@ public class MxWebSocket implements IWebSocket {
         events.onRemoteOutRoom(socketId);
     }
 
-    // 拒絕接聽
+    // 拒絕接聽 取消拨出  忙线（暂无）
     private void handleDecline(Map map) {
         Map data = (Map) map.get("data");
         String reason = (String) data.get("reason");

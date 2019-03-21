@@ -1,12 +1,18 @@
 package com.dds.webrtclib;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,19 +20,87 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 
+import com.dds.webrtclib.ui.ChatRoomActivity;
+import com.dds.webrtclib.ui.ChatSingleActivity;
+import com.dds.webrtclib.ui.IncomingActivity;
 import com.dds.webrtclib.utils.SettingsCompat;
+
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 /**
  * Created by dds on 2019/2/26.
  * android_shuai@163.com
  */
 public class WebrtcService extends Service {
+
+
+    private static final String INCOMING = "incoming";
+    private static final String CALLING = "person_calling";
+    private static final String MEETING_CALLING = "meeting_calling";
+
+
+    public static void incomingNotification(Context context) {
+        Intent intent = new Intent(context, WebrtcService.class);
+        intent.putExtra("type", INCOMING);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
+    }
+
+
+    public static void callingNotification(Context context) {
+        Intent intent = new Intent(context, WebrtcService.class);
+        intent.putExtra("type", CALLING);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
+    }
+
+    public static void callingMeetingNotification(Context context) {
+        Intent intent = new Intent(context, WebrtcService.class);
+        intent.putExtra("type", MEETING_CALLING);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
+    }
+
+    public static void destory(Context context) {
+        Intent intent = new Intent(context, WebrtcService.class);
+        context.stopService(intent);
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String type = intent.getStringExtra("type");
+        if (type.equals(INCOMING)) {
+            sendNotification(NOTIFY_INCOMING, "来电...");
+        } else if (type.equals(CALLING)) {
+            sendNotification(NOTIFY_CALL, "通话中...");
+        } else if (type.equals(MEETING_CALLING)) {
+            sendNotification(NOTIFY_MEETING_CALL, "会议通话中...");
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
 
     //悬浮窗
     private Chronometer nominator_tv;
@@ -151,6 +225,82 @@ public class WebrtcService extends Service {
         }
         timer.setBase(SystemClock.elapsedRealtime() - 1000 * callDuration);
         timer.start();
+    }
+
+    @Override
+    public void onDestroy() {
+        cancelNotification(NOTIFY_INCOMING);
+        cancelNotification(NOTIFY_CALL);
+        super.onDestroy();
+    }
+
+
+    // ============================================================================================
+    private NotificationManager mNM;
+    private static final String id = "channel_voip";
+    private static final String name = "语音通话";
+    private static final int NotifyId = 10000;
+    public static final int NOTIFY_INCOMING = 100;
+    public static final int NOTIFY_CALL = 300;
+    public static final int NOTIFY_MEETING_CALL = 200;
+    private static final String CHAT_TYPE = "chatType";
+
+    //添加通知
+    public void sendNotification(int type, String content) {
+        mNM.cancel(NotifyId);
+        createNotificationChannel();
+        Notification notification = getNotification(type, getString(R.string.webrtc_chat_notify), content).build();
+        mNM.notify(NotifyId, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForeground(NotifyId, notification);
+        }
+    }
+
+    //消除通知
+    public void cancelNotification(int type) {
+        mNM.cancel(NotifyId);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            mNM.deleteNotificationChannel(id);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            stopForeground(Service.STOP_FOREGROUND_REMOVE);
+        }
+    }
+
+    public void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH);
+            mNM.deleteNotificationChannel(id);
+            mNM.createNotificationChannel(channel);
+        }
+
+    }
+
+    public NotificationCompat.Builder getNotification(int type, String title, String content) {
+        Intent resultIntent = new Intent();
+        if (type == NOTIFY_INCOMING) {
+            resultIntent.setClass(this, IncomingActivity.class);
+        } else if (type == NOTIFY_CALL) {
+            resultIntent.setClass(this, ChatSingleActivity.class);
+        } else if (type == NOTIFY_MEETING_CALL) {
+            resultIntent.setClass(this, ChatRoomActivity.class);
+        }
+        resultIntent.putExtra(CHAT_TYPE, type);
+        resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), id)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setContentIntent(resultPendingIntent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            builder.setSmallIcon(R.drawable.webrtc_answer);
+        } else {
+            builder.setSmallIcon(R.drawable.webrtc_answer);
+        }
+        return builder;
+
     }
 
 }

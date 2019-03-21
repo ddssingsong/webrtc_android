@@ -21,6 +21,11 @@ public class WrCallBackDefault implements WrCallBack {
     }
 
     @Override
+    public void startMeeting(String groupId) {
+
+    }
+
+    @Override
     public WrUserInfo getInviteInfo(String userId) {
         return null;
     }

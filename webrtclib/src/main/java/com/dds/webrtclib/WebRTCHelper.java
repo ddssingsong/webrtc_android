@@ -24,10 +24,13 @@ import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class WebRTCHelper {
@@ -40,28 +43,29 @@ public class WebRTCHelper {
     private VideoCapturerAndroid captureAndroid;
     private VideoSource videoSource;
 
-
     private ArrayList<String> _connectionIdArray; // socketId 的集合
-    private Map<String, Peer> _connectionPeerDic; // Peer的集合
+    private ConcurrentHashMap<String, Peer> _connectionPeerDic; // Peer的集合
 
     private String _myId;
     private IViewCallback IHelper;
 
-    private ArrayList<PeerConnection.IceServer> ICEServers;
+    private List<PeerConnection.IceServer> ICEServers;
     private boolean videoEnable;
 
     enum Role {Caller, Receiver,}
 
+
     private Role _role;// 判断是sendOffer还是sendAnswer
 
     private IWebSocket webSocket;
-
+    private final ExecutorService executor;
 
     public WebRTCHelper(IWebSocket webSocket) {
-        this._connectionPeerDic = new HashMap<>();
+        this._connectionPeerDic = new ConcurrentHashMap<>();
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
         this.webSocket = webSocket;
+        executor = Executors.newSingleThreadExecutor();
 //        this.ICEServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
 //        this.ICEServers.add(new PeerConnection.IceServer("turn:120.78.233.67?transport=udp", "trust", "trust"));
 //        this.ICEServers.add(new PeerConnection.IceServer("turn:120.78.233.67?transport=tcp", "trust", "trust"));
@@ -115,9 +119,10 @@ public class WebRTCHelper {
     }
 
 
-    public void onRemoteJoinToRoom(String socketId) {
+    public void onRemoteJoinToRoom(final String socketId) {
         Log.d(TAG, "onRemoteJoinToRoom");
         Log.d(TAG, AppRTCUtils.getThreadInfo());
+
         if (_localStream == null) {
             createLocalStream();
         }
@@ -127,38 +132,62 @@ public class WebRTCHelper {
         _connectionIdArray.add(socketId);
         _connectionPeerDic.put(socketId, mPeer);
 
+
     }
 
-    public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
+    public void onRemoteIceCandidate(final String socketId, final IceCandidate iceCandidate) {
         Log.d(TAG, "onRemoteIceCandidate");
         Log.d(TAG, AppRTCUtils.getThreadInfo());
-        Peer peer = _connectionPeerDic.get(socketId);
-        peer.pc.addIceCandidate(iceCandidate);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Peer peer = _connectionPeerDic.get(socketId);
+                peer.pc.addIceCandidate(iceCandidate);
+            }
+        });
+
     }
 
-    public void onRemoteOutRoom(String socketId) {
+    public void onRemoteOutRoom(final String socketId) {
         Log.d(TAG, "onRemoteOutRoom");
         Log.d(TAG, AppRTCUtils.getThreadInfo());
-        closePeerConnection(socketId);
-        // 检查是否只剩下自己
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                closePeerConnection(socketId);
+            }
+        });
+
 
     }
 
-    public void onReceiveOffer(String socketId, String sdp) {
+    public void onReceiveOffer(final String socketId, final String sdp) {
         Log.d(TAG, "onReceiveOffer");
         Log.d(TAG, AppRTCUtils.getThreadInfo());
-        _role = Role.Receiver;
-        Peer mPeer = _connectionPeerDic.get(socketId);
-        SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
-        mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                _role = Role.Receiver;
+                Peer mPeer = _connectionPeerDic.get(socketId);
+                SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
+                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+            }
+        });
+
     }
 
-    public void onReceiverAnswer(String socketId, String sdp) {
+    public void onReceiverAnswer(final String socketId, final String sdp) {
         Log.d(TAG, "onReceiverAnswer");
         Log.d(TAG, AppRTCUtils.getThreadInfo());
-        Peer mPeer = _connectionPeerDic.get(socketId);
-        SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
-        mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Peer mPeer = _connectionPeerDic.get(socketId);
+                SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
+                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+            }
+        });
+
     }
 
 
@@ -183,6 +212,8 @@ public class WebRTCHelper {
     public void toggleMute(boolean enable) {
         if (_localAudioTrack != null) {
             _localAudioTrack.setEnabled(enable);
+
+
         }
     }
 
@@ -191,12 +222,12 @@ public class WebRTCHelper {
         if (videoSource != null) {
             videoSource.stop();
         }
-        ArrayList myCopy;
-        myCopy = (ArrayList) _connectionIdArray.clone();
-        for (Object Id : myCopy) {
-            closePeerConnection((String) Id);
-        }
         if (_connectionIdArray != null) {
+            ArrayList myCopy;
+            myCopy = (ArrayList) _connectionIdArray.clone();
+            for (Object Id : myCopy) {
+                closePeerConnection((String) Id);
+            }
             _connectionIdArray.clear();
         }
         _localStream = null;
@@ -208,8 +239,8 @@ public class WebRTCHelper {
         _localStream = _factory.createLocalMediaStream("ARDAMS");
         // 音频
         MediaConstraints audioConstraints = new MediaConstraints();
-//        audioConstraints.mandatory.add(
-//                new MediaConstraints.KeyValuePair("levelControl", "true"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair("levelControl", "true"));
         AudioSource audioSource = _factory.createAudioSource(audioConstraints);
         _localAudioTrack = _factory.createAudioTrack("ARDAMSa0", audioSource);
         _localStream.addTrack(_localAudioTrack);
@@ -294,8 +325,12 @@ public class WebRTCHelper {
         if (mPeer != null) {
             mPeer.pc.close();
         }
-        _connectionPeerDic.remove(connectionId);
-        _connectionIdArray.remove(connectionId);
+        try {
+            _connectionPeerDic.remove(connectionId);
+            _connectionIdArray.remove(connectionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (IHelper != null) {
             IHelper.onCloseWithId(connectionId);
@@ -314,9 +349,9 @@ public class WebRTCHelper {
     private MediaConstraints localVideoConstraints() {
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "720"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxWidth", "640"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minWidth", "160"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "1280"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("maxHeight", "720"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minHeight", "120"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("minFrameRate", "1"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("maxFrameRate", "10"));
@@ -365,15 +400,17 @@ public class WebRTCHelper {
 
         @Override
         public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {
+            Log.v(TAG, "onIceConnectionChange:" + iceConnectionState.toString());
         }
 
         @Override
         public void onIceConnectionReceivingChange(boolean b) {
-
+            Log.v(TAG, "onIceConnectionReceivingChange:" + b);
         }
 
         @Override
         public void onIceGatheringChange(PeerConnection.IceGatheringState iceGatheringState) {
+            Log.v(TAG, "onIceGatheringChange:" + iceGatheringState);
         }
 
 
@@ -399,12 +436,12 @@ public class WebRTCHelper {
 
         @Override
         public void onDataChannel(DataChannel dataChannel) {
-
+            Log.v(TAG, "onDataChannel:" + dataChannel.toString());
         }
 
         @Override
         public void onRenegotiationNeeded() {
-
+            Log.v(TAG, "onRenegotiationNeeded:");
         }
 
 
@@ -446,12 +483,12 @@ public class WebRTCHelper {
 
         @Override
         public void onCreateFailure(String s) {
-
+            Log.v(TAG, "onCreateFailure:");
         }
 
         @Override
         public void onSetFailure(String s) {
-
+            Log.v(TAG, "onSetFailure:");
         }
 
 

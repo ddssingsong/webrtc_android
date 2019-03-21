@@ -2,6 +2,7 @@
 apply from: "conf.gradle"
 buildscript {
     repositories {
+        google()
         mavenCentral()
         jcenter()
         maven {
@@ -19,6 +20,7 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         mavenCentral()
         jcenter()
         maven {
