@@ -21,11 +21,9 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 #### 三、实现效果 
 
-
+![图片](https://github.com/ddssingsong/webrtc_android/blob/master/image/test.png)
 
 #### 四、具体实现过程
-
-
 
 #### 五、自定义信令
 
