@@ -19,13 +19,14 @@ import android.media.AudioTrack;
 import android.os.Build;
 import android.os.Process;
 import android.support.annotation.Nullable;
-import java.lang.Thread;
-import java.nio.ByteBuffer;
+
 import org.webrtc.CalledByNative;
 import org.webrtc.Logging;
 import org.webrtc.ThreadUtils;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioTrackErrorCallback;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioTrackStartErrorCode;
+
+import java.nio.ByteBuffer;
 
 class WebRtcAudioTrack {
   private static final String TAG = "WebRtcAudioTrackExternal";

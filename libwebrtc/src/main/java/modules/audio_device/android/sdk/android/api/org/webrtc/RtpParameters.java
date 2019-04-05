@@ -11,10 +11,11 @@
 package org.webrtc;
 
 import android.support.annotation.Nullable;
-import java.util.ArrayList;
+
+import org.webrtc.MediaStreamTrack;
+
 import java.util.List;
 import java.util.Map;
-import org.webrtc.MediaStreamTrack;
 
 /**
  * The parameters for an {@code RtpSender}, as defined in

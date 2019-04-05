@@ -23,11 +23,13 @@ import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.AndroidException;
 import android.util.Range;
+
+import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
 
 @TargetApi(21)
 public class Camera2Enumerator implements CameraEnumerator {

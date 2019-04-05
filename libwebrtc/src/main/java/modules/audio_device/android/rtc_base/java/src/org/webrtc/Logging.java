@@ -11,12 +11,14 @@
 package org.webrtc;
 
 import android.support.annotation.Nullable;
+
+import org.webrtc.Loggable;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.webrtc.Loggable;
 
 /**
  * Java wrapper for WebRTC logging. Logging defaults to java.util.logging.Logger, but a custom

@@ -18,16 +18,16 @@ import android.media.MediaRecorder.AudioSource;
 import android.os.Build;
 import android.os.Process;
 import android.support.annotation.Nullable;
-import java.lang.System;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+
 import org.webrtc.CalledByNative;
 import org.webrtc.Logging;
 import org.webrtc.ThreadUtils;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordErrorCallback;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordStartErrorCode;
 import org.webrtc.audio.JavaAudioDeviceModule.SamplesReadyCallback;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 class WebRtcAudioRecord {
   private static final String TAG = "WebRtcAudioRecordExternal";
