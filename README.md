@@ -23,11 +23,11 @@ meeting 是基于webrtc开发的一套可以进行单路或者多路语音、视
 
 服务器源码是基于skyrtc的代码进行重写实现的
 
-源码地址：https://github.com/ddssingsong/webrtc_server.git（github）
+源码地址：https://github.com/ddssingsong/webrtc_server.git  （github）
 
 搭建过程请看博客
 
-https://blog.csdn.net/u011077027/article/details/86225524（csdn）
+https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 使用tips:
 
