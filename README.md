@@ -9,6 +9,12 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 服务器端的实现：https://github.com/ddssingsong/webrtc_server.git （github）
 
+webrtc官方demo从这找的，本demo种skywebrtc3使用的就是这个里面的库，还是比较新的
+
+https://github.com/zengpeace/apprtcmobile
+
+需更改setting.gradle中libwertc的位置为自己电脑的位置
+
 #### 二、本demo实现的功能
 
 1. 支持多人视频
@@ -21,9 +27,11 @@ android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
 
 #### 三、实现效果 
 
-![图片](https://github.com/ddssingsong/webrtc_android/blob/master/image/test.png)
+
 
 #### 四、具体实现过程
+
+
 
 #### 五、自定义信令
 

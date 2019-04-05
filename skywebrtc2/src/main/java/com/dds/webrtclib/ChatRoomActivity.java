@@ -17,7 +17,6 @@ import android.view.WindowManager;
 
 import com.dds.webrtclib.utils.PermissionUtil;
 
-import org.webrtc.EglBase;
 import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon;
 import org.webrtc.VideoRenderer;
@@ -52,7 +51,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     private String signal;
     private Parcelable[] iceServers;
     private String room;
-    private EglBase.Context eglContext;
 
     public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
@@ -103,8 +101,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             width = manager.getDefaultDisplay().getWidth() / 3.0;
         }
         height = width * 32.0 / 24.0;
-        x = 32;
-        y = 0;
+        x = 0;
+        y = 70;
 
 
     }
@@ -114,19 +112,17 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             @Override
             public void run() {
                 Log.i("dds_webrtc", "surfaceView准备完毕");
-                eglContext = VideoRendererGui.getEglBaseContext();
                 if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
-                    helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers, eglContext);
+                    helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers, null);
                     helper.initSocket(signal, room, true);
                 }
-
 
             }
         });
 
 
         localRender = VideoRendererGui.create(0, 0,
-                30, 30, scalingType, true);
+                100, 100, scalingType, true);
 
 
     }
@@ -139,7 +135,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
         VideoRendererGui.update(localRender,
                 0, 0,
-                30, 30,
+                100, 100,
                 scalingType, false);
     }
 
@@ -149,8 +145,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         Log.i("dds_webrtc", "接受到远端视频流     " + userId);
 
         _remoteVideoTracks.put(userId, stream.videoTracks.get(0));
-
-
         VideoRenderer.Callbacks vr = VideoRendererGui.create(
                 0, 0,
                 0, 0, scalingType, false);
@@ -162,14 +156,10 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
         stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
         VideoRendererGui.update(vr,
                 x, y,
-                30, 30,
+                30, 20,
                 scalingType, false);
 
-        x = x + 32;
-        if (x > 90) {
-            y += 32;
-            x = 0;
-        }
+        x += 30;
     }
 
 
@@ -239,7 +229,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
             }
         }
 
-        helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers, eglContext);
+        helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers, null);
         helper.initSocket(signal, room, true);
 
 

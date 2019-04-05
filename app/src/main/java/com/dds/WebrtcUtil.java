@@ -27,7 +27,7 @@ public class WebrtcUtil {
 //            new MyIceServer("turn:47.254.34.146?transport=udp", "dds", "123456"),
 //            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
     };
-    private static String signal = "ws://192.168.1.122:3000";
+    private static String signal = "wss://47.254.34.146/wss";
 
 
     public static void call(Activity activity, String roomId) {
