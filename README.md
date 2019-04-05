@@ -1,43 +1,89 @@
-# Webrtc的Android端多人视频实现
+# meeting  
+![logo](https://github.com/ddssingsong/webrtc_android/blob/master/image/logo.png)
+
+
+
+## 概述
+
+meeting 是基于webrtc开发的一套可以进行单路或者多路语音、视频的系统，这里仅仅提供demo，还有更多未知的东西等着大家来探索
+
+
+
+## 实现功能
+
+1. 支持一对一语音和视频
+2. 支持多对多语音和视频会议
+3. 灵活替换wss信令服务器和stun/turn转发穿透服务器
+4. 动态权限申请
+5. 模块独立，代码清晰
+
+
+
+## 服务器搭建
+
+服务器源码是基于skyrtc的代码进行重写实现的
+
+源码地址：https://github.com/ddssingsong/webrtc_server.git（github）
+
+搭建过程请看博客
+
+https://blog.csdn.net/u011077027/article/details/86225524（csdn）
+
+使用tips:
+
+```
+如果只使用移动端的话，服务器不配置https代理也是可以的哦
+```
+
+
+
+
+
+## 实现效果展示
+
+1. 单人通话
+
+
+
+
+
+2. 多人会话
+
+   
+
+
+
+## 实现过程探究
+
+1. webrtc流程
+
+![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image1.png)
+
+2. 自定义信令
+
+#### 
+
+
+
+## 借鉴
+
+1. https://github.com/zengpeace/apprtcmobile （github）
+
+   apprtc官方demo，这个更新的官方demo还是比较新的
+
+2. https://github.com/LingyuCoder/SkyRTC
+
+   服务端和网页端的实现基于此
+
+
+
+## 共同探索
+
 群名称：webrtc技术交流群
 
 群   号：601332720
 
-#### 一、开源借鉴
-
-android端的实现：https://github.com/ddssingsong/WebRtcDemo （github）
-
-服务器端的实现：https://github.com/ddssingsong/webrtc_server.git （github）
-
-webrtc官方demo从这找的，本demo种skywebrtc3使用的就是这个里面的库，还是比较新的
-
-https://github.com/zengpeace/apprtcmobile
-
-需更改setting.gradle中libwertc的位置为自己电脑的位置
-
-#### 二、本demo实现的功能
-
-1. 支持多人视频
-2. 支持一对一视频和语音
-3. 可配置服务器，包括wss和stun服务器
-4. 移动到library，供项目调用
-5. 优化界面
-6. 动态权限申请
-7. 分离Websocket逻辑，可替换和自定义信令
-
-#### 三、实现效果 
-
-
-
-#### 四、具体实现过程
-
-
-
-#### 五、自定义信令
-
-
-
-
+加入群一起探讨webrtc，分享好的开源项目
 
 
 
