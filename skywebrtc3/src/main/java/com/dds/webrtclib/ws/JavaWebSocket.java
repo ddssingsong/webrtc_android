@@ -1,5 +1,6 @@
 package com.dds.webrtclib.ws;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -40,11 +41,14 @@ public class JavaWebSocket implements IWebSocket {
 
     private ISignalingEvents events;
 
+    private boolean isOpen; //是否连接成功过
+
     public JavaWebSocket(ISignalingEvents events) {
         this.events = events;
     }
 
-    public void connect(String wss, final String room) {
+    @Override
+    public void connect(String wss) {
         URI uri;
         try {
             uri = new URI(wss);
@@ -56,23 +60,30 @@ public class JavaWebSocket implements IWebSocket {
             mWebSocketClient = new WebSocketClient(uri) {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
-                    joinRoom(room);
+                    isOpen = true;
+                    events.onWebSocketOpen();
                 }
 
                 @Override
                 public void onMessage(String message) {
-                    Log.e(TAG, message);
+                    Log.d(TAG, message);
                     handleMessage(message);
                 }
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
                     Log.e(TAG, "onClose:" + reason);
+                    if (events != null) {
+                        events.onWebSocketOpenFailed(reason);
+                    }
                 }
 
                 @Override
                 public void onError(Exception ex) {
                     Log.e(TAG, ex.toString());
+                    if (events != null) {
+                        events.onWebSocketOpenFailed(ex.toString());
+                    }
                 }
             };
         }
@@ -103,12 +114,18 @@ public class JavaWebSocket implements IWebSocket {
         mWebSocketClient.connect();
     }
 
+    @Override
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     public void close() {
         if (mWebSocketClient != null) {
             mWebSocketClient.close();
         }
 
     }
+
 
     //============================需要发送的=====================================
     @Override
@@ -120,9 +137,9 @@ public class JavaWebSocket implements IWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
         mWebSocketClient.send(jsonString);
     }
-
 
     public void sendAnswer(String socketId, String sdp) {
         Map<String, Object> childMap1 = new HashMap();
@@ -136,6 +153,7 @@ public class JavaWebSocket implements IWebSocket {
         map.put("data", childMap2);
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
         mWebSocketClient.send(jsonString);
     }
 
@@ -155,6 +173,7 @@ public class JavaWebSocket implements IWebSocket {
 
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
         mWebSocketClient.send(jsonString);
 
     }
@@ -170,6 +189,7 @@ public class JavaWebSocket implements IWebSocket {
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
         mWebSocketClient.send(jsonString);
     }
     //============================需要发送的=====================================
@@ -180,6 +200,7 @@ public class JavaWebSocket implements IWebSocket {
     public void handleMessage(String message) {
         Map map = JSON.parseObject(message, Map.class);
         String eventName = (String) map.get("eventName");
+        if (eventName == null) return;
         if (eventName.equals("_peers")) {
             handleJoinToRoom(map);
         }
@@ -195,7 +216,6 @@ public class JavaWebSocket implements IWebSocket {
         if (eventName.equals("_offer")) {
             handleOffer(map);
         }
-
         if (eventName.equals("_answer")) {
             handleAnswer(map);
         }
@@ -205,56 +225,80 @@ public class JavaWebSocket implements IWebSocket {
     // 自己进入房间
     private void handleJoinToRoom(Map map) {
         Map data = (Map) map.get("data");
-        JSONArray arr = (JSONArray) data.get("connections");
-        String js = JSONObject.toJSONString(arr, SerializerFeature.WriteClassName);
-        ArrayList<String> connections = (ArrayList<String>) JSONObject.parseArray(js, String.class);
-        String myId = (String) data.get("you");
-        events.onJoinToRoom(connections, myId);
+        JSONArray arr;
+        if (data != null) {
+            arr = (JSONArray) data.get("connections");
+            String js = JSONObject.toJSONString(arr, SerializerFeature.WriteClassName);
+            ArrayList<String> connections = (ArrayList<String>) JSONObject.parseArray(js, String.class);
+            String myId = (String) data.get("you");
+            events.onJoinToRoom(connections, myId);
+        }
+
     }
 
     // 自己已经在房间，有人进来
     private void handleRemoteInRoom(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
-        events.onRemoteJoinToRoom(socketId);
+        String socketId;
+        if (data != null) {
+            socketId = (String) data.get("socketId");
+            events.onRemoteJoinToRoom(socketId);
+        }
+
     }
 
     // 处理交换信息
     private void handleRemoteCandidate(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
-        String sdpMid = (String) data.get("id");
-        sdpMid = (null == sdpMid) ? "video" : sdpMid;
-        Integer sdpMLineIndex = (Integer) data.get("label");
-        String candidate = (String) data.get("candidate");
-        IceCandidate iceCandidate = new IceCandidate(sdpMid, sdpMLineIndex, candidate);
-        events.onRemoteIceCandidate(socketId, iceCandidate);
+        String socketId;
+        if (data != null) {
+            socketId = (String) data.get("socketId");
+            String sdpMid = (String) data.get("id");
+            sdpMid = (null == sdpMid) ? "video" : sdpMid;
+            Integer sdpMLineIndex = (Integer) data.get("label");
+            String candidate = (String) data.get("candidate");
+            IceCandidate iceCandidate = new IceCandidate(sdpMid, sdpMLineIndex, candidate);
+            events.onRemoteIceCandidate(socketId, iceCandidate);
+        }
+
 
     }
 
     // 有人离开了房间
     private void handleRemoteOutRoom(Map map) {
         Map data = (Map) map.get("data");
-        String socketId = (String) data.get("socketId");
-        events.onRemoteOutRoom(socketId);
+        String socketId;
+        if (data != null) {
+            socketId = (String) data.get("socketId");
+            events.onRemoteOutRoom(socketId);
+        }
+
     }
 
     // 处理Offer
     private void handleOffer(Map map) {
         Map data = (Map) map.get("data");
-        Map sdpDic = (Map) data.get("sdp");
-        String socketId = (String) data.get("socketId");
-        String sdp = (String) sdpDic.get("sdp");
-        events.onReceiveOffer(socketId, sdp);
+        Map sdpDic;
+        if (data != null) {
+            sdpDic = (Map) data.get("sdp");
+            String socketId = (String) data.get("socketId");
+            String sdp = (String) sdpDic.get("sdp");
+            events.onReceiveOffer(socketId, sdp);
+        }
+
     }
 
     // 处理Answer
     private void handleAnswer(Map map) {
         Map data = (Map) map.get("data");
-        Map sdpDic = (Map) data.get("sdp");
-        String socketId = (String) data.get("socketId");
-        String sdp = (String) sdpDic.get("sdp");
-        events.onReceiverAnswer(socketId, sdp);
+        Map sdpDic;
+        if (data != null) {
+            sdpDic = (Map) data.get("sdp");
+            String socketId = (String) data.get("socketId");
+            String sdp = (String) sdpDic.get("sdp");
+            events.onReceiverAnswer(socketId, sdp);
+        }
+
     }
     //============================需要接收的=====================================
 
@@ -262,11 +306,13 @@ public class JavaWebSocket implements IWebSocket {
     // 忽略证书
     class TrustManagerTest implements X509TrustManager {
 
+        @SuppressLint("TrustAllX509TrustManager")
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 
         }
 
+        @SuppressLint("TrustAllX509TrustManager")
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 

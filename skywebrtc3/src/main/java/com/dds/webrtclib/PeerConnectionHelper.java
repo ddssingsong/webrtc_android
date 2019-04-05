@@ -3,13 +3,11 @@ package com.dds.webrtclib;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.dds.webrtclib.ws.ISignalingEvents;
+import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.ws.IWebSocket;
-import com.dds.webrtclib.ws.JavaWebSocket;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -42,14 +40,15 @@ import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-public class WebRTCHelper implements ISignalingEvents {
+public class PeerConnectionHelper {
 
-    public final static String TAG = "sky_webRtcHelper";
+    public final static String TAG = "dds_webRtcHelper";
 
     public static final int VIDEO_RESOLUTION_WIDTH = 640;
     public static final int VIDEO_RESOLUTION_HEIGHT = 480;
@@ -66,76 +65,143 @@ public class WebRTCHelper implements ISignalingEvents {
     private VideoSource videoSource;
     private AudioSource audioSource;
 
-
-    private AudioManager mAudioManager;
-
-
     private ArrayList<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
     private String _myId;
-    private IWebRTCHelper IHelper;
+    private IViewCallback viewCallback;
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
     private boolean videoEnable;
+
+    private AudioManager mAudioManager;
 
     enum Role {Caller, Receiver,}
 
     private Role _role;
 
-    private IWebSocket webSocket;
+    private IWebSocket _webSocket;
 
     private Context _context;
 
     private EglBase _rootEglBase;
 
+    @Nullable
+    private SurfaceTextureHelper surfaceTextureHelper;
+
     private final ExecutorService executor;
 
-    public WebRTCHelper(Context context, IWebRTCHelper IHelper, Parcelable[] servers, EglBase rootEglBase) {
-        this.IHelper = IHelper;
-        _context = context;
-        _rootEglBase = rootEglBase;
+    public PeerConnectionHelper(IWebSocket webSocket, MyIceServer[] iceServers) {
         this._connectionPeerDic = new HashMap<>();
         this._connectionIdArray = new ArrayList<>();
         this.ICEServers = new ArrayList<>();
-        for (int i = 0; i < servers.length; i++) {
-            MyIceServer myIceServer = (MyIceServer) servers[i];
-            PeerConnection.IceServer iceServer = new PeerConnection.IceServer(myIceServer.uri, myIceServer.username, myIceServer.password);
-            ICEServers.add(iceServer);
-        }
-        webSocket = new JavaWebSocket(this);
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        _webSocket = webSocket;
         executor = Executors.newSingleThreadExecutor();
+        if (iceServers != null) {
+            for (MyIceServer myIceServer : iceServers) {
+                PeerConnection.IceServer iceServer = PeerConnection.IceServer
+                        .builder(myIceServer.uri)
+                        .setUsername(myIceServer.username)
+                        .setPassword(myIceServer.password)
+                        .createIceServer();
+                ICEServers.add(iceServer);
+            }
+        }
     }
 
-    public void initSocket(String ws, final String room, boolean videoEnable) {
-        this.videoEnable = videoEnable;
-        webSocket.connect(ws, room);
+    // 设置界面的回调
+    public void setViewCallback(IViewCallback callback) {
+        viewCallback = callback;
     }
-
 
     // ===================================webSocket回调信息=======================================
-    @Override  // 我加入到房间
-    public void onJoinToRoom(ArrayList<String> connections, String myId) {
-        _connectionIdArray.addAll(connections);
-        _myId = myId;
-        if (_factory == null) {
-            _factory = createConnectionFactory();
-        }
-        if (_localStream == null) {
-            createLocalStream();
-        }
 
-        createPeerConnections();
+    public void initContext(Context context, EglBase eglBase) {
+        _context = context;
+        _rootEglBase = eglBase;
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    }
 
-        addStreams();
-        createOffers();
+    public void onJoinToRoom(ArrayList<String> connections, String myId, boolean isVideoEnable) {
+        videoEnable = isVideoEnable;
+        executor.execute(() -> {
+            _connectionIdArray.addAll(connections);
+            _myId = myId;
+            if (_factory == null) {
+                _factory = createConnectionFactory();
+            }
+            if (_localStream == null) {
+                createLocalStream();
+            }
+
+            createPeerConnections();
+            addStreams();
+            createOffers();
+        });
+
+    }
+
+    public void onRemoteJoinToRoom(String socketId) {
+        executor.execute(() -> {
+            if (_localStream == null) {
+                createLocalStream();
+            }
+            Peer mPeer = new Peer(socketId);
+            mPeer.pc.addStream(_localStream);
+            _connectionIdArray.add(socketId);
+            _connectionPeerDic.put(socketId, mPeer);
+        });
+
+    }
+
+    public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
+        executor.execute(() -> {
+            Peer peer = _connectionPeerDic.get(socketId);
+            if (peer != null) {
+                peer.pc.addIceCandidate(iceCandidate);
+            }
+        });
+
+    }
+
+    public void onRemoteIceCandidateRemove(String socketId, List<IceCandidate> iceCandidates) {
+        // todo 移除
+        executor.execute(() -> Log.d(TAG, "send onRemoteIceCandidateRemove"));
+
+    }
+
+    public void onRemoteOutRoom(String socketId) {
+        executor.execute(() -> closePeerConnection(socketId));
+
+    }
+
+    public void onReceiveOffer(String socketId, String sdp) {
+        executor.execute(() -> {
+            _role = Role.Receiver;
+            Peer mPeer = _connectionPeerDic.get(socketId);
+            SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
+            if (mPeer != null) {
+                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+            }
+        });
+
+    }
+
+    public void onReceiverAnswer(String socketId, String sdp) {
+        executor.execute(() -> {
+            Peer mPeer = _connectionPeerDic.get(socketId);
+            SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
+            if (mPeer != null) {
+                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+            }
+        });
+
     }
 
     private PeerConnectionFactory createConnectionFactory() {
         PeerConnectionFactory.initialize(
                 PeerConnectionFactory.InitializationOptions.builder(_context)
-                        .setEnableInternalTracer(true)
                         .createInitializationOptions());
 
         final VideoEncoderFactory encoderFactory;
@@ -161,137 +227,6 @@ public class WebRTCHelper implements ISignalingEvents {
                 .createPeerConnectionFactory();
     }
 
-    @Override  // 其他人加入到房间
-    public void onRemoteJoinToRoom(String socketId) {
-        if (_localStream == null) {
-            createLocalStream();
-        }
-        Peer mPeer = new Peer(socketId);
-        mPeer.pc.addStream(_localStream);
-
-        _connectionIdArray.add(socketId);
-        _connectionPeerDic.put(socketId, mPeer);
-    }
-
-    @Override
-    public void onRemoteIceCandidate(String socketId, IceCandidate iceCandidate) {
-        Peer peer = _connectionPeerDic.get(socketId);
-        if (peer != null) {
-            peer.pc.addIceCandidate(iceCandidate);
-        }
-    }
-
-    @Override
-    public void onRemoteOutRoom(String socketId) {
-        closePeerConnection(socketId);
-    }
-
-    @Override
-    public void onReceiveOffer(String socketId, String sdp) {
-        _role = Role.Receiver;
-        Peer mPeer = _connectionPeerDic.get(socketId);
-        SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
-        mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
-    }
-
-    @Override
-    public void onReceiverAnswer(String socketId, String sdp) {
-        Peer mPeer = _connectionPeerDic.get(socketId);
-        SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
-        mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
-    }
-
-
-    //**************************************逻辑控制**************************************
-    // 调整摄像头前置后置
-    public void switchCamera() {
-        if (captureAndroid == null) return;
-        if (captureAndroid instanceof CameraVideoCapturer) {
-            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
-            cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
-                @Override
-                public void onCameraSwitchDone(boolean b) {
-                    Log.d("dds", "onCameraSwitchDone");
-                }
-
-                @Override
-                public void onCameraSwitchError(String s) {
-                    Log.d("dds", "onCameraSwitchError");
-                }
-            });
-        } else {
-            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
-        }
-
-    }
-
-    // 设置自己静音
-    public void toggleMute(boolean enable) {
-        if (_localAudioTrack != null) {
-            _localAudioTrack.setEnabled(enable);
-        }
-    }
-
-    public void toggleSpeaker(boolean enable) {
-        if (mAudioManager != null) {
-            mAudioManager.setSpeakerphoneOn(enable);
-        }
-
-    }
-
-    // 退出房间
-    public void exitRoom() {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList myCopy;
-                myCopy = (ArrayList) _connectionIdArray.clone();
-                for (Object Id : myCopy) {
-                    closePeerConnection((String) Id);
-                }
-                if (audioSource != null) {
-                    audioSource.dispose();
-                    audioSource = null;
-                }
-                if (captureAndroid != null) {
-                    try {
-                        captureAndroid.stopCapture();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    captureAndroid.dispose();
-                    captureAndroid = null;
-                }
-                if (videoSource != null) {
-                    videoSource.dispose();
-                    videoSource = null;
-                }
-                if (surfaceTextureHelper != null) {
-                    surfaceTextureHelper.dispose();
-                    surfaceTextureHelper = null;
-                }
-                _localStream = null;
-                if (_factory != null) {
-                    _factory.dispose();
-                    _factory = null;
-                }
-                _rootEglBase.release();
-                PeerConnectionFactory.stopInternalTracingCapture();
-                PeerConnectionFactory.shutdownInternalTracer();
-                webSocket.close();
-                if (_connectionIdArray != null) {
-                    _connectionIdArray.clear();
-                }
-
-            }
-        });
-
-
-    }
-
-    @Nullable
-    private SurfaceTextureHelper surfaceTextureHelper;
-
     // 创建本地流
     private void createLocalStream() {
         _localStream = _factory.createLocalMediaStream("ARDAMS");
@@ -313,8 +248,8 @@ public class WebRTCHelper implements ISignalingEvents {
         }
 
 
-        if (IHelper != null) {
-            IHelper.onSetLocalStream(_localStream, _myId);
+        if (viewCallback != null) {
+            viewCallback.onSetLocalStream(_localStream, _myId);
         }
 
     }
@@ -341,8 +276,6 @@ public class WebRTCHelper implements ISignalingEvents {
 
     // 为所有连接创建offer
     private void createOffers() {
-        Log.v(TAG, "为所有连接创建offer");
-
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
             _role = Role.Caller;
             Peer mPeer = entry.getValue();
@@ -351,10 +284,8 @@ public class WebRTCHelper implements ISignalingEvents {
 
     }
 
-
     // 关闭通道流
     private void closePeerConnection(String connectionId) {
-        Log.v(TAG, "关闭通道流");
         Peer mPeer = _connectionPeerDic.get(connectionId);
         if (mPeer != null) {
             mPeer.pc.close();
@@ -362,7 +293,88 @@ public class WebRTCHelper implements ISignalingEvents {
         _connectionPeerDic.remove(connectionId);
         _connectionIdArray.remove(connectionId);
 
-        IHelper.onCloseWithId(connectionId);
+        viewCallback.onCloseWithId(connectionId);
+    }
+
+
+    //**************************************逻辑控制**************************************
+    // 调整摄像头前置后置
+    public void switchCamera() {
+        if (captureAndroid == null) return;
+        if (captureAndroid instanceof CameraVideoCapturer) {
+            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
+            cameraVideoCapturer.switchCamera(null);
+        } else {
+            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
+        }
+
+    }
+
+    // 设置自己静音
+    public void toggleMute(boolean enable) {
+        if (_localAudioTrack != null) {
+            _localAudioTrack.setEnabled(enable);
+        }
+    }
+
+    public void toggleSpeaker(boolean enable) {
+        if (mAudioManager != null) {
+            mAudioManager.setSpeakerphoneOn(enable);
+        }
+
+    }
+
+    // 退出房间
+    public void exitRoom() {
+        executor.execute(() -> {
+            ArrayList myCopy;
+            myCopy = (ArrayList) _connectionIdArray.clone();
+            for (Object Id : myCopy) {
+                closePeerConnection((String) Id);
+            }
+            if (_connectionIdArray != null) {
+                _connectionIdArray.clear();
+            }
+            if (audioSource != null) {
+                audioSource.dispose();
+                audioSource = null;
+            }
+
+            if (videoSource != null) {
+                videoSource.dispose();
+                videoSource = null;
+            }
+
+            if (captureAndroid != null) {
+                try {
+                    captureAndroid.stopCapture();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                captureAndroid.dispose();
+                captureAndroid = null;
+            }
+
+            if (surfaceTextureHelper != null) {
+                surfaceTextureHelper.dispose();
+                surfaceTextureHelper = null;
+            }
+
+
+            if (_factory != null) {
+                _factory.dispose();
+                _factory = null;
+            }
+
+            if (_webSocket != null) {
+                _webSocket.close();
+                _webSocket = null;
+            }
+
+
+        });
+
+
     }
 
 
@@ -464,7 +476,7 @@ public class WebRTCHelper implements ISignalingEvents {
         @Override
         public void onIceCandidate(IceCandidate iceCandidate) {
             // 发送IceCandidate
-            webSocket.sendIceCandidate(socketId, iceCandidate);
+            _webSocket.sendIceCandidate(socketId, iceCandidate);
         }
 
         @Override
@@ -474,15 +486,15 @@ public class WebRTCHelper implements ISignalingEvents {
 
         @Override
         public void onAddStream(MediaStream mediaStream) {
-            if (IHelper != null) {
-                IHelper.onAddRemoteStream(mediaStream, socketId);
+            if (viewCallback != null) {
+                viewCallback.onAddRemoteStream(mediaStream, socketId);
             }
         }
 
         @Override
         public void onRemoveStream(MediaStream mediaStream) {
-            if (IHelper != null) {
-                IHelper.onCloseWithId(socketId);
+            if (viewCallback != null) {
+                viewCallback.onCloseWithId(socketId);
             }
         }
 
@@ -526,17 +538,17 @@ public class WebRTCHelper implements ISignalingEvents {
                 //判断连接状态为本地发送offer
                 if (_role == Role.Receiver) {
                     //接收者，发送Answer
-                    webSocket.sendAnswer(socketId, pc.getLocalDescription().description);
+                    _webSocket.sendAnswer(socketId, pc.getLocalDescription().description);
 
                 } else if (_role == Role.Caller) {
                     //发送者,发送自己的offer
-                    webSocket.sendOffer(socketId, pc.getLocalDescription().description);
+                    _webSocket.sendOffer(socketId, pc.getLocalDescription().description);
                 }
 
             } else if (pc.signalingState() == PeerConnection.SignalingState.STABLE) {
                 // Stable 稳定的
                 if (_role == Role.Receiver) {
-                    webSocket.sendAnswer(socketId, pc.getLocalDescription().description);
+                    _webSocket.sendAnswer(socketId, pc.getLocalDescription().description);
 
                 }
             }

@@ -9,7 +9,9 @@ import org.webrtc.IceCandidate;
 public interface IWebSocket {
 
 
-    void connect(String wss, final String room);
+    void connect(String wss);
+
+    boolean isOpen();
 
     void close();
 

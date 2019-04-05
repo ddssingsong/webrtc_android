@@ -1,10 +1,9 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +14,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.dds.webrtclib.IViewCallback;
+import com.dds.webrtclib.PeerConnectionHelper;
+import com.dds.webrtclib.ProxyVideoSink;
+import com.dds.webrtclib.R;
+import com.dds.webrtclib.WebRTCManager;
 import com.dds.webrtclib.utils.PermissionUtil;
 
 import org.webrtc.EglBase;
@@ -27,28 +31,22 @@ import org.webrtc.SurfaceViewRenderer;
  * 1. 一对一视频通话
  * 2. 一对一语音通话
  */
-public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelper {
+public class ChatSingleActivity extends AppCompatActivity implements IViewCallback {
     private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
     private ProxyVideoSink localRender;
     private ProxyVideoSink remoteRender;
 
-    private WebRTCHelper helper;
+    private WebRTCManager manager;
     private ChatSingleFragment chatSingleFragment;
 
-    private String signal;
-    private Parcelable[] iceServers;
-    private String room;
     private boolean videoEnable;
     private boolean isSwappedFeeds;
 
     private EglBase rootEglBase;
 
-    public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room, boolean videoEnable) {
+    public static void openActivity(Activity activity, boolean videoEnable) {
         Intent intent = new Intent(activity, ChatSingleActivity.class);
-        intent.putExtra("signal", signal);
-        intent.putExtra("ice", iceServers);
-        intent.putExtra("room", room);
         intent.putExtra("videoEnable", videoEnable);
         activity.startActivity(intent);
     }
@@ -71,13 +69,10 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     private void initVar() {
         Intent intent = getIntent();
-        signal = intent.getStringExtra("signal");
-        iceServers = intent.getParcelableArrayExtra("ice");
-        room = intent.getStringExtra("room");
         videoEnable = intent.getBooleanExtra("videoEnable", false);
         chatSingleFragment = new ChatSingleFragment();
         replaceFragment(chatSingleFragment, videoEnable);
-
+        rootEglBase = EglBase.create();
         if (videoEnable) {
             local_view = findViewById(R.id.local_view_render);
             remote_view = findViewById(R.id.remote_view_render);
@@ -87,7 +82,7 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
                     setSwappedFeeds(!isSwappedFeeds);
                 }
             });
-            rootEglBase = EglBase.create();
+
             // 本地图像初始化
             local_view.init(rootEglBase.getEglBaseContext(), null);
             local_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
@@ -111,9 +106,10 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
     }
 
     private void startCall() {
+        manager = WebRTCManager.getInstance();
+        manager.setCallback(this);
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
-            helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers, rootEglBase);
-            helper.initSocket(signal, room, videoEnable);
+            manager.joinRoom(getApplicationContext(), rootEglBase);
         }
 
     }
@@ -155,38 +151,44 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
 
     @Override
     public void onCloseWithId(String socketId) {
-        exit();
+        runOnUiThread(() -> {
+            disConnect();
+            ChatSingleActivity.this.finish();
+        });
+
     }
 
     // 切换摄像头
     public void switchCamera() {
-        helper.switchCamera();
+        manager.switchCamera();
     }
 
     // 挂断
     public void hangUp() {
-        exit();
+        disConnect();
         this.finish();
     }
 
     // 静音
     public void toggleMic(boolean enable) {
-        helper.toggleMute(enable);
+        manager.toggleMute(enable);
     }
 
     // 扬声器
     public void toggleSpeaker(boolean enable) {
-        helper.toggleSpeaker(enable);
+        manager.toggleSpeaker(enable);
 
     }
 
     @Override
     protected void onDestroy() {
+        disConnect();
         super.onDestroy();
-        exit();
+
     }
 
-    private void exit() {
+    private void disConnect() {
+        manager.exitRoom();
         if (localRender != null) {
             localRender.setTarget(null);
             localRender = null;
@@ -204,26 +206,19 @@ public class ChatSingleActivity extends AppCompatActivity implements IWebRTCHelp
             remote_view.release();
             remote_view = null;
         }
-        helper.exitRoom();
-
-        this.finish();
-
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         for (int i = 0; i < permissions.length; i++) {
-            Log.i(WebRTCHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
+            Log.i(PeerConnectionHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 finish();
                 break;
             }
         }
-
-        helper = new WebRTCHelper(this, ChatSingleActivity.this, iceServers, rootEglBase);
-        helper.initSocket(signal, room, videoEnable);
-
+        manager.joinRoom(getApplicationContext(), rootEglBase);
 
     }
 }

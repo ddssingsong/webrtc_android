@@ -42,20 +42,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // 群聊
-    public void JoinRoom(View view) {
-        WebrtcUtil.call(this, et_room.getText().toString().trim());
-
-    }
-
     // 单人视频
     public void JoinRoomSingleVideo(View view) {
-        WebrtcUtil.callSingle(this, et_room.getText().toString().trim(), true);
+        WebrtcUtil.callSingle(this,
+                et_signal.getText().toString(),
+                et_room.getText().toString().trim(),
+                true);
     }
 
     // 单人语音
     public void JoinRoomSingleAudio(View view) {
-        WebrtcUtil.callSingle(this, et_room.getText().toString().trim(), false);
+        WebrtcUtil.callSingle(this,
+                et_signal.getText().toString(),
+                et_room.getText().toString().trim(),
+                false);
+    }
+
+    // 群聊
+    public void JoinRoom(View view) {
+        WebrtcUtil.call(this, et_room.getText().toString().trim());
+
     }
 
     //测试wss

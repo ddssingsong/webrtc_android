@@ -1,4 +1,4 @@
-package com.dds.webrtclib;
+package com.dds.webrtclib.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,6 +15,11 @@ import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.dds.webrtclib.IViewCallback;
+import com.dds.webrtclib.bean.MyIceServer;
+import com.dds.webrtclib.PeerConnectionHelper;
+import com.dds.webrtclib.R;
+
 import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon;
 import org.webrtc.VideoTrack;
@@ -29,9 +34,9 @@ import java.util.Map;
  */
 
 
-public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper {
+public class ChatRoomActivity extends AppCompatActivity implements IViewCallback {
 
-    private WebRTCHelper helper;
+    private PeerConnectionHelper helper;
     private Map<String, VideoTrack> _remoteVideoTracks = new HashMap();
    // private Map<String, VideoRenderer.Callbacks> _remoteVideoView = new HashMap();
     private static int x;
@@ -218,15 +223,15 @@ public class ChatRoomActivity extends AppCompatActivity implements IWebRTCHelper
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         for (int i = 0; i < permissions.length; i++) {
-            Log.i(WebRTCHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
+            Log.i(PeerConnectionHelper.TAG, "[Permission] " + permissions[i] + " is " + (grantResults[i] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied"));
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 finish();
                 break;
             }
         }
 
-        helper = new WebRTCHelper(this, ChatRoomActivity.this, iceServers, null);
-        helper.initSocket(signal, room, true);
+       // helper = new PeerConnectionHelper(this, ChatRoomActivity.this, iceServers, null);
+      //  helper.initSocket(signal, room, true);
 
 
     }

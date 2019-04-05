@@ -18,11 +18,11 @@
 
     <application>
         <activity
-            android:name=".ChatRoomActivity"
+            android:name=".ui.ChatRoomActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
         <activity
-            android:name=".ChatSingleActivity"
+            android:name=".ui.ChatSingleActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
     </application>
