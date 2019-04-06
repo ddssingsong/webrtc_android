@@ -54,9 +54,9 @@ public class PeerConnectionHelper {
 
     public final static String TAG = "dds_webRtcHelper";
 
-    public static final int VIDEO_RESOLUTION_WIDTH = 640;
-    public static final int VIDEO_RESOLUTION_HEIGHT = 480;
-    public static final int FPS = 15;
+    public static final int VIDEO_RESOLUTION_WIDTH = 320;
+    public static final int VIDEO_RESOLUTION_HEIGHT = 240;
+    public static final int FPS = 10;
     private static final String VIDEO_CODEC_H264 = "H264";
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
     public static final String AUDIO_TRACK_ID = "ARDAMSa0";
@@ -298,8 +298,10 @@ public class PeerConnectionHelper {
         }
         _connectionPeerDic.remove(connectionId);
         _connectionIdArray.remove(connectionId);
+        if (viewCallback != null) {
+            viewCallback.onCloseWithId(connectionId);
+        }
 
-        viewCallback.onCloseWithId(connectionId);
     }
 
 
@@ -597,6 +599,7 @@ public class PeerConnectionHelper {
     }
 
 
+    // ===================================替换编码方式=========================================
     private static String preferCodec(String sdpDescription, String codec, boolean isAudio) {
         final String[] lines = sdpDescription.split("\r\n");
         final int mLineIndex = findMediaDescriptionLine(isAudio, lines);

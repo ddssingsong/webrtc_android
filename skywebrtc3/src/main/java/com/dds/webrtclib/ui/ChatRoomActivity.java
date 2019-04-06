@@ -96,10 +96,10 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         // 设置宽高比例
         WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (manager != null) {
-            width = manager.getDefaultDisplay().getWidth() / 3 - 10;
+            width = manager.getDefaultDisplay().getWidth() / 3 - 12;
         }
         height = width * 32 / 24;
-        x = width;
+        x = 9;
         y = 10;
         rootEglBase = EglBase.create();
 
@@ -115,10 +115,14 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         localRender.setZOrderMediaOverlay(true);
         localRender.setMirror(true);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+        layoutParams.leftMargin = x;
+        layoutParams.topMargin = y;
         localRender.setLayoutParams(layoutParams);
         localSink = new ProxyVideoSink();
         localSink.setTarget(localRender);
         wr_video_view.addView(localRender);
+
+        x = x + width + 9;
 
 
         if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
@@ -143,7 +147,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             renderer.setZOrderMediaOverlay(true);
             renderer.setMirror(true);
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-            layoutParams.leftMargin = width;
+            layoutParams.leftMargin = x;
+            layoutParams.topMargin = y;
             renderer.setLayoutParams(layoutParams);
             wr_video_view.addView(renderer);
             _remoteVideoViews.put(userId, renderer);
@@ -154,6 +159,10 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
             stream.videoTracks.get(0).addSink(sink);
 
+            int size = _remoteVideoTracks.size();
+            x = (width + 9) * (size % 3 + 1) + 9;
+            y = ((size + 1) / 3) * (height + 10) + 10;
+
         });
 
 
@@ -162,6 +171,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     @Override
     public void onCloseWithId(String userId) {
+        _remoteVideoTracks.remove(userId);
         runOnUiThread(() -> {
             ProxyVideoSink sink = _remoteSinks.get(userId);
             SurfaceViewRenderer renderer = _remoteVideoViews.get(userId);
@@ -171,11 +181,13 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             if (renderer != null) {
                 renderer.release();
             }
-            _remoteVideoTracks.remove(userId);
+
             _remoteSinks.remove(userId);
             _remoteVideoViews.remove(userId);
 
             wr_video_view.removeView(renderer);
+
+
         });
 
 

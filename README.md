@@ -43,13 +43,13 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 1. 单人通话
 
-
+![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image3.png)
 
 
 
 2. 多人会话
 
-   
+   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image4.png)
 
 
 
