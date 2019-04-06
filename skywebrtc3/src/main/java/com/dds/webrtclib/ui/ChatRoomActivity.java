@@ -3,9 +3,7 @@ package com.dds.webrtclib.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,14 +12,19 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import com.dds.webrtclib.IViewCallback;
-import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.PeerConnectionHelper;
+import com.dds.webrtclib.ProxyVideoSink;
 import com.dds.webrtclib.R;
+import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.utils.PermissionUtil;
 
+import org.webrtc.EglBase;
 import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon;
+import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoTrack;
 
 import java.util.HashMap;
@@ -36,28 +39,30 @@ import java.util.Map;
 
 public class ChatRoomActivity extends AppCompatActivity implements IViewCallback {
 
-    private PeerConnectionHelper helper;
+    private FrameLayout wr_video_view;
+
+    private WebRTCManager manager;
     private Map<String, VideoTrack> _remoteVideoTracks = new HashMap();
-   // private Map<String, VideoRenderer.Callbacks> _remoteVideoView = new HashMap();
+    private Map<String, SurfaceViewRenderer> _remoteVideoViews = new HashMap();
+    private Map<String, ProxyVideoSink> _remoteSinks = new HashMap();
+
+    private SurfaceViewRenderer localRender;
+    private ProxyVideoSink localSink;
+
+
     private static int x;
     private static int y;
-    private GLSurfaceView vsv;
-    //private VideoRenderer.Callbacks localRender;
-    private double width = 480;
-    private double height = 640;
-    private RendererCommon.ScalingType scalingType = RendererCommon.ScalingType.SCALE_ASPECT_FIT;
+
+    private int width = 480;
+    private int height = 640;
 
     private ChatRoomFragment chatRoomFragment;
 
-    private String signal;
-    private Parcelable[] iceServers;
-    private String room;
+    private EglBase rootEglBase;
 
-    public static void openActivity(Activity activity, String signal, MyIceServer[] iceServers, String room) {
+
+    public static void openActivity(Activity activity) {
         Intent intent = new Intent(activity, ChatRoomActivity.class);
-        intent.putExtra("signal", signal);
-        intent.putExtra("ice", iceServers);
-        intent.putExtra("room", room);
         activity.startActivity(intent);
     }
 
@@ -84,98 +89,94 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
 
     private void initView() {
-        vsv = findViewById(R.id.wr_glview_call);
-        vsv.setPreserveEGLContextOnPause(true);
-        vsv.setKeepScreenOn(true);
+        wr_video_view = findViewById(R.id.wr_video_view);
     }
 
     private void initVar() {
-        Intent intent = getIntent();
-        signal = intent.getStringExtra("signal");
-        iceServers = intent.getParcelableArrayExtra("ice");
-        room = intent.getStringExtra("room");
-
-
         // 设置宽高比例
         WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (manager != null) {
-            width = manager.getDefaultDisplay().getWidth() / 3.0;
+            width = manager.getDefaultDisplay().getWidth() / 3;
         }
-        height = width * 32.0 / 24.0;
-        x = 0;
-        y = 70;
-
+        height = width * 32 / 24;
+        x = 32;
+        y = 0;
+        rootEglBase = EglBase.create();
 
     }
 
     private void startCall() {
-//        VideoRendererGui.setView(vsv, new Runnable() {
-//            @Override
-//            public void run() {
-//                Log.i("dds_webrtc", "surfaceView准备完毕");
-//                if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
-//                    helper = new WebRTCHelper(ChatRoomActivity.this, ChatRoomActivity.this, iceServers, null);
-//                    helper.initSocket(signal, room, true);
-//                }
-//
-//            }
-//        });
+        manager = WebRTCManager.getInstance();
+        manager.setCallback(this);
+
+        localRender = new SurfaceViewRenderer(this);
+        localRender.init(rootEglBase.getEglBaseContext(), null);
+        localRender.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        localRender.setZOrderMediaOverlay(true);
+        localRender.setMirror(true);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+        localRender.setLayoutParams(layoutParams);
+        localSink = new ProxyVideoSink();
+        localSink.setTarget(localRender);
+        wr_video_view.addView(localRender);
 
 
-//        localRender = VideoRendererGui.create(0, 0,
-//                100, 100, scalingType, true);
-
+        if (!PermissionUtil.isNeedRequestPermission(ChatRoomActivity.this)) {
+            manager.joinRoom(getApplicationContext(), rootEglBase);
+        }
 
     }
 
     @Override
     public void onSetLocalStream(MediaStream stream, String userId) {
-
         Log.i("dds_webrtc", "在本地添加视频");
-
-//        stream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
-//        VideoRendererGui.update(localRender,
-//                0, 0,
-//                100, 100,
-//                scalingType, false);
+        stream.videoTracks.get(0).addSink(localSink);
     }
 
     @Override
     public void onAddRemoteStream(MediaStream stream, String userId) {
+        _remoteVideoTracks.put(userId, stream.videoTracks.get(0));
+        runOnUiThread(() -> {
+            SurfaceViewRenderer renderer = new SurfaceViewRenderer(ChatRoomActivity.this);
+            renderer.init(rootEglBase.getEglBaseContext(), null);
+            renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+            renderer.setZOrderMediaOverlay(true);
+            renderer.setMirror(true);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+            layoutParams.leftMargin = width;
+            renderer.setLayoutParams(layoutParams);
+            wr_video_view.addView(renderer);
+            _remoteVideoViews.put(userId, renderer);
+            ProxyVideoSink sink = new ProxyVideoSink();
+            sink.setTarget(renderer);
+            _remoteSinks.put(userId, sink);
 
-//        Log.i("dds_webrtc", "接受到远端视频流     " + userId);
-//
-//        _remoteVideoTracks.put(userId, stream.videoTracks.get(0));
-//        VideoRenderer.Callbacks vr = VideoRendererGui.create(
-//                0, 0,
-//                0, 0, scalingType, false);
-//
-//
-//        _remoteVideoView.put(userId, vr);
-//
-//
-//        stream.videoTracks.get(0).addRenderer(new VideoRenderer(vr));
-//        VideoRendererGui.update(vr,
-//                x, y,
-//                30, 20,
-//                scalingType, false);
-//
-//        x += 30;
+
+            stream.videoTracks.get(0).addSink(sink);
+
+        });
+
+
     }
 
 
     @Override
     public void onCloseWithId(String userId) {
-//        Log.i("dds_webrtc", "有用户离开    " + userId);
-//        VideoRenderer.Callbacks callbacks = _remoteVideoView.get(userId);
-//        VideoRendererGui.remove(callbacks);
-//
-//        _remoteVideoTracks.remove(userId);
-//        _remoteVideoView.remove(userId);
-//
-//        if (_remoteVideoTracks.size() == 0) {
-//            x = 0;
-//        }
+        runOnUiThread(() -> {
+            ProxyVideoSink sink = _remoteSinks.get(userId);
+            SurfaceViewRenderer renderer = _remoteVideoViews.get(userId);
+            if (sink != null) {
+                sink.setTarget(null);
+            }
+            if (renderer != null) {
+                renderer.release();
+            }
+            _remoteVideoTracks.remove(userId);
+            _remoteSinks.remove(userId);
+            _remoteVideoViews.remove(userId);
+
+            wr_video_view.removeView(renderer);
+        });
 
 
     }
@@ -201,7 +202,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     // 切换摄像头
     public void switchCamera() {
-        helper.switchCamera();
+        manager.switchCamera();
     }
 
     // 挂断
@@ -212,11 +213,17 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     // 静音
     public void toggleMic(boolean enable) {
-        helper.toggleMute(enable);
+        manager.toggleMute(enable);
     }
 
     private void exit() {
-        helper.exitRoom();
+        manager.exitRoom();
+
+        localSink.setTarget(null);
+        if (localRender != null) {
+            localRender.release();
+            localRender = null;
+        }
     }
 
 
@@ -229,9 +236,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
                 break;
             }
         }
-
-       // helper = new PeerConnectionHelper(this, ChatRoomActivity.this, iceServers, null);
-      //  helper.initSocket(signal, room, true);
+        manager.joinRoom(getApplicationContext(), rootEglBase);
 
 
     }

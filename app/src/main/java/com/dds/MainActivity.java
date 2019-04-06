@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 群聊
     public void JoinRoom(View view) {
-        WebrtcUtil.call(this, et_room.getText().toString().trim());
+        WebrtcUtil.call(this, et_signal.getText().toString(), et_room.getText().toString().trim());
 
     }
 

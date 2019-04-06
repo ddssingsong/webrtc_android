@@ -55,11 +55,17 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 ## 实现过程探究
 
-1. webrtc流程
+1. webrtc官方demo流程
 
 ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image1.png)
 
+2. 本demo流程
+
+
+
 2. 自定义信令
+
+
 
 #### 
 

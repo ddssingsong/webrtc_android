@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.ui.ChatRoomActivity;
 import com.dds.webrtclib.ui.ChatSingleActivity;
 import com.dds.webrtclib.ws.IConnectEvent;
 
@@ -59,9 +60,23 @@ public class WebrtcUtil {
     }
 
     // meeting
-    public static void call(Activity activity, String roomId) {
-        // WebRTCManager.getInstance().init();
-        //  ChatRoomActivity.openActivity(activity, signal, iceServers, roomId);
+    public static void call(Activity activity, String wss,String roomId) {
+        WebRTCManager.getInstance().init(WebRTCManager.MediaType.Meeting,
+                roomId,
+                new IConnectEvent() {
+                    @Override
+                    public void onSuccess() {
+                        ChatRoomActivity.openActivity(activity);
+                    }
+
+                    @Override
+                    public void onFailed(String msg) {
+                        // 打开失败弹出失败原因
+                        Toast.makeText(activity, "连接sokect失败", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+        WebRTCManager.getInstance().connect(TextUtils.isEmpty(wss) ? WSS : wss, iceServers);
     }
 
     public static void testWs(String wss) {
