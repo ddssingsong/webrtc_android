@@ -19,11 +19,13 @@
     <application>
         <activity
             android:name=".ui.ChatRoomActivity"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|smallestScreenSize|screenSize|screenLayout"
+            android:screenOrientation="fullUser"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ChatSingleActivity"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|smallestScreenSize|screenSize|screenLayout"
+            android:screenOrientation="fullUser"
             android:theme="@style/Webrtc.AppTheme.NoActionBar" />
     </application>
 

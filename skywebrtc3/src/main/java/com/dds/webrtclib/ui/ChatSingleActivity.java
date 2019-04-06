@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -31,7 +30,7 @@ import org.webrtc.SurfaceViewRenderer;
  * 1. 一对一视频通话
  * 2. 一对一语音通话
  */
-public class ChatSingleActivity extends AppCompatActivity implements IViewCallback {
+public class ChatSingleActivity extends AppCompatActivity {
     private SurfaceViewRenderer local_view;
     private SurfaceViewRenderer remote_view;
     private ProxyVideoSink localRender;
@@ -76,23 +75,22 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
         if (videoEnable) {
             local_view = findViewById(R.id.local_view_render);
             remote_view = findViewById(R.id.remote_view_render);
-            local_view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setSwappedFeeds(!isSwappedFeeds);
-                }
-            });
+
 
             // 本地图像初始化
             local_view.init(rootEglBase.getEglBaseContext(), null);
             local_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
             local_view.setZOrderMediaOverlay(true);
+            local_view.setMirror(true);
             localRender = new ProxyVideoSink();
             //远端图像初始化
             remote_view.init(rootEglBase.getEglBaseContext(), null);
             remote_view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_BALANCED);
+            remote_view.setMirror(true);
             remoteRender = new ProxyVideoSink();
             setSwappedFeeds(true);
+
+            local_view.setOnClickListener(v -> setSwappedFeeds(!isSwappedFeeds));
         }
 
         startCall();
@@ -107,7 +105,33 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
 
     private void startCall() {
         manager = WebRTCManager.getInstance();
-        manager.setCallback(this);
+        manager.setCallback(new IViewCallback() {
+            @Override
+            public void onSetLocalStream(MediaStream stream, String socketId) {
+                if (videoEnable) {
+                    stream.videoTracks.get(0).setEnabled(true);
+                    stream.videoTracks.get(0).addSink(localRender);
+                }
+            }
+
+            @Override
+            public void onAddRemoteStream(MediaStream stream, String socketId) {
+                if (videoEnable) {
+                    setSwappedFeeds(false);
+                    stream.videoTracks.get(0).setEnabled(true);
+                    stream.videoTracks.get(0).addSink(remoteRender);
+                }
+            }
+
+            @Override
+            public void onCloseWithId(String socketId) {
+                runOnUiThread(() -> {
+                    disConnect();
+                    ChatSingleActivity.this.finish();
+                });
+
+            }
+        });
         if (!PermissionUtil.isNeedRequestPermission(ChatSingleActivity.this)) {
             manager.joinRoom(getApplicationContext(), rootEglBase);
         }
@@ -131,32 +155,6 @@ public class ChatSingleActivity extends AppCompatActivity implements IViewCallba
         return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event);
     }
 
-    @Override
-    public void onSetLocalStream(MediaStream stream, String socketId) {
-        if (videoEnable) {
-            stream.videoTracks.get(0).setEnabled(true);
-            stream.videoTracks.get(0).addSink(localRender);
-        }
-
-    }
-
-    @Override
-    public void onAddRemoteStream(MediaStream stream, String socketId) {
-        if (videoEnable) {
-            setSwappedFeeds(false);
-            stream.videoTracks.get(0).setEnabled(true);
-            stream.videoTracks.get(0).addSink(remoteRender);
-        }
-    }
-
-    @Override
-    public void onCloseWithId(String socketId) {
-        runOnUiThread(() -> {
-            disConnect();
-            ChatSingleActivity.this.finish();
-        });
-
-    }
 
     // 切换摄像头
     public void switchCamera() {

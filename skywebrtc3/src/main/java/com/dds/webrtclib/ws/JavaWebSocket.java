@@ -66,6 +66,7 @@ public class JavaWebSocket implements IWebSocket {
 
                 @Override
                 public void onMessage(String message) {
+                    isOpen = true;
                     Log.d(TAG, message);
                     handleMessage(message);
                 }

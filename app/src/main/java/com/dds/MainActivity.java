@@ -6,7 +6,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 
-import com.huawang.dongxiangjun.myapplication.R;
+import com.dds.webrtc.R;
+
 
 /**
  * Created by dds on 2018/11/7.

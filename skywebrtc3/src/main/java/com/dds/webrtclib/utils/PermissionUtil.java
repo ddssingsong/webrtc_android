@@ -22,7 +22,9 @@ public class PermissionUtil {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return false;
         }
-        return isNeedRequestPermission(activity, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
+        return isNeedRequestPermission(activity, Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private static boolean isNeedRequestPermission(Activity activity, String... permissions) {

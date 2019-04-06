@@ -26,10 +26,11 @@ public class WebrtcUtil {
 
     // 转发和穿透服务器
     private static MyIceServer[] iceServers = {
-            new MyIceServer("stun:stun.l.google.com:19302")
-//            new MyIceServer("stun:47.254.34.146"),
-//            new MyIceServer("turn:47.254.34.146?transport=udp", "dds", "123456"),
-//            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
+            //  new MyIceServer("stun:stun.l.google.com:19302"),
+            new MyIceServer("stun:47.254.34.146:3478"),
+            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
+            new MyIceServer("turn:47.254.34.146:3478", "dds", "123456"),
+
     };
 
     // 信令服务器

@@ -39,11 +39,15 @@ import org.webrtc.VideoTrack;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class PeerConnectionHelper {
@@ -53,7 +57,7 @@ public class PeerConnectionHelper {
     public static final int VIDEO_RESOLUTION_WIDTH = 640;
     public static final int VIDEO_RESOLUTION_HEIGHT = 480;
     public static final int FPS = 15;
-
+    private static final String VIDEO_CODEC_H264 = "H264";
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
     public static final String AUDIO_TRACK_ID = "ARDAMSa0";
 
@@ -176,13 +180,15 @@ public class PeerConnectionHelper {
 
     }
 
-    public void onReceiveOffer(String socketId, String sdp) {
+    public void onReceiveOffer(String socketId, String description) {
         executor.execute(() -> {
             _role = Role.Receiver;
             Peer mPeer = _connectionPeerDic.get(socketId);
-            SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.OFFER, sdp);
+            //  String sessionDescription = preferCodec(description, VIDEO_CODEC_H264, false);
+            SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
+
             if (mPeer != null) {
-                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+                mPeer.pc.setRemoteDescription(mPeer, sdp);
             }
         });
 
@@ -326,6 +332,9 @@ public class PeerConnectionHelper {
 
     // 退出房间
     public void exitRoom() {
+        if (viewCallback != null) {
+            viewCallback = null;
+        }
         executor.execute(() -> {
             ArrayList myCopy;
             myCopy = (ArrayList) _connectionIdArray.clone();
@@ -522,10 +531,19 @@ public class PeerConnectionHelper {
         //****************************SdpObserver****************************/
 
         @Override
-        public void onCreateSuccess(SessionDescription sessionDescription) {
-            Log.v(TAG, "sdp创建成功       " + sessionDescription.type);
+        public void onCreateSuccess(SessionDescription origSdp) {
+            Log.v(TAG, "sdp创建成功       " + origSdp.type);
             //设置本地的SDP
-            pc.setLocalDescription(Peer.this, sessionDescription);
+
+            // String sdpDescription = origSdp.description;
+            if (videoEnable) {
+                //  sdpDescription = preferCodec(sdpDescription, VIDEO_CODEC_H264, false);
+            }
+
+            //  final SessionDescription sdp = new SessionDescription(origSdp.type, sdpDescription);
+
+
+            pc.setLocalDescription(Peer.this, origSdp);
         }
 
         @Override
@@ -578,6 +596,86 @@ public class PeerConnectionHelper {
 
     }
 
+
+    private static String preferCodec(String sdpDescription, String codec, boolean isAudio) {
+        final String[] lines = sdpDescription.split("\r\n");
+        final int mLineIndex = findMediaDescriptionLine(isAudio, lines);
+        if (mLineIndex == -1) {
+            Log.w(TAG, "No mediaDescription line, so can't prefer " + codec);
+            return sdpDescription;
+        }
+        // A list with all the payload types with name |codec|. The payload types are integers in the
+        // range 96-127, but they are stored as strings here.
+        final List<String> codecPayloadTypes = new ArrayList<>();
+        // a=rtpmap:<payload type> <encoding name>/<clock rate> [/<encoding parameters>]
+        final Pattern codecPattern = Pattern.compile("^a=rtpmap:(\\d+) " + codec + "(/\\d+)+[\r]?$");
+        for (String line : lines) {
+            Matcher codecMatcher = codecPattern.matcher(line);
+            if (codecMatcher.matches()) {
+                codecPayloadTypes.add(codecMatcher.group(1));
+            }
+        }
+        if (codecPayloadTypes.isEmpty()) {
+            Log.w(TAG, "No payload types with name " + codec);
+            return sdpDescription;
+        }
+
+        final String newMLine = movePayloadTypesToFront(codecPayloadTypes, lines[mLineIndex]);
+        if (newMLine == null) {
+            return sdpDescription;
+        }
+        Log.d(TAG, "Change media description from: " + lines[mLineIndex] + " to " + newMLine);
+        lines[mLineIndex] = newMLine;
+        return joinString(Arrays.asList(lines), "\r\n", true /* delimiterAtEnd */);
+    }
+
+    private static int findMediaDescriptionLine(boolean isAudio, String[] sdpLines) {
+        final String mediaDescription = isAudio ? "m=audio " : "m=video ";
+        for (int i = 0; i < sdpLines.length; ++i) {
+            if (sdpLines[i].startsWith(mediaDescription)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static @Nullable
+    String movePayloadTypesToFront(
+            List<String> preferredPayloadTypes, String mLine) {
+        // The format of the media description line should be: m=<media> <port> <proto> <fmt> ...
+        final List<String> origLineParts = Arrays.asList(mLine.split(" "));
+        if (origLineParts.size() <= 3) {
+            Log.e(TAG, "Wrong SDP media description format: " + mLine);
+            return null;
+        }
+        final List<String> header = origLineParts.subList(0, 3);
+        final List<String> unpreferredPayloadTypes =
+                new ArrayList<>(origLineParts.subList(3, origLineParts.size()));
+        unpreferredPayloadTypes.removeAll(preferredPayloadTypes);
+        // Reconstruct the line with |preferredPayloadTypes| moved to the beginning of the payload
+        // types.
+        final List<String> newLineParts = new ArrayList<>();
+        newLineParts.addAll(header);
+        newLineParts.addAll(preferredPayloadTypes);
+        newLineParts.addAll(unpreferredPayloadTypes);
+        return joinString(newLineParts, " ", false /* delimiterAtEnd */);
+    }
+
+    private static String joinString(
+            Iterable<? extends CharSequence> s, String delimiter, boolean delimiterAtEnd) {
+        Iterator<? extends CharSequence> iter = s.iterator();
+        if (!iter.hasNext()) {
+            return "";
+        }
+        StringBuilder buffer = new StringBuilder(iter.next());
+        while (iter.hasNext()) {
+            buffer.append(delimiter).append(iter.next());
+        }
+        if (delimiterAtEnd) {
+            buffer.append(delimiter);
+        }
+        return buffer.toString();
+    }
 
 }
 

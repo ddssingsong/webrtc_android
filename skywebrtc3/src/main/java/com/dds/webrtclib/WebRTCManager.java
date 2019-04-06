@@ -76,6 +76,8 @@ public class WebRTCManager implements ISignalingEvents {
         } else {
             // 正在通话中
             Log.e(TAG, "error connect");
+            _webSocket.close();
+            _webSocket = null;
         }
 
     }
@@ -140,6 +142,10 @@ public class WebRTCManager implements ISignalingEvents {
         handler.post(() -> {
             if (_webSocket != null && !_webSocket.isOpen()) {
                 _connectEvent.onFailed(msg);
+            } else {
+                if (_peerHelper != null) {
+                    _peerHelper.exitRoom();
+                }
             }
         });
 
@@ -151,6 +157,9 @@ public class WebRTCManager implements ISignalingEvents {
         handler.post(() -> {
             if (_peerHelper != null) {
                 _peerHelper.onJoinToRoom(connections, myId, _mediaType != MediaType.Audio);
+                if (_mediaType == MediaType.Video) {
+                    toggleSpeaker(true);
+                }
             }
         });
 
@@ -161,6 +170,7 @@ public class WebRTCManager implements ISignalingEvents {
         handler.post(() -> {
             if (_peerHelper != null) {
                 _peerHelper.onRemoteJoinToRoom(socketId);
+
             }
         });
 
