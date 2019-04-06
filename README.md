@@ -61,7 +61,7 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 2. 本demo流程
 
-![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image2.png)
+![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image2.jpg)
 
 2. 自定义信令
 
