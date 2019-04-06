@@ -86,9 +86,9 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 ## 共同探索
 
-群名称：webrtc技术交流群
+QQ群名称：webrtc技术交流群
 
-群   号：601332720
+QQ群   号：601332720
 
 加入群一起探讨webrtc，分享好的开源项目
 
