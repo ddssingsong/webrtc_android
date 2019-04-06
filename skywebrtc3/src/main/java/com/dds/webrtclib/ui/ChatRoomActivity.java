@@ -96,11 +96,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         // 设置宽高比例
         WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (manager != null) {
-            width = manager.getDefaultDisplay().getWidth() / 3;
+            width = manager.getDefaultDisplay().getWidth() / 3 - 10;
         }
         height = width * 32 / 24;
-        x = 32;
-        y = 0;
+        x = width;
+        y = 10;
         rootEglBase = EglBase.create();
 
     }
