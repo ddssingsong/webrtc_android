@@ -236,6 +236,19 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             localRender.release();
             localRender = null;
         }
+
+        for (SurfaceViewRenderer renderer : _remoteVideoViews.values()) {
+            renderer.release();
+        }
+
+
+        for (ProxyVideoSink sink : _remoteSinks.values()) {
+            sink.setTarget(null);
+        }
+        _remoteVideoTracks.clear();
+        _remoteVideoViews.clear();
+        _remoteSinks.clear();
+
     }
 
 
