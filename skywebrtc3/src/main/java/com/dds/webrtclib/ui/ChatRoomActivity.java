@@ -186,7 +186,11 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             _remoteVideoViews.remove(userId);
 
             wr_video_view.removeView(renderer);
+            int size = _remoteVideoTracks.size();
 
+
+            x = (width + 9) * (size % 3 + 1) + 9;
+            y = ((size + 1) / 3) * (height + 10) + 10;
 
         });
 
