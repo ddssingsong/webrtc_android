@@ -184,8 +184,12 @@ public class PeerConnectionHelper {
         executor.execute(() -> {
             _role = Role.Receiver;
             Peer mPeer = _connectionPeerDic.get(socketId);
-            //  String sessionDescription = preferCodec(description, VIDEO_CODEC_H264, false);
-            SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
+            String sessionDescription = description;
+            if (videoEnable) {
+                sessionDescription = preferCodec(description, VIDEO_CODEC_H264, false);
+            }
+
+            SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, sessionDescription);
 
             if (mPeer != null) {
                 mPeer.pc.setRemoteDescription(mPeer, sdp);
@@ -537,15 +541,15 @@ public class PeerConnectionHelper {
             Log.v(TAG, "sdp创建成功       " + origSdp.type);
             //设置本地的SDP
 
-            // String sdpDescription = origSdp.description;
+            String sdpDescription = origSdp.description;
             if (videoEnable) {
-                //  sdpDescription = preferCodec(sdpDescription, VIDEO_CODEC_H264, false);
+                sdpDescription = preferCodec(sdpDescription, VIDEO_CODEC_H264, false);
             }
 
-            //  final SessionDescription sdp = new SessionDescription(origSdp.type, sdpDescription);
+            final SessionDescription sdp = new SessionDescription(origSdp.type, sdpDescription);
 
 
-            pc.setLocalDescription(Peer.this, origSdp);
+            pc.setLocalDescription(Peer.this, sdp);
         }
 
         @Override
