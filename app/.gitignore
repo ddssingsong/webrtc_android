@@ -2,4 +2,5 @@
 *.iml
 .DS_Store
 /.idea
+/release
 /gradle
