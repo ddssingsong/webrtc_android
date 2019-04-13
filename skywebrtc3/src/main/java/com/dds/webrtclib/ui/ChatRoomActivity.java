@@ -160,8 +160,12 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             stream.videoTracks.get(0).addSink(sink);
 
             int size = _remoteVideoTracks.size();
-            x = (width + 9) * (size % 3 + 1) + 9;
+
+            // x = (width + 9) * (size % 3 + 1) + 9;
+            // 之前算错了
+            x = (width + 9) * ((size + 1) % 3) + 9;
             y = ((size + 1) / 3) * (height + 10) + 10;
+
 
         });
 
@@ -189,7 +193,8 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             int size = _remoteVideoTracks.size();
 
 
-            x = (width + 9) * (size % 3 + 1) + 9;
+            // x = (width + 9) * (size % 3 + 1) + 9;
+            x = (width + 9) * ((size + 1) % 3) + 9;
             y = ((size + 1) / 3) * (height + 10) + 10;
 
         });
