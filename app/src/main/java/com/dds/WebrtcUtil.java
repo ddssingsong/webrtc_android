@@ -35,7 +35,7 @@ public class WebrtcUtil {
     };
 
     // 信令服务器
-    private static String WSS = "wss://47.254.34.146/wss";
+    private static String WSS = "ws://192.168.1.138:3000/websocket";
 
 
     // one to one
