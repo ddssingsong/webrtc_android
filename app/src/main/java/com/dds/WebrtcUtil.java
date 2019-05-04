@@ -3,19 +3,28 @@ package com.dds;
 import android.app.Activity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.WebRTCManager;
+import com.dds.webrtclib.bean.MediaType;
+import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.ui.ChatRoomActivity;
 import com.dds.webrtclib.ui.ChatSingleActivity;
 import com.dds.webrtclib.ws.IConnectEvent;
+import com.dds.webrtclib.ws.JavaWebSocket;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 /**
  * Created by dds on 2019/1/7.
@@ -25,60 +34,58 @@ public class WebrtcUtil {
     private final static String TAG = "WebrtcUtil";
     private static WebSocketClient mWebSocketClient;
 
-    // 转发和穿透服务器
+    // turn and stun
     private static MyIceServer[] iceServers = {
-            //  new MyIceServer("stun:stun.l.google.com:19302"),
+            new MyIceServer("stun:stun.l.google.com:19302"),
             new MyIceServer("stun:47.254.34.146:3478"),
             new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
             new MyIceServer("turn:47.254.34.146:3478", "dds", "123456"),
 
     };
 
-    // 信令服务器
-    private static String WSS = "ws://192.168.1.138:3000/websocket";
+    // signalling
+    private static String WSS = "wss://47.254.34.146/wss";
 
 
     // one to one
     public static void callSingle(Activity activity, String wss, String roomId, boolean videoEnable) {
-        WebRTCManager.getInstance().init(
-                videoEnable ? WebRTCManager.MediaType.Video : WebRTCManager.MediaType.Audio,
-                roomId,
-                new IConnectEvent() {
-                    @Override
-                    public void onSuccess() {
-                        ChatSingleActivity.openActivity(activity, videoEnable);
-                    }
+        if (TextUtils.isEmpty(wss)) {
+            wss = WSS;
+        }
+        WebRTCManager.getInstance().init(wss, iceServers, new IConnectEvent() {
+            @Override
+            public void onSuccess() {
+                ChatSingleActivity.openActivity(activity, videoEnable);
+            }
 
-                    @Override
-                    public void onFailed(String msg) {
-                        // 打开失败弹出失败原因
-                        Toast.makeText(activity, "连接sokect失败", Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-        WebRTCManager.getInstance().connect(TextUtils.isEmpty(wss) ? WSS : wss, iceServers);
+            @Override
+            public void onFailed(String msg) {
+
+            }
+        });
+        WebRTCManager.getInstance().connect(videoEnable ? MediaType.TYPE_VIDEO : MediaType.TYPE_AUDIO, roomId);
     }
 
-    // meeting
-    public static void call(Activity activity, String wss,String roomId) {
-        WebRTCManager.getInstance().init(WebRTCManager.MediaType.Meeting,
-                roomId,
-                new IConnectEvent() {
-                    @Override
-                    public void onSuccess() {
-                        ChatRoomActivity.openActivity(activity);
-                    }
+    // Videoconferencing
+    public static void call(Activity activity, String wss, String roomId) {
+        if (TextUtils.isEmpty(wss)) {
+            wss = WSS;
+        }
+        WebRTCManager.getInstance().init(wss, iceServers, new IConnectEvent() {
+            @Override
+            public void onSuccess() {
+                ChatRoomActivity.openActivity(activity);
+            }
 
-                    @Override
-                    public void onFailed(String msg) {
-                        // 打开失败弹出失败原因
-                        Toast.makeText(activity, "连接sokect失败", Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-        WebRTCManager.getInstance().connect(TextUtils.isEmpty(wss) ? WSS : wss, iceServers);
+            @Override
+            public void onFailed(String msg) {
+
+            }
+        });
+        WebRTCManager.getInstance().connect(MediaType.TYPE_MEETING, roomId);
     }
 
+    // test wss
     public static void testWs(String wss) {
         URI uri;
         try {
@@ -91,7 +98,7 @@ public class WebrtcUtil {
             @Override
             public void onOpen(ServerHandshake handshake) {
                 Log.e(TAG, "onOpen:");
-                mWebSocketClient.send("hello");
+                mWebSocketClient.send("");
             }
 
             @Override
@@ -110,6 +117,30 @@ public class WebrtcUtil {
                 Log.e(TAG, ex.toString());
             }
         };
+
+        if (wss.startsWith("wss")) {
+            try {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                if (sslContext != null) {
+                    sslContext.init(null, new TrustManager[]{new JavaWebSocket.TrustManagerTest()}, new SecureRandom());
+                }
+
+                SSLSocketFactory factory = null;
+                if (sslContext != null) {
+                    factory = sslContext.getSocketFactory();
+                }
+
+                if (factory != null) {
+                    mWebSocketClient.setSocket(factory.createSocket());
+                }
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         mWebSocketClient.connect();
     }
 

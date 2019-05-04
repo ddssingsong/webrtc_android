@@ -222,7 +222,6 @@ public class JavaWebSocket implements IWebSocket {
         }
     }
 
-
     // 自己进入房间
     private void handleJoinToRoom(Map map) {
         Map data = (Map) map.get("data");
@@ -305,7 +304,7 @@ public class JavaWebSocket implements IWebSocket {
 
 
     // 忽略证书
-    class TrustManagerTest implements X509TrustManager {
+    public static class TrustManagerTest implements X509TrustManager {
 
         @SuppressLint("TrustAllX509TrustManager")
         @Override

@@ -9,14 +9,14 @@
     <FrameLayout
         android:id="@+id/wr_video_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="360dp" />
 
 
     <FrameLayout
         android:id="@+id/wr_container"
         android:layout_width="match_parent"
-        android:layout_height="160dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 
 </LinearLayout>

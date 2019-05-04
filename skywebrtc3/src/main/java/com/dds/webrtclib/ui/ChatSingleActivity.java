@@ -1,5 +1,6 @@
 package com.dds.webrtclib.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,8 +11,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 import com.dds.webrtclib.IViewCallback;
 import com.dds.webrtclib.PeerConnectionHelper;
@@ -37,7 +40,6 @@ public class ChatSingleActivity extends AppCompatActivity {
     private ProxyVideoSink remoteRender;
 
     private WebRTCManager manager;
-    private ChatSingleFragment chatSingleFragment;
 
     private boolean videoEnable;
     private boolean isSwappedFeeds;
@@ -54,28 +56,30 @@ public class ChatSingleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wr_activity_chat_single);
         initVar();
+        initListener();
     }
 
+
+    private int previewX, previewY;
+    private int moveX, moveY;
 
     private void initVar() {
         Intent intent = getIntent();
         videoEnable = intent.getBooleanExtra("videoEnable", false);
-        chatSingleFragment = new ChatSingleFragment();
+
+        ChatSingleFragment chatSingleFragment = new ChatSingleFragment();
         replaceFragment(chatSingleFragment, videoEnable);
         rootEglBase = EglBase.create();
         if (videoEnable) {
             local_view = findViewById(R.id.local_view_render);
             remote_view = findViewById(R.id.remote_view_render);
-
 
             // 本地图像初始化
             local_view.init(rootEglBase.getEglBaseContext(), null);
@@ -95,6 +99,45 @@ public class ChatSingleActivity extends AppCompatActivity {
 
         startCall();
 
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void initListener() {
+        if (videoEnable) {
+            // 设置小视频可以移动
+            local_view.setOnTouchListener((view, motionEvent) -> {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        previewX = (int) motionEvent.getX();
+                        previewY = (int) motionEvent.getY();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        int x = (int) motionEvent.getX();
+                        int y = (int) motionEvent.getY();
+                        moveX = (int) motionEvent.getX();
+                        moveY = (int) motionEvent.getY();
+                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) local_view.getLayoutParams();
+                        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0); // Clears the rule, as there is no removeRule until API 17.
+                        lp.addRule(RelativeLayout.ALIGN_PARENT_END, 0);
+                        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+                        lp.addRule(RelativeLayout.ALIGN_PARENT_START, 0);
+                        int left = lp.leftMargin + (x - previewX);
+                        int top = lp.topMargin + (y - previewY);
+                        lp.leftMargin = left;
+                        lp.topMargin = top;
+                        view.setLayoutParams(lp);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (moveX == 0 && moveY == 0) {
+                            view.performClick();
+                        }
+                        moveX = 0;
+                        moveY = 0;
+                        break;
+                }
+                return true;
+            });
+        }
     }
 
     private void setSwappedFeeds(boolean isSwappedFeeds) {
@@ -150,7 +193,7 @@ public class ChatSingleActivity extends AppCompatActivity {
     }
 
 
-    @Override  // 屏蔽返回键
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return keyCode == KeyEvent.KEYCODE_BACK || super.onKeyDown(keyCode, event);
     }

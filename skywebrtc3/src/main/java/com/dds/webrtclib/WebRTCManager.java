@@ -3,8 +3,8 @@ package com.dds.webrtclib;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
+import com.dds.webrtclib.bean.MediaType;
 import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.ws.IConnectEvent;
 import com.dds.webrtclib.ws.ISignalingEvents;
@@ -23,9 +23,20 @@ import java.util.List;
  * android_shuai@163.com
  */
 public class WebRTCManager implements ISignalingEvents {
+    private final static String TAG = "sing_WebRTCManager";
+    private String _wss;
+    private MyIceServer[] _iceServers;
 
-    private final static String TAG = "dds_WebRTCManager";
+    private IWebSocket _webSocket;
+    private PeerConnectionHelper _peerHelper;
 
+    private String _roomId;
+    private int _mediaType;
+    private boolean _videoEnable;
+
+
+    private IConnectEvent _connectEvent;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     public static WebRTCManager getInstance() {
         return Holder.wrManager;
@@ -35,49 +46,28 @@ public class WebRTCManager implements ISignalingEvents {
         private static WebRTCManager wrManager = new WebRTCManager();
     }
 
-    public enum MediaType {
-        //1=语音，2=视频
-        Audio(1),
-        Video(2),
-        Meeting(3);
-
-        public final int value;
-
-        MediaType(int value) {
-            this.value = value;
-        }
-    }
-
-    private IWebSocket _webSocket;
-    private MediaType _mediaType = MediaType.Video;
-    private PeerConnectionHelper _peerHelper;
-    private String _roomId;
-
-    private Handler handler = new Handler(Looper.getMainLooper());
-
-    private IConnectEvent _connectEvent;
-
-    public void init(MediaType mediaType, IConnectEvent event) {
+    // init address
+    public void init(String wss, MyIceServer[] iceServers, IConnectEvent event) {
+        this._wss = wss;
+        this._iceServers = iceServers;
         _connectEvent = event;
-        _mediaType = mediaType;
+
     }
 
-    public void init(MediaType mediaType, String roomId, IConnectEvent event) {
-        _connectEvent = event;
-        _mediaType = mediaType;
-        _roomId = roomId;
-    }
-
-    public void connect(String wss, MyIceServer[] iceServers) {
+    // connect
+    public void connect(int mediaType, String roomId) {
         if (_webSocket == null) {
+            _mediaType = mediaType;
+            _videoEnable = mediaType != MediaType.TYPE_AUDIO;
+            _roomId = roomId;
             _webSocket = new JavaWebSocket(this);
-            _webSocket.connect(wss);
-            _peerHelper = new PeerConnectionHelper(_webSocket, iceServers);
+            _webSocket.connect(_wss);
+            _peerHelper = new PeerConnectionHelper(_webSocket, _iceServers);
         } else {
             // 正在通话中
-            Log.e(TAG, "error connect");
             _webSocket.close();
             _webSocket = null;
+            _peerHelper = null;
         }
 
     }
@@ -151,13 +141,12 @@ public class WebRTCManager implements ISignalingEvents {
 
     }
 
-
     @Override
     public void onJoinToRoom(ArrayList<String> connections, String myId) {
         handler.post(() -> {
             if (_peerHelper != null) {
-                _peerHelper.onJoinToRoom(connections, myId, _mediaType != MediaType.Audio);
-                if (_mediaType == MediaType.Video) {
+                _peerHelper.onJoinToRoom(connections, myId, _videoEnable, _mediaType);
+                if (_mediaType == MediaType.TYPE_VIDEO) {
                     toggleSpeaker(true);
                 }
             }

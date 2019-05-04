@@ -6,6 +6,7 @@ import android.media.AudioManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.dds.webrtclib.bean.MediaType;
 import com.dds.webrtclib.bean.MyIceServer;
 import com.dds.webrtclib.ws.IWebSocket;
 
@@ -77,6 +78,7 @@ public class PeerConnectionHelper {
 
     private ArrayList<PeerConnection.IceServer> ICEServers;
     private boolean videoEnable;
+    private int _mediaType;
 
     private AudioManager mAudioManager;
 
@@ -127,8 +129,9 @@ public class PeerConnectionHelper {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    public void onJoinToRoom(ArrayList<String> connections, String myId, boolean isVideoEnable) {
+    public void onJoinToRoom(ArrayList<String> connections, String myId, boolean isVideoEnable, int mediaType) {
         videoEnable = isVideoEnable;
+        _mediaType = mediaType;
         executor.execute(() -> {
             _connectionIdArray.addAll(connections);
             _myId = myId;
@@ -241,7 +244,7 @@ public class PeerConnectionHelper {
     private void createLocalStream() {
         _localStream = _factory.createLocalMediaStream("ARDAMS");
         // 音频
-        audioSource = _factory.createAudioSource(new MediaConstraints());
+        audioSource = _factory.createAudioSource(createAudioConstraints());
         _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
         _localStream.addTrack(_localAudioTrack);
 
@@ -251,6 +254,9 @@ public class PeerConnectionHelper {
             // 视频
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
             videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
+            if (_mediaType == MediaType.TYPE_MEETING) {
+                videoSource.adaptOutputFormat(200, 200, 15);
+            }
             captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
             captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
             _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
@@ -437,6 +443,23 @@ public class PeerConnectionHelper {
 
 
     //**************************************各种约束******************************************/
+    private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
+    private static final String AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl";
+    private static final String AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter";
+    private static final String AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression";
+
+    private MediaConstraints createAudioConstraints() {
+        MediaConstraints audioConstraints = new MediaConstraints();
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "true"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
+        return audioConstraints;
+    }
 
     private MediaConstraints offerOrAnswerConstraint() {
         MediaConstraints mediaConstraints = new MediaConstraints();

@@ -57,39 +57,26 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void initListener() {
-        wr_switch_mute.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                enableMic = !enableMic;
-                if (enableMic) {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
-                    if (drawable != null) {
-                        drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
-                    }
-                    wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
-                } else {
-                    Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
-                    if (drawable != null) {
-                        drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
-                    }
-                    wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+        wr_switch_mute.setOnClickListener(v -> {
+            enableMic = !enableMic;
+            if (enableMic) {
+                Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute_default);
+                if (drawable != null) {
+                    drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
                 }
-                chatRoomActivity.toggleMic(enableMic);
+                wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+            } else {
+                Drawable drawable = ContextCompat.getDrawable(chatRoomActivity, R.drawable.webrtc_mute);
+                if (drawable != null) {
+                    drawable.setBounds(0, 0, Utils.dip2px(chatRoomActivity, 60), Utils.dip2px(chatRoomActivity, 60));
+                }
+                wr_switch_mute.setCompoundDrawables(null, drawable, null, null);
+            }
+            chatRoomActivity.toggleMic(enableMic);
 
-            }
         });
-        wr_switch_hang_up.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chatRoomActivity.hangUp();
-            }
-        });
-        wr_switch_camera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                chatRoomActivity.switchCamera();
-            }
-        });
+        wr_switch_hang_up.setOnClickListener(v -> chatRoomActivity.hangUp());
+        wr_switch_camera.setOnClickListener(v -> chatRoomActivity.switchCamera());
     }
 
     @Override
