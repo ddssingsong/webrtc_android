@@ -44,8 +44,8 @@ public class WebrtcUtil {
     };
 
     // signalling
-    private static String WSS = "wss://47.254.34.146/wss";
-
+//    private static String WSS = "wss://47.254.34.146/wss";
+    private static String WSS = "ws://192.168.1.6:3000";
 
     // one to one
     public static void callSingle(Activity activity, String wss, String roomId, boolean videoEnable) {
