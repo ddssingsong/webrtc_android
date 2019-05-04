@@ -36,11 +36,8 @@ import java.util.Map;
 
 /**
  * 群聊界面
- * 1. 一对一视频通话
- * 2. 一对一语音通话
+ * 支持 9 路同時通信
  */
-
-
 public class ChatRoomActivity extends AppCompatActivity implements IViewCallback {
 
     private FrameLayout wr_video_view;
