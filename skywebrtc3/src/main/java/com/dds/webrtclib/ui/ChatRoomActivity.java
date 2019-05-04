@@ -130,8 +130,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
 
     private void addView(String id, MediaStream stream) {
-        wr_video_view.removeAllViews();
-
         SurfaceViewRenderer renderer = new SurfaceViewRenderer(ChatRoomActivity.this);
         renderer.init(rootEglBase.getEglBaseContext(), null);
         renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
@@ -145,7 +143,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         _videoViews.put(id, renderer);
         _sinks.put(id, sink);
         _infos.add(new MemberBean(id));
-
+        wr_video_view.addView(renderer);
 
         int size = _infos.size();
         for (int i = 0; i < size; i++) {
@@ -159,7 +157,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
                 layoutParams.leftMargin = getX(size, i);
                 layoutParams.topMargin = getY(size, i);
                 renderer1.setLayoutParams(layoutParams);
-                wr_video_view.addView(renderer1);
             }
 
         }
@@ -180,15 +177,13 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         _sinks.remove(userId);
         _videoViews.remove(userId);
         _infos.remove(new MemberBean(userId));
-
-        wr_video_view.removeAllViews();
+        wr_video_view.removeView(renderer);
 
 
         int size = _infos.size();
         for (int i = 0; i < _infos.size(); i++) {
             MemberBean memberBean = _infos.get(i);
             SurfaceViewRenderer renderer1 = _videoViews.get(memberBean.getId());
-
             if (renderer1 != null) {
                 FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -197,7 +192,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
                 layoutParams.leftMargin = getX(size, i);
                 layoutParams.topMargin = getY(size, i);
                 renderer1.setLayoutParams(layoutParams);
-                wr_video_view.addView(renderer1);
             }
 
         }

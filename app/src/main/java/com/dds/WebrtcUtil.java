@@ -36,7 +36,7 @@ public class WebrtcUtil {
 
     // turn and stun
     private static MyIceServer[] iceServers = {
-            new MyIceServer("stun:stun.l.google.com:19302"),
+           // new MyIceServer("stun:stun.l.google.com:19302"),
             new MyIceServer("stun:47.254.34.146:3478"),
             new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
             new MyIceServer("turn:47.254.34.146:3478", "dds", "123456"),
@@ -44,7 +44,8 @@ public class WebrtcUtil {
     };
 
     // signalling
-//    private static String WSS = "wss://47.254.34.146/wss";
+    // private static String WSS = "wss://47.254.34.146/wss";
+    //本地测试信令地址
     private static String WSS = "ws://192.168.1.6:3000";
 
     // one to one
