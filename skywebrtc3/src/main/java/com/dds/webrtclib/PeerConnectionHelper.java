@@ -337,7 +337,7 @@ public class PeerConnectionHelper {
 
     public void toggleSpeaker(boolean enable) {
         if (mAudioManager != null) {
-            mAudioManager.setSpeakerphoneOn(enable);
+            mAudioManager.setSpeakerphoneOn(false);
         }
 
     }

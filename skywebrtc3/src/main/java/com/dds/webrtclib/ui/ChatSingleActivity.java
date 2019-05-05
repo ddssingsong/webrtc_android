@@ -151,18 +151,24 @@ public class ChatSingleActivity extends AppCompatActivity {
         manager.setCallback(new IViewCallback() {
             @Override
             public void onSetLocalStream(MediaStream stream, String socketId) {
+                if (stream.videoTracks.size() > 0) {
+                    stream.videoTracks.get(0).addSink(localRender);
+                }
+
                 if (videoEnable) {
                     stream.videoTracks.get(0).setEnabled(true);
-                    stream.videoTracks.get(0).addSink(localRender);
                 }
             }
 
             @Override
             public void onAddRemoteStream(MediaStream stream, String socketId) {
-                if (videoEnable) {
-                    setSwappedFeeds(false);
-                    stream.videoTracks.get(0).setEnabled(true);
+                if (stream.videoTracks.size() > 0) {
                     stream.videoTracks.get(0).addSink(remoteRender);
+                }
+                if (videoEnable) {
+                    stream.videoTracks.get(0).setEnabled(true);
+
+                    runOnUiThread(() -> setSwappedFeeds(false));
                 }
             }
 

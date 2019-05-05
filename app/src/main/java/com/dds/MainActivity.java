@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initVar() {
-        et_room.setText("room123456");
+        et_room.setText("666555");
         et_wss.setText("ws://192.168.1.122:3000");
     }
 
