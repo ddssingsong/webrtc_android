@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.dds.webrtclib.IViewCallback;
 import com.dds.webrtclib.PeerConnectionHelper;
@@ -28,6 +28,7 @@ import org.webrtc.EglBase;
 import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
+import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
     private Map<String, SurfaceViewRenderer> _videoViews = new HashMap<>();
     private Map<String, ProxyVideoSink> _sinks = new HashMap<>();
     private List<MemberBean> _infos = new ArrayList<>();
-
+    private VideoTrack _localVideoTrack;
 
     private int mScreenWidth;
 
@@ -87,7 +88,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
         if (manager != null) {
             mScreenWidth = manager.getDefaultDisplay().getWidth();
         }
-        wr_video_view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mScreenWidth));
+        wr_video_view.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mScreenWidth));
         rootEglBase = EglBase.create();
 
     }
@@ -104,6 +105,10 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     @Override
     public void onSetLocalStream(MediaStream stream, String userId) {
+        List<VideoTrack> videoTracks = stream.videoTracks;
+        if (videoTracks.size() > 0) {
+            _localVideoTrack = videoTracks.get(0);
+        }
         runOnUiThread(() -> {
             Log.d("dds_test", "onSetLocalStream addView");
             addView(userId, stream);
@@ -209,6 +214,9 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     private int getX(int size, int index) {
         if (size <= 4) {
+            if (size == 3 && index == 2) {
+                return mScreenWidth / 4;
+            }
             return (index % 2) * mScreenWidth / 2;
         } else if (size <= 9) {
             return (index % 3) * mScreenWidth / 3;
@@ -218,7 +226,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
 
     private int getY(int size, int index) {
         if (size < 3) {
-            return mScreenWidth / 2 - (mScreenWidth / 4);
+            return mScreenWidth / 4;
         } else if (size < 5) {
             if (index < 2) {
                 return 0;
@@ -280,6 +288,19 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
     // 静音
     public void toggleMic(boolean enable) {
         manager.toggleMute(enable);
+    }
+
+    // 免提
+    public void toggleSpeaker(boolean enable) {
+        manager.toggleSpeaker(enable);
+    }
+
+    // 打开关闭摄像头
+    public void toggleCamera(boolean enableCamera) {
+        if (_localVideoTrack != null) {
+            _localVideoTrack.setEnabled(enableCamera);
+        }
+
     }
 
     private void exit() {
