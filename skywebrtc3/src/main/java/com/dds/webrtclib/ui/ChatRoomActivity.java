@@ -259,7 +259,7 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             } else {
                 return mScreenWidth / 2;
             }
-        } else if (size < 9) {
+        } else if (size <= 9) {
             if (index < 3) {
                 return 0;
             } else if (index < 6) {
@@ -269,8 +269,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             }
 
         }
-
-
         return 0;
     }
 
