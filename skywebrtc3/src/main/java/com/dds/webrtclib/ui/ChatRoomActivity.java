@@ -110,7 +110,6 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             _localVideoTrack = videoTracks.get(0);
         }
         runOnUiThread(() -> {
-            Log.d("dds_test", "onSetLocalStream addView");
             addView(userId, stream);
         });
     }
@@ -219,6 +218,27 @@ public class ChatRoomActivity extends AppCompatActivity implements IViewCallback
             }
             return (index % 2) * mScreenWidth / 2;
         } else if (size <= 9) {
+            if (size == 5) {
+                if (index == 3) {
+                    return mScreenWidth / 6;
+                }
+                if (index == 4) {
+                    return mScreenWidth / 2;
+                }
+            }
+
+            if (size == 7 && index == 6) {
+                return mScreenWidth / 3;
+            }
+
+            if (size == 8) {
+                if (index == 6) {
+                    return mScreenWidth / 6;
+                }
+                if (index == 7) {
+                    return mScreenWidth / 2;
+                }
+            }
             return (index % 3) * mScreenWidth / 3;
         }
         return 0;

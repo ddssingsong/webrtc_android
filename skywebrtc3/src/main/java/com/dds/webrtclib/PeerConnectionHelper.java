@@ -255,7 +255,7 @@ public class PeerConnectionHelper {
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
             videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
             if (_mediaType == MediaType.TYPE_MEETING) {
-                videoSource.adaptOutputFormat(200, 200, 15);
+               // videoSource.adaptOutputFormat(200, 200, 15);
             }
             captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
             captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);

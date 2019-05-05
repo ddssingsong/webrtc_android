@@ -146,7 +146,7 @@ public class WebRTCManager implements ISignalingEvents {
         handler.post(() -> {
             if (_peerHelper != null) {
                 _peerHelper.onJoinToRoom(connections, myId, _videoEnable, _mediaType);
-                if (_mediaType == MediaType.TYPE_VIDEO) {
+                if (_mediaType == MediaType.TYPE_VIDEO || _mediaType == MediaType.TYPE_MEETING) {
                     toggleSpeaker(true);
                 }
             }
