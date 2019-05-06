@@ -29,7 +29,7 @@ tips：这只是个demo，学习使用，需要产品化的朋友们请绕道。
 
 2. 多人会话
 
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image5.png)
+   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image5.jpg)
 
 
 
