@@ -1,13 +1,13 @@
-# meeting  
+# Meeting(video conference)
 ![logo](https://github.com/ddssingsong/webrtc_android/blob/master/image/logo.png)
 
 
 
 ## 概述
 
-meeting 是基于webrtc开发的一套可以进行单路或者多路语音、视频的系统，这里仅仅提供demo，还有更多未知的东西等着大家来探索
+Meeting(video conference) 是基于webrtc开发的一套可以进行单路或者多路语音、视频的系统，高仿微信九宫格显示，最多可支持 **9** 路视频。**文末有Server端搭建教程！**
 
-
+tips：这只是个demo，学习使用，需要产品化的朋友们请绕道。
 
 ## 实现功能
 
@@ -17,6 +17,18 @@ meeting 是基于webrtc开发的一套可以进行单路或者多路语音、视
 4. 动态权限申请
 5. 模块独立，代码清晰
 6. 使用最新的webrtc源码
+
+## 实现效果展示
+
+1. 单人通话
+
+   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image3.png)
+
+
+
+2. 多人会话
+
+   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image5.png)
 
 
 
@@ -32,6 +44,16 @@ v1.1.2
 v1.1.1 保存代码，便于后续的开发
 
 v1.1.0  完成基本视频会议
+
+
+
+## 实现过程探究
+
+自定义信令
+
+![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image2.jpg)
+
+
 
 ## 服务器搭建
 
@@ -50,38 +72,6 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 ```
 
 
-
-
-
-## 实现效果展示
-
-1. 单人通话
-
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image3.png)
-
-
-
-2. 多人会话
-
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image4.png)
-
-
-
-## 实现过程探究
-
-1. webrtc官方demo流程
-
-![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image1.png)
-
-2. 本demo流程
-
-![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image2.jpg)
-
-2. 自定义信令
-
-
-
-#### 
 
 
 
