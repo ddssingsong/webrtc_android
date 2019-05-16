@@ -8,6 +8,7 @@
 Meeting(video conference) 是基于webrtc开发的一套可以进行单路或者多路语音、视频的系统，高仿微信九宫格显示，最多可支持 **9** 路视频。**文末有Server端搭建教程！**
 
 tips：这只是个demo，学习使用，需要产品化的朋友们请绕道。
+服务器搭建请看：https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 ## 实现功能
 
