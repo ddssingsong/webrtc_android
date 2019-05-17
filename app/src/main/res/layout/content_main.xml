@@ -58,7 +58,7 @@
         android:id="@+id/et_wss"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="ws://192.168.1.122:3000" />
+        android:hint="wss://118.192.68.107:4436" />
 
     <Button
         android:id="@+id/button4"
