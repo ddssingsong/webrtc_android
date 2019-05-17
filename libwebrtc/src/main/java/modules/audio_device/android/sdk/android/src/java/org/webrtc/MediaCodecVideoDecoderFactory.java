@@ -10,17 +10,17 @@
 
 package org.webrtc;
 
-import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
-import static org.webrtc.MediaCodecUtils.QCOM_PREFIX;
-
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecList;
 import android.os.Build;
 import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static org.webrtc.MediaCodecUtils.EXYNOS_PREFIX;
+import static org.webrtc.MediaCodecUtils.QCOM_PREFIX;
 
 /** Factory for decoders backed by Android MediaCodec API. */
 @SuppressWarnings("deprecation") // API level 16 requires use of deprecated methods.

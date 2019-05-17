@@ -29,8 +29,6 @@ import org.webrtc.RtpReceiver;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
-import org.webrtc.SoftwareVideoDecoderFactory;
-import org.webrtc.SoftwareVideoEncoderFactory;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
@@ -219,17 +217,13 @@ public class PeerConnectionHelper {
 
         final VideoEncoderFactory encoderFactory;
         final VideoDecoderFactory decoderFactory;
-        boolean hardwareAccelerated = true;
-        if (hardwareAccelerated) {
-            encoderFactory = new DefaultVideoEncoderFactory(
-                    _rootEglBase.getEglBaseContext(),
-                    true,
-                    true);
-            decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
-        } else {
-            encoderFactory = new SoftwareVideoEncoderFactory();
-            decoderFactory = new SoftwareVideoDecoderFactory();
-        }
+
+        encoderFactory = new DefaultVideoEncoderFactory(
+                _rootEglBase.getEglBaseContext(),
+                true,
+                true);
+        decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
+
         PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
 
         return PeerConnectionFactory.builder()
@@ -255,7 +249,7 @@ public class PeerConnectionHelper {
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
             videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
             if (_mediaType == MediaType.TYPE_MEETING) {
-               // videoSource.adaptOutputFormat(200, 200, 15);
+                // videoSource.adaptOutputFormat(200, 200, 15);
             }
             captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
             captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);

@@ -11,16 +11,15 @@
 package org.webrtc;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
-import android.view.Surface;
+
+import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
 
 @SuppressWarnings("deprecation")
 class Camera1Session implements CameraSession {

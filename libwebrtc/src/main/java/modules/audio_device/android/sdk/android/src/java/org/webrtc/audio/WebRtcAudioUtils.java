@@ -10,24 +10,20 @@
 
 package org.webrtc.audio;
 
-import static android.media.AudioManager.MODE_IN_CALL;
-import static android.media.AudioManager.MODE_IN_COMMUNICATION;
-import static android.media.AudioManager.MODE_NORMAL;
-import static android.media.AudioManager.MODE_RINGTONE;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
-import android.media.AudioRecordingConfiguration;
-import android.media.MediaRecorder.AudioSource;
 import android.os.Build;
-import android.os.Process;
-import java.lang.Thread;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+
 import org.webrtc.Logging;
+
+import java.util.Arrays;
+
+import static android.media.AudioManager.MODE_IN_CALL;
+import static android.media.AudioManager.MODE_IN_COMMUNICATION;
+import static android.media.AudioManager.MODE_NORMAL;
+import static android.media.AudioManager.MODE_RINGTONE;
 
 final class WebRtcAudioUtils {
   private static final String TAG = "WebRtcAudioUtilsExternal";

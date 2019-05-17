@@ -14,6 +14,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+
 import java.util.Arrays;
 
 @SuppressWarnings("deprecation")

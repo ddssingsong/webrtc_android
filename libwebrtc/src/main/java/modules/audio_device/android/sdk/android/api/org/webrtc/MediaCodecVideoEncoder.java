@@ -22,6 +22,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Surface;
+
+import org.webrtc.EglBase;
+import org.webrtc.EglBase14;
+import org.webrtc.VideoFrame;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +36,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.webrtc.EglBase;
-import org.webrtc.EglBase14;
-import org.webrtc.VideoFrame;
 
 // Java-side of peerconnection.cc:MediaCodecVideoEncoder.
 // This class is an implementation detail of the Java PeerConnection API.

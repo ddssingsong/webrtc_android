@@ -10,10 +10,11 @@
 
 package org.webrtc;
 
+import org.webrtc.MediaStreamTrack;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.webrtc.MediaStreamTrack;
 
 /**
  * Java wrapper for a C++ RtpTransceiverInterface.

@@ -10,14 +10,15 @@
 
 package org.webrtc;
 
-import static java.lang.Math.abs;
-
 import android.graphics.ImageFormat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static java.lang.Math.abs;
 
 @SuppressWarnings("deprecation")
 public class CameraEnumerationAndroid {

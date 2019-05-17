@@ -10,14 +10,16 @@
 
 package org.webrtc;
 
-import static org.webrtc.NetworkMonitorAutoDetect.INVALID_NET_ID;
-
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.Nullable;
+
+import org.webrtc.NetworkMonitorAutoDetect;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.webrtc.NetworkMonitorAutoDetect;
+
+import static org.webrtc.NetworkMonitorAutoDetect.INVALID_NET_ID;
 
 /**
  * Borrowed from Chromium's

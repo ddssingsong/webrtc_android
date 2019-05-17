@@ -10,7 +10,6 @@
 
 package org.webrtc;
 
-import android.support.annotation.Nullable;
 import org.webrtc.VideoFrame;
 
 /**
