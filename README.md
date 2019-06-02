@@ -1,12 +1,10 @@
-![logo](art/logo.png)
+![logo](https://github.com/ddssingsong/webrtc_android/blob/master/art/logo1.png)
 
 # Sky p2p metting (p2p视频会议)
 
-[中文]: README-zh.md
+[中文](<https://github.com/ddssingsong/webrtc_android/blob/master/README-zh.md>)
 
 
-
-## Override
 
 Based on **webrtc**, a set of voice and video systems with single or multiple channels can be developed. 
 

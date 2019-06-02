@@ -1,5 +1,5 @@
 # video conference
-![logo](https://github.com/ddssingsong/webrtc_android/blob/master/art/logo.png)
+![logo](https://github.com/ddssingsong/webrtc_android/blob/master/art/logo1.png)
 
 
 
