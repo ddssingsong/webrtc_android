@@ -1,5 +1,5 @@
 # Meeting(video conference)
-![logo](https://github.com/ddssingsong/webrtc_android/blob/master/image/logo.png)
+![logo](https://github.com/ddssingsong/webrtc_android/blob/master/art/logo.png)
 
 
 
@@ -27,13 +27,13 @@ tips：这只是个demo，学习使用，需要产品化的朋友们请绕道。
 
 1. 单人通话
 
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image3.png)
+   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/art/image3.png)
 
 
 
 2. 多人会话
 
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image5.jpg)
+   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/art/image5.jpg)
 
 
 
@@ -56,7 +56,7 @@ v1.1.0  完成基本视频会议
 
 自定义信令
 
-![process](https://github.com/ddssingsong/webrtc_android/blob/master/image/image2.jpg)
+![process](https://github.com/ddssingsong/webrtc_android/blob/master/art/image2.jpg)
 
 
 
