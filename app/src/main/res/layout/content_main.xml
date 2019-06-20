@@ -8,64 +8,79 @@
     tools:context="com.dds.MainActivity"
     tools:showIn="@layout/activity_main">
 
-
-    <EditText
-        android:id="@+id/et_signal"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="server地址(wss://)" />
+        android:layout_marginTop="48dp">
 
-    <EditText
-        android:id="@+id/et_port"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="端口" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/et_room"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="房间号(123456)" />
+            <EditText
+                android:id="@+id/et_signal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="server地址(wss://)" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:onClick="JoinRoom"
-        android:text="加入房间"
-        tools:ignore="OnClick" />
+            <EditText
+                android:id="@+id/et_port"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="端口" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:onClick="JoinRoomSingleVideo"
-        android:text="一对一视频聊天"
-        tools:ignore="OnClick" />
+            <EditText
+                android:id="@+id/et_room"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="房间号(123456)" />
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:onClick="JoinRoomSingleAudio"
-        android:text="一对一语音聊天"
-        tools:ignore="OnClick" />
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="JoinRoom"
+                android:text="加入房间"
+                tools:ignore="OnClick" />
 
-    <EditText
-        android:id="@+id/et_wss"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="wss://118.192.68.107:4436" />
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="JoinRoomSingleVideo"
+                android:text="一对一视频聊天"
+                tools:ignore="OnClick" />
 
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:onClick="wss"
-        android:text="wss测试"
-        tools:ignore="OnClick" />
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="JoinRoomSingleAudio"
+                android:text="一对一语音聊天"
+                tools:ignore="OnClick" />
+
+            <EditText
+                android:id="@+id/et_wss"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="wss://118.192.68.107:4436" />
+
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="wss"
+                android:text="wss测试"
+                tools:ignore="OnClick" />
+        </LinearLayout>
+
+
+    </ScrollView>
+
+
 </LinearLayout>
