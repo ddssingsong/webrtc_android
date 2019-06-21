@@ -36,10 +36,14 @@ public class WebrtcUtil {
 
     // turn and stun
     private static MyIceServer[] iceServers = {
-           // new MyIceServer("stun:stun.l.google.com:19302"),
-            new MyIceServer("stun:47.254.34.146:3478"),
-            new MyIceServer("turn:47.254.34.146?transport=tcp", "dds", "123456"),
-            new MyIceServer("turn:47.254.34.146:3478", "dds", "123456"),
+            // new MyIceServer("stun:stun.l.google.com:19302"),
+            new MyIceServer("stun:global.stun.twilio.com:3478?transport=udp"),
+            new MyIceServer("turn:global.turn.twilio.com:3478?transport=udp",
+                    "79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c",
+                    "xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw"),
+            new MyIceServer("turn:global.turn.twilio.com:3478?transport=tcp",
+                    "79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c",
+                    "xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw"),
 
     };
 
