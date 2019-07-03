@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initVar() {
-        et_signal.setText("ws//192.168.1.122");
-        et_port.setText("3000");
+        // et_signal.setText("ws://192.168.1.122:3000");
+        //  et_port.setText("3000");
         et_room.setText("666555");
     }
 
