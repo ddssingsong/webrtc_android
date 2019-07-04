@@ -15,7 +15,6 @@ import com.dds.webrtc.R;
  */
 public class MainActivity extends AppCompatActivity {
     private EditText et_signal;
-    private EditText et_port;
     private EditText et_room;
 
     private EditText edit_test_wss;
@@ -34,28 +33,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         et_signal = findViewById(R.id.et_signal);
-        et_port = findViewById(R.id.et_port);
         et_room = findViewById(R.id.et_room);
         edit_test_wss = findViewById(R.id.et_wss);
     }
 
     private void initVar() {
         // et_signal.setText("ws://192.168.1.122:3000");
-        //  et_port.setText("3000");
         et_room.setText("666555");
     }
 
     public void JoinRoomSingleVideo(View view) {
         WebrtcUtil.callSingle(this,
                 et_signal.getText().toString(),
-                et_room.getText().toString().trim() + ":" + et_port.getText().toString().trim(),
+                et_room.getText().toString().trim(),
                 true);
     }
 
     public void JoinRoomSingleAudio(View view) {
         WebrtcUtil.callSingle(this,
                 et_signal.getText().toString(),
-                et_room.getText().toString().trim() + ":" + et_port.getText().toString().trim(),
+                et_room.getText().toString().trim(),
                 false);
     }
 
