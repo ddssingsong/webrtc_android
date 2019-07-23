@@ -20,7 +20,7 @@ import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 
 import java.nio.ByteBuffer;

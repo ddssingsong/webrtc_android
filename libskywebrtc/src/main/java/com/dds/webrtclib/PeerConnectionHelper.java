@@ -3,7 +3,7 @@ package com.dds.webrtclib;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.dds.webrtclib.bean.MediaType;

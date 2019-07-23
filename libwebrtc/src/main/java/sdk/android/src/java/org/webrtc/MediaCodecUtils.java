@@ -13,7 +13,7 @@ package org.webrtc;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.os.Build;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
