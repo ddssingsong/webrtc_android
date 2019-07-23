@@ -154,10 +154,14 @@ public class PeerConnectionHelper {
             if (_localStream == null) {
                 createLocalStream();
             }
-            Peer mPeer = new Peer(socketId);
-            mPeer.pc.addStream(_localStream);
-            _connectionIdArray.add(socketId);
-            _connectionPeerDic.put(socketId, mPeer);
+            try {
+                Peer mPeer = new Peer(socketId);
+                mPeer.pc.addStream(_localStream);
+                _connectionIdArray.add(socketId);
+                _connectionPeerDic.put(socketId, mPeer);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
     }
@@ -281,7 +285,11 @@ public class PeerConnectionHelper {
             if (_localStream == null) {
                 createLocalStream();
             }
-            entry.getValue().pc.addStream(_localStream);
+            try {
+                entry.getValue().pc.addStream(_localStream);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }

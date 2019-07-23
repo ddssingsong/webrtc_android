@@ -1,2 +1,2 @@
-include ':app', ':libskywebrtc', ':libwebrtc'
+include ':app', ':libskywebrtc', ':libwebrtc', ':enginekit'
 //project(':libwebrtc').projectDir = new File('D:/github/apprtc1/libwebrtc')
