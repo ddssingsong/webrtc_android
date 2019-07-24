@@ -3,8 +3,9 @@ package com.dds.webrtclib;
 
 import android.content.Context;
 import android.media.AudioManager;
-import androidx.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.dds.webrtclib.bean.MediaType;
 import com.dds.webrtclib.bean.MyIceServer;
@@ -630,7 +631,7 @@ public class PeerConnectionHelper {
     }
 
 
-    // ===================================替换编码方式=========================================
+    // ===================================替换编码方式优先级========================================
     private static String preferCodec(String sdpDescription, String codec, boolean isAudio) {
         final String[] lines = sdpDescription.split("\r\n");
         final int mLineIndex = findMediaDescriptionLine(isAudio, lines);

@@ -6,7 +6,7 @@ import android.util.Log;
  * Created by dds on 2019/7/23.
  * android_shuai@163.com
  */
-public class z {
+public class z implements Runnable {
     z(e var1) {
         this.a = var1;
     }
