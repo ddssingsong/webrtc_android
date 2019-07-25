@@ -18,8 +18,6 @@ public class MainActivity extends AppCompatActivity {
     private EditText et_signal;
     private EditText et_room;
 
-    private EditText edit_test_wss;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         et_signal = findViewById(R.id.et_signal);
         et_room = findViewById(R.id.et_room);
-        edit_test_wss = findViewById(R.id.et_wss);
     }
 
     private void initVar() {
@@ -43,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         et_room.setText("666555");
     }
 
+    /*-------------------------- nodejs版本服务器测试--------------------------------------------*/
     public void JoinRoomSingleVideo(View view) {
         WebrtcUtil.callSingle(this,
                 et_signal.getText().toString(),
@@ -62,8 +60,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //test wss
-    public void wss(View view) {
-        WebrtcUtil.testWs(edit_test_wss.getText().toString());
+
+    /*----------------------------java版本服务器测试--------------------------------------------*/
+
+    // 测试连接websocket
+    public void connect(View view) {
+
     }
 }

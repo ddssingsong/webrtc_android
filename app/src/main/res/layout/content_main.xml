@@ -18,6 +18,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_green_light"
+                android:gravity="center"
+                android:text="服务器使用nodejs" />
+
             <EditText
                 android:id="@+id/et_signal"
                 android:layout_width="match_parent"
@@ -58,20 +65,28 @@
                 android:text="一对一语音聊天"
                 tools:ignore="OnClick" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/holo_green_light"
+                android:gravity="center"
+                android:text="服务器使用java" />
+
             <EditText
                 android:id="@+id/et_wss"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="wss://118.192.68.107:4436" />
+                android:hint="ws://192.168.1.138:3000/websocket" />
 
             <Button
                 android:id="@+id/button4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:onClick="wss"
-                android:text="wss测试"
-                tools:ignore="OnClick" />
+                android:onClick="connect"
+                android:text="测试连接websocket"
+                android:textAllCaps="false" />
         </LinearLayout>
 
 
