@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context="com.dds.NodejsActivity"
+    tools:context="com.dds.nodejs.NodejsActivity"
     tools:showIn="@layout/activity_nodejs">
 
     <ScrollView

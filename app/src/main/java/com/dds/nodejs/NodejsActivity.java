@@ -1,4 +1,4 @@
-package com.dds;
+package com.dds.nodejs;
 
 import android.os.Bundle;
 import android.view.View;

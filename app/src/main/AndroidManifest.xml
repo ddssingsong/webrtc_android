@@ -11,10 +11,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.dds.NodejsActivity"
+            android:name="com.dds.nodejs.NodejsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.dds.JavaActivity"
+            android:name="com.dds.java.JavaActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.dds.LauncherActivity"

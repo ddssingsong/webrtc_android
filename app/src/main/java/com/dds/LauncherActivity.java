@@ -6,6 +6,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.dds.java.JavaActivity;
+import com.dds.nodejs.NodejsActivity;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends AppCompatActivity {
