@@ -68,7 +68,12 @@ v1.1.0  完成基本视频会议
 
 服务器源码是基于skyrtc的代码进行重写实现的
 
-源码地址：https://github.com/ddssingsong/webrtc_server.git  （github）
+源码地址：
+
+nodejs : https://github.com/ddssingsong/webrtc_server.git  （github）
+
+java : https://github.com/ddssingsong/webrtc_server_java
+
 
 搭建过程请看博客
 

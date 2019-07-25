@@ -22,7 +22,7 @@ You can find the server-side code from here.
 
 NodeJs    https://github.com/ddssingsong/webrtc_server
 
-java        
+java      https://github.com/ddssingsong/webrtc_server_java
 
 
 
