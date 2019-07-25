@@ -14,7 +14,7 @@ import com.dds.webrtc.R;
  * Created by dds on 2018/11/7.
  * android_shuai@163.com
  */
-public class MainActivity extends AppCompatActivity {
+public class NodejsActivity extends AppCompatActivity {
     private EditText et_signal;
     private EditText et_room;
 
@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_nodejs);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         initView();
@@ -61,10 +61,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /*----------------------------java版本服务器测试--------------------------------------------*/
-
-    // 测试连接websocket
-    public void connect(View view) {
-
-    }
 }

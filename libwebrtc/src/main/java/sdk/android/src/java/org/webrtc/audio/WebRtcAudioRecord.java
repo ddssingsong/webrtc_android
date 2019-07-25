@@ -17,10 +17,6 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
 import android.os.Build;
 import android.os.Process;
-import androidx.annotation.Nullable;
-import java.lang.System;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import org.webrtc.CalledByNative;
 import org.webrtc.Logging;
@@ -28,6 +24,9 @@ import org.webrtc.ThreadUtils;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordErrorCallback;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordStartErrorCode;
 import org.webrtc.audio.JavaAudioDeviceModule.SamplesReadyCallback;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 class WebRtcAudioRecord {
   private static final String TAG = "WebRtcAudioRecordExternal";
@@ -62,16 +61,16 @@ class WebRtcAudioRecord {
 
   private final WebRtcAudioEffects effects = new WebRtcAudioEffects();
 
-  private @Nullable ByteBuffer byteBuffer;
+  private   ByteBuffer byteBuffer;
 
-  private @Nullable AudioRecord audioRecord;
-  private @Nullable AudioRecordThread audioThread;
+  private   AudioRecord audioRecord;
+  private   AudioRecordThread audioThread;
 
   private volatile boolean microphoneMute;
   private byte[] emptyBytes;
 
-  private final @Nullable AudioRecordErrorCallback errorCallback;
-  private final @Nullable SamplesReadyCallback audioSamplesReadyCallback;
+  private final   AudioRecordErrorCallback errorCallback;
+  private final   SamplesReadyCallback audioSamplesReadyCallback;
   private final boolean isAcousticEchoCancelerSupported;
   private final boolean isNoiseSuppressorSupported;
 
@@ -153,8 +152,8 @@ class WebRtcAudioRecord {
   }
 
   public WebRtcAudioRecord(Context context, AudioManager audioManager, int audioSource,
-      int audioFormat, @Nullable AudioRecordErrorCallback errorCallback,
-      @Nullable SamplesReadyCallback audioSamplesReadyCallback,
+      int audioFormat,   AudioRecordErrorCallback errorCallback,
+        SamplesReadyCallback audioSamplesReadyCallback,
       boolean isAcousticEchoCancelerSupported, boolean isNoiseSuppressorSupported) {
     if (isAcousticEchoCancelerSupported && !WebRtcAudioEffects.isAcousticEchoCancelerSupported()) {
       throw new IllegalArgumentException("HW AEC not supported");

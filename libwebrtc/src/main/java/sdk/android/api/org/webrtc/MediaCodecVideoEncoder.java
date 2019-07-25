@@ -20,7 +20,7 @@ import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
+
 import android.view.Surface;
 
 import java.nio.ByteBuffer;
@@ -108,7 +108,7 @@ public class MediaCodecVideoEncoder {
             return supportedHardwareCodecs;
         }
 
-        @Nullable
+
         @Override
         public VideoEncoder createEncoder(VideoCodecInfo info) {
             if (!isCodecSupported(supportedHardwareCodecs, info)) {
@@ -160,29 +160,29 @@ public class MediaCodecVideoEncoder {
 
     // Active running encoder instance. Set in initEncode() (called from native code)
     // and reset to null in release() call.
-    @Nullable
+
     private static MediaCodecVideoEncoder runningInstance;
-    @Nullable
+
     private static MediaCodecVideoEncoderErrorCallback errorCallback;
     private static int codecErrors;
     // List of disabled codec types - can be set from application.
     private static Set<String> hwEncoderDisabledTypes = new HashSet<String>();
-    @Nullable
+
     private static EglBase staticEglBase;
 
-    @Nullable
+
     private Thread mediaCodecThread;
-    @Nullable
+
     private MediaCodec mediaCodec;
     private ByteBuffer[] outputBuffers;
-    @Nullable
+
     private EglBase14 eglBase;
     private int profile;
     private int width;
     private int height;
-    @Nullable
+
     private Surface inputSurface;
-    @Nullable
+
     private GlRectDrawer drawer;
 
     private static final String VP8_MIME_TYPE = "video/x-vnd.on2.vp8";
@@ -264,7 +264,7 @@ public class MediaCodecVideoEncoder {
         }
     }
 
-    @Nullable
+
     static EglBase.Context getEglContext() {
         return staticEglBase == null ? null : staticEglBase.getEglBaseContext();
     }
@@ -356,7 +356,7 @@ public class MediaCodecVideoEncoder {
     private long lastKeyFrameMs;
 
     // SPS and PPS NALs (Config frame) for H.264.
-    @Nullable
+
     private ByteBuffer configData;
 
     // MediaCodec error handler - invoked when critical error happens which may prevent
@@ -394,7 +394,7 @@ public class MediaCodecVideoEncoder {
                 && (findHwEncoder(VP8_MIME_TYPE, vp8HwList(), supportedColorList) != null);
     }
 
-    public static @Nullable
+    public static
     EncoderProperties vp8HwEncoderProperties() {
         if (hwEncoderDisabledTypes.contains(VP8_MIME_TYPE)) {
             return null;
@@ -447,7 +447,7 @@ public class MediaCodecVideoEncoder {
         public final BitrateAdjustmentType bitrateAdjustmentType; // Bitrate adjustment type
     }
 
-    private static @Nullable
+    private static
     EncoderProperties findHwEncoder(
             String mime, MediaCodecProperties[] supportedHwCodecProperties, int[] colorList) {
         // MediaCodec.setParameters is missing for JB and below, so bitrate
@@ -560,7 +560,7 @@ public class MediaCodecVideoEncoder {
         }
     }
 
-    static @Nullable
+    static
     MediaCodec createByCodecName(String codecName) {
         try {
             // In the L-SDK this call can throw IOException so in order to work in
@@ -968,7 +968,7 @@ public class MediaCodecVideoEncoder {
 
     // Dequeue and return an output buffer, or null if no output is ready.  Return
     // a fake OutputBufferInfo with index -1 if the codec is no longer operable.
-    @Nullable
+
     @CalledByNativeUnchecked
     OutputBufferInfo dequeueOutputBuffer() {
         checkOnMediaCodecThread();

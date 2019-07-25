@@ -11,7 +11,7 @@
 package org.webrtc;
 
 import android.os.SystemClock;
-import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
@@ -74,7 +74,7 @@ public class Camera1Enumerator implements CameraEnumerator {
     return new Camera1Capturer(deviceName, eventsHandler, captureToTexture);
   }
 
-  private static @Nullable android.hardware.Camera.CameraInfo getCameraInfo(int index) {
+  private static   android.hardware.Camera.CameraInfo getCameraInfo(int index) {
     android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
     try {
       android.hardware.Camera.getCameraInfo(index, info);
@@ -172,7 +172,7 @@ public class Camera1Enumerator implements CameraEnumerator {
 
   // Returns the name of the camera with camera index. Returns null if the
   // camera can not be used.
-  static @Nullable String getDeviceName(int index) {
+  static   String getDeviceName(int index) {
     android.hardware.Camera.CameraInfo info = getCameraInfo(index);
     if (info == null) {
       return null;

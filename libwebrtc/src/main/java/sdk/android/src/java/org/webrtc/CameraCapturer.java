@@ -13,7 +13,7 @@ package org.webrtc;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.Nullable;
+
 import java.util.Arrays;
 
 @SuppressWarnings("deprecation")
@@ -30,10 +30,10 @@ abstract class CameraCapturer implements CameraVideoCapturer {
   private final static int OPEN_CAMERA_TIMEOUT = 10000;
 
   private final CameraEnumerator cameraEnumerator;
-  @Nullable private final CameraEventsHandler eventsHandler;
+    private final CameraEventsHandler eventsHandler;
   private final Handler uiThreadHandler;
 
-  @Nullable
+
   private final CameraSession.CreateSessionCallback createSessionCallback =
       new CameraSession.CreateSessionCallback() {
         @Override
@@ -96,7 +96,7 @@ abstract class CameraCapturer implements CameraVideoCapturer {
         }
       };
 
-  @Nullable
+
   private final CameraSession.Events cameraSessionEventsHandler = new CameraSession.Events() {
     @Override
     public void onCameraOpening() {
@@ -175,26 +175,26 @@ abstract class CameraCapturer implements CameraVideoCapturer {
 
   // Initialized on initialize
   // -------------------------
-  @Nullable private Handler cameraThreadHandler;
+    private Handler cameraThreadHandler;
   private Context applicationContext;
   private org.webrtc.CapturerObserver capturerObserver;
-  @Nullable private SurfaceTextureHelper surfaceHelper;
+    private SurfaceTextureHelper surfaceHelper;
 
   private final Object stateLock = new Object();
   private boolean sessionOpening; /* guarded by stateLock */
-  @Nullable private CameraSession currentSession; /* guarded by stateLock */
+    private CameraSession currentSession; /* guarded by stateLock */
   private String cameraName; /* guarded by stateLock */
   private int width; /* guarded by stateLock */
   private int height; /* guarded by stateLock */
   private int framerate; /* guarded by stateLock */
   private int openAttemptsRemaining; /* guarded by stateLock */
   private SwitchState switchState = SwitchState.IDLE; /* guarded by stateLock */
-  @Nullable private CameraSwitchHandler switchEventsHandler; /* guarded by stateLock */
+    private CameraSwitchHandler switchEventsHandler; /* guarded by stateLock */
   // Valid from onDone call until stopCapture, otherwise null.
-  @Nullable private CameraStatistics cameraStatistics; /* guarded by stateLock */
+    private CameraStatistics cameraStatistics; /* guarded by stateLock */
   private boolean firstFrameObserved; /* guarded by stateLock */
 
-  public CameraCapturer(String cameraName, @Nullable CameraEventsHandler eventsHandler,
+  public CameraCapturer(String cameraName,   CameraEventsHandler eventsHandler,
       CameraEnumerator cameraEnumerator) {
     if (eventsHandler == null) {
       eventsHandler = new CameraEventsHandler() {
@@ -230,7 +230,7 @@ abstract class CameraCapturer implements CameraVideoCapturer {
   }
 
   @Override
-  public void initialize(@Nullable SurfaceTextureHelper surfaceTextureHelper,
+  public void initialize(  SurfaceTextureHelper surfaceTextureHelper,
       Context applicationContext, org.webrtc.CapturerObserver capturerObserver) {
     this.applicationContext = applicationContext;
     this.capturerObserver = capturerObserver;
@@ -358,14 +358,14 @@ abstract class CameraCapturer implements CameraVideoCapturer {
   }
 
   private void reportCameraSwitchError(
-      String error, @Nullable CameraSwitchHandler switchEventsHandler) {
+      String error,   CameraSwitchHandler switchEventsHandler) {
     Logging.e(TAG, error);
     if (switchEventsHandler != null) {
       switchEventsHandler.onCameraSwitchError(error);
     }
   }
 
-  private void switchCameraInternal(@Nullable final CameraSwitchHandler switchEventsHandler) {
+  private void switchCameraInternal(  final CameraSwitchHandler switchEventsHandler) {
     Logging.d(TAG, "switchCamera internal");
 
     final String[] deviceNames = cameraEnumerator.getDeviceNames();

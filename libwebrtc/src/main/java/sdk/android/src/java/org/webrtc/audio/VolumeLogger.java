@@ -11,10 +11,11 @@
 package org.webrtc.audio;
 
 import android.media.AudioManager;
-import androidx.annotation.Nullable;
+
+import org.webrtc.Logging;
+
 import java.util.Timer;
 import java.util.TimerTask;
-import org.webrtc.Logging;
 
 // TODO(magjed): Do we really need to spawn a new thread just to log volume? Can we re-use the
 // AudioTrackThread instead?
@@ -29,7 +30,7 @@ class VolumeLogger {
   private static final int TIMER_PERIOD_IN_SECONDS = 30;
 
   private final AudioManager audioManager;
-  private @Nullable Timer timer;
+  private   Timer timer;
 
   public VolumeLogger(AudioManager audioManager) {
     this.audioManager = audioManager;

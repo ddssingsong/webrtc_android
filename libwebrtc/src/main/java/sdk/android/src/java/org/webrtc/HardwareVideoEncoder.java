@@ -16,7 +16,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
+
 import android.view.Surface;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -85,16 +85,16 @@ class HardwareVideoEncoder implements VideoEncoder {
   private boolean automaticResizeOn;
 
   // --- Valid and immutable while an encoding session is running.
-  @Nullable private MediaCodecWrapper codec;
+    private MediaCodecWrapper codec;
   // Thread that delivers encoded frames to the user callback.
-  @Nullable private Thread outputThread;
+    private Thread outputThread;
 
   // EGL base wrapping the shared texture context.  Holds hooks to both the shared context and the
   // input surface.  Making this base current allows textures from the context to be drawn onto the
   // surface.
-  @Nullable private EglBase14 textureEglBase;
+    private EglBase14 textureEglBase;
   // Input surface for the codec.  The encoder will draw input textures onto this surface.
-  @Nullable private Surface textureInputSurface;
+    private Surface textureInputSurface;
 
   private int width;
   private int height;
@@ -106,7 +106,7 @@ class HardwareVideoEncoder implements VideoEncoder {
 
   // --- Only accessed on the output thread.
   // Contents of the last observed config frame output by the MediaCodec. Used by H.264.
-  @Nullable private ByteBuffer configBuffer;
+    private ByteBuffer configBuffer;
   private int adjustedBitrate;
 
   // Whether the encoder is running.  Volatile so that the output thread can watch this value and
@@ -114,7 +114,7 @@ class HardwareVideoEncoder implements VideoEncoder {
   private volatile boolean running;
   // Any exception thrown during shutdown.  The output thread releases the MediaCodec and uses this
   // value to send exceptions thrown during release back to the encoder thread.
-  @Nullable private volatile Exception shutdownException;
+    private volatile Exception shutdownException;
 
   /**
    * Creates a new HardwareVideoEncoder with the given codecName, codecType, colorFormat, key frame

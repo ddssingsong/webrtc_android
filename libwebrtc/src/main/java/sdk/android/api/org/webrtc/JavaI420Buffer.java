@@ -10,7 +10,7 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
 import org.webrtc.VideoFrame.I420Buffer;
 
@@ -27,7 +27,7 @@ public class JavaI420Buffer implements VideoFrame.I420Buffer {
   private final RefCountDelegate refCountDelegate;
 
   private JavaI420Buffer(int width, int height, ByteBuffer dataY, int strideY, ByteBuffer dataU,
-      int strideU, ByteBuffer dataV, int strideV, @Nullable Runnable releaseCallback) {
+      int strideU, ByteBuffer dataV, int strideV,   Runnable releaseCallback) {
     this.width = width;
     this.height = height;
     this.dataY = dataY;
@@ -51,7 +51,7 @@ public class JavaI420Buffer implements VideoFrame.I420Buffer {
   /** Wraps existing ByteBuffers into JavaI420Buffer object without copying the contents. */
   public static JavaI420Buffer wrap(int width, int height, ByteBuffer dataY, int strideY,
       ByteBuffer dataU, int strideU, ByteBuffer dataV, int strideV,
-      @Nullable Runnable releaseCallback) {
+        Runnable releaseCallback) {
     if (dataY == null || dataU == null || dataV == null) {
       throw new IllegalArgumentException("Data buffers cannot be null.");
     }

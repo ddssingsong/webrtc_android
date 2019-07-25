@@ -10,7 +10,7 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 
 /**
  * PeerConnectionDependencies holds all PeerConnection dependencies that are
@@ -52,7 +52,7 @@ public final class PeerConnectionDependencies {
     return observer;
   }
 
-  @Nullable
+
   SSLCertificateVerifier getSSLCertificateVerifier() {
     return sslCertificateVerifier;
   }

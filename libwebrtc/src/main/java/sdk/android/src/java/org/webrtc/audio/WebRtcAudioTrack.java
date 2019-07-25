@@ -18,14 +18,14 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 import android.os.Process;
-import androidx.annotation.Nullable;
-import java.lang.Thread;
-import java.nio.ByteBuffer;
+
 import org.webrtc.CalledByNative;
 import org.webrtc.Logging;
 import org.webrtc.ThreadUtils;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioTrackErrorCallback;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioTrackStartErrorCode;
+
+import java.nio.ByteBuffer;
 
 class WebRtcAudioTrack {
   private static final String TAG = "WebRtcAudioTrackExternal";
@@ -64,8 +64,8 @@ class WebRtcAudioTrack {
 
   private ByteBuffer byteBuffer;
 
-  private @Nullable AudioTrack audioTrack;
-  private @Nullable AudioTrackThread audioThread;
+  private   AudioTrack audioTrack;
+  private   AudioTrackThread audioThread;
   private final VolumeLogger volumeLogger;
 
   // Samples to be played are replaced by zeros if |speakerMute| is set to true.
@@ -73,7 +73,7 @@ class WebRtcAudioTrack {
   private volatile boolean speakerMute;
   private byte[] emptyBytes;
 
-  private final @Nullable AudioTrackErrorCallback errorCallback;
+  private final   AudioTrackErrorCallback errorCallback;
 
   /**
    * Audio thread which keeps calling AudioTrack.write() to stream audio.
@@ -168,7 +168,7 @@ class WebRtcAudioTrack {
   }
 
   WebRtcAudioTrack(
-      Context context, AudioManager audioManager, @Nullable AudioTrackErrorCallback errorCallback) {
+      Context context, AudioManager audioManager,   AudioTrackErrorCallback errorCallback) {
     threadChecker.detachThread();
     this.context = context;
     this.audioManager = audioManager;

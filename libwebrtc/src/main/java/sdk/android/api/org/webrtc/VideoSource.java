@@ -10,7 +10,7 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 
 /**
  * Java wrapper of native AndroidVideoTrackSource.
@@ -31,7 +31,7 @@ public class VideoSource extends MediaSource {
 
   private final NativeAndroidVideoTrackSource nativeAndroidVideoTrackSource;
   private final Object videoProcessorLock = new Object();
-  @Nullable private VideoProcessor videoProcessor;
+    private VideoProcessor videoProcessor;
   private boolean isCapturerRunning;
 
   private final CapturerObserver capturerObserver = new CapturerObserver() {
@@ -116,8 +116,8 @@ public class VideoSource extends MediaSource {
 
   /** Same as above, with even more control as each constraint is optional. */
   public void adaptOutputFormat(AspectRatio targetLandscapeAspectRatio,
-      @Nullable Integer maxLandscapePixelCount, AspectRatio targetPortraitAspectRatio,
-      @Nullable Integer maxPortraitPixelCount, @Nullable Integer maxFps) {
+        Integer maxLandscapePixelCount, AspectRatio targetPortraitAspectRatio,
+        Integer maxPortraitPixelCount,   Integer maxFps) {
     nativeAndroidVideoTrackSource.adaptOutputFormat(targetLandscapeAspectRatio,
         maxLandscapePixelCount, targetPortraitAspectRatio, maxPortraitPixelCount, maxFps);
   }
@@ -129,7 +129,7 @@ public class VideoSource extends MediaSource {
    * are passed to this object. The video processor is allowed to deliver the processed frames
    * back on any thread.
    */
-  public void setVideoProcessor(@Nullable VideoProcessor newVideoProcessor) {
+  public void setVideoProcessor(  VideoProcessor newVideoProcessor) {
     synchronized (videoProcessorLock) {
       if (videoProcessor != null) {
         videoProcessor.setSink(/* sink= */ null);

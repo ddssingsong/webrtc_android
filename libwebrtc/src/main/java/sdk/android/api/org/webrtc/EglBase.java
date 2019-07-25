@@ -11,7 +11,7 @@
 package org.webrtc;
 
 import android.graphics.SurfaceTexture;
-import androidx.annotation.Nullable;
+
 import android.view.Surface;
 import javax.microedition.khronos.egl.EGL10;
 
@@ -95,7 +95,7 @@ public interface EglBase {
    * If |sharedContext| is null, a root context is created. This function will try to create an EGL
    * 1.4 context if possible, and an EGL 1.0 context otherwise.
    */
-  public static EglBase create(@Nullable Context sharedContext, int[] configAttributes) {
+  public static EglBase create(  Context sharedContext, int[] configAttributes) {
     if (sharedContext == null) {
       return EglBase14Impl.isEGL14Supported() ? createEgl14(configAttributes)
                                               : createEgl10(configAttributes);

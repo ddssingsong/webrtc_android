@@ -10,7 +10,7 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 import android.util.Log;
 
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
         this.hardwareVideoEncoderFactory = hardwareVideoEncoderFactory;
     }
 
-    @Nullable
+
     @Override
     public VideoEncoder createEncoder(VideoCodecInfo info) {
         final VideoEncoder softwareEncoder = softwareVideoEncoderFactory.createEncoder(info);

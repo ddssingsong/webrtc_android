@@ -10,7 +10,6 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,12 +17,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class RefCountDelegate implements RefCounted {
   private final AtomicInteger refCount = new AtomicInteger(1);
-  private final @Nullable Runnable releaseCallback;
+  private final   Runnable releaseCallback;
 
   /**
    * @param releaseCallback Callback that will be executed once the ref count reaches zero.
    */
-  public RefCountDelegate(@Nullable Runnable releaseCallback) {
+  public RefCountDelegate(  Runnable releaseCallback) {
     this.releaseCallback = releaseCallback;
   }
 

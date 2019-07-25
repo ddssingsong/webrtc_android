@@ -11,7 +11,7 @@
 package org.webrtc;
 
 import android.media.MediaCodecInfo;
-import androidx.annotation.Nullable;
+
 
 import java.util.Arrays;
 
@@ -51,7 +51,7 @@ public class HardwareVideoDecoderFactory extends MediaCodecVideoDecoderFactory {
      * @param sharedContext The textures generated will be accessible from this context. May be null,
      *                      this disables texture support.
      */
-    public HardwareVideoDecoderFactory(@Nullable EglBase.Context sharedContext) {
+    public HardwareVideoDecoderFactory(  EglBase.Context sharedContext) {
         this(sharedContext, /* codecAllowedPredicate= */ null);
     }
 
@@ -63,8 +63,8 @@ public class HardwareVideoDecoderFactory extends MediaCodecVideoDecoderFactory {
      * @param codecAllowedPredicate predicate to filter codecs. It is combined with the default
      *                              predicate that only allows hardware codecs.
      */
-    public HardwareVideoDecoderFactory(@Nullable EglBase.Context sharedContext,
-                                       @Nullable Predicate<MediaCodecInfo> codecAllowedPredicate) {
+    public HardwareVideoDecoderFactory(  EglBase.Context sharedContext,
+                                         Predicate<MediaCodecInfo> codecAllowedPredicate) {
         super(sharedContext,
                 (codecAllowedPredicate == null ? defaultAllowedPredicate
                         : codecAllowedPredicate.and(defaultAllowedPredicate)));

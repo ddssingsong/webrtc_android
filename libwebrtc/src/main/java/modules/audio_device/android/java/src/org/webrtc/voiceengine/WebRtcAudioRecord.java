@@ -15,7 +15,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
 import android.os.Build;
 import android.os.Process;
-import androidx.annotation.Nullable;
+
 import java.lang.System;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -52,12 +52,12 @@ public class WebRtcAudioRecord {
 
   private final long nativeAudioRecord;
 
-  private @Nullable WebRtcAudioEffects effects;
+  private   WebRtcAudioEffects effects;
 
   private ByteBuffer byteBuffer;
 
-  private @Nullable AudioRecord audioRecord;
-  private @Nullable AudioRecordThread audioThread;
+  private   AudioRecord audioRecord;
+  private   AudioRecordThread audioThread;
 
   private static volatile boolean microphoneMute;
   private byte[] emptyBytes;
@@ -74,7 +74,7 @@ public class WebRtcAudioRecord {
     void onWebRtcAudioRecordError(String errorMessage);
   }
 
-  private static @Nullable WebRtcAudioRecordErrorCallback errorCallback;
+  private static   WebRtcAudioRecordErrorCallback errorCallback;
 
   public static void setErrorCallback(WebRtcAudioRecordErrorCallback errorCallback) {
     Logging.d(TAG, "Set error callback");
@@ -124,7 +124,7 @@ public class WebRtcAudioRecord {
     void onWebRtcAudioRecordSamplesReady(AudioSamples samples);
   }
 
-  private static @Nullable WebRtcAudioRecordSamplesReadyCallback audioSamplesReadyCallback;
+  private static   WebRtcAudioRecordSamplesReadyCallback audioSamplesReadyCallback;
 
   public static void setOnAudioSamplesReady(WebRtcAudioRecordSamplesReadyCallback callback) {
     audioSamplesReadyCallback = callback;

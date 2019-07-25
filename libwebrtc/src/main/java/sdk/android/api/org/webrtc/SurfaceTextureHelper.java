@@ -17,7 +17,7 @@ import android.opengl.GLES20;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import androidx.annotation.Nullable;
+
 
 import java.util.concurrent.Callable;
 
@@ -53,7 +53,7 @@ public class SurfaceTextureHelper {
     // Therefore, in order to control the callback thread on API lvl < 21, the SurfaceTextureHelper
     // is constructed on the |handler| thread.
     return ThreadUtils.invokeAtFrontUninterruptibly(handler, new Callable<SurfaceTextureHelper>() {
-      @Nullable
+
       @Override
       public SurfaceTextureHelper call() {
         try {
@@ -91,10 +91,10 @@ public class SurfaceTextureHelper {
   private final SurfaceTexture surfaceTexture;
   private final int oesTextureId;
   private final YuvConverter yuvConverter;
-  @Nullable private final TimestampAligner timestampAligner;
+    private final TimestampAligner timestampAligner;
 
   // These variables are only accessed from the |handler| thread.
-  @Nullable private VideoSink listener;
+    private VideoSink listener;
   // The possible states of this class.
   private boolean hasPendingTexture;
   private volatile boolean isTextureInUse;
@@ -104,7 +104,7 @@ public class SurfaceTextureHelper {
   private int textureHeight;
   // |pendingListener| is set in setListener() and the runnable is posted to the handler thread.
   // setListener() is not allowed to be called again before stopListening(), so this is thread safe.
-  @Nullable private VideoSink pendingListener;
+    private VideoSink pendingListener;
   final Runnable setListenerRunnable = new Runnable() {
     @Override
     public void run() {

@@ -10,13 +10,13 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class SoftwareVideoEncoderFactory implements VideoEncoderFactory {
-  @Nullable
+
   @Override
   public VideoEncoder createEncoder(VideoCodecInfo info) {
     if (info.name.equalsIgnoreCase("VP8")) {

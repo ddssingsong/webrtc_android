@@ -20,7 +20,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.os.SystemClock;
-import androidx.annotation.Nullable;
+
 import android.util.AndroidException;
 import android.util.Range;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class Camera2Enumerator implements CameraEnumerator {
       new HashMap<String, List<CaptureFormat>>();
 
   final Context context;
-  @Nullable final CameraManager cameraManager;
+    final CameraManager cameraManager;
 
   public Camera2Enumerator(Context context) {
     this.context = context;
@@ -89,7 +89,7 @@ public class Camera2Enumerator implements CameraEnumerator {
     return new Camera2Capturer(context, deviceName, eventsHandler);
   }
 
-  private @Nullable CameraCharacteristics getCameraCharacteristics(String deviceName) {
+  private   CameraCharacteristics getCameraCharacteristics(String deviceName) {
     try {
       return cameraManager.getCameraCharacteristics(deviceName);
       // On Android OS pre 4.4.2, a class will not load because of VerifyError if it contains a

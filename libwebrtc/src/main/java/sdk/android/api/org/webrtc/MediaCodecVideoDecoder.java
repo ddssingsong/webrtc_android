@@ -17,7 +17,7 @@ import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.SystemClock;
-import androidx.annotation.Nullable;
+
 import android.view.Surface;
 
 import java.nio.ByteBuffer;
@@ -106,7 +106,7 @@ public class MediaCodecVideoDecoder {
       return supportedHardwareCodecs;
     }
 
-    @Nullable
+
     @Override
     public VideoDecoder createDecoder(VideoCodecInfo codec) {
       if (!isCodecSupported(supportedHardwareCodecs, codec)) {
@@ -154,15 +154,15 @@ public class MediaCodecVideoDecoder {
   private static final int MAX_QUEUED_OUTPUTBUFFERS = 3;
   // Active running decoder instance. Set in initDecode() (called from native code)
   // and reset to null in release() call.
-  @Nullable private static MediaCodecVideoDecoder runningInstance;
-  @Nullable private static MediaCodecVideoDecoderErrorCallback errorCallback;
+    private static MediaCodecVideoDecoder runningInstance;
+    private static MediaCodecVideoDecoderErrorCallback errorCallback;
   private static int codecErrors;
   // List of disabled codec types - can be set from application.
   private static Set<String> hwDecoderDisabledTypes = new HashSet<String>();
-  @Nullable private static EglBase eglBase;
+    private static EglBase eglBase;
 
-  @Nullable private Thread mediaCodecThread;
-  @Nullable private MediaCodec mediaCodec;
+    private Thread mediaCodecThread;
+    private MediaCodec mediaCodec;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private static final String VP8_MIME_TYPE = "video/x-vnd.on2.vp8";
@@ -224,9 +224,9 @@ public class MediaCodecVideoDecoder {
   private final Queue<TimeStamps> decodeStartTimeMs = new ArrayDeque<TimeStamps>();
 
   // The below variables are only used when decoding to a Surface.
-  @Nullable private TextureListener textureListener;
+    private TextureListener textureListener;
   private int droppedFrames;
-  @Nullable private Surface surface;
+    private Surface surface;
   private final Queue<DecodedOutputBuffer> dequeuedSurfaceOutputBuffers =
       new ArrayDeque<DecodedOutputBuffer>();
 
@@ -344,7 +344,7 @@ public class MediaCodecVideoDecoder {
     public final int colorFormat; // Color format supported by codec.
   }
 
-  private static @Nullable DecoderProperties findDecoder(
+  private static   DecoderProperties findDecoder(
       String mime, String[] supportedCodecPrefixes) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
       return null; // MediaCodec.setParameters is missing.
@@ -458,7 +458,7 @@ public class MediaCodecVideoDecoder {
       sliceHeight = height;
 
       if (useSurface()) {
-        @Nullable
+
         final SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create(
             "Decoder SurfaceTextureHelper", eglBase.getEglBaseContext());
         if (surfaceTextureHelper != null) {
@@ -739,8 +739,8 @@ public class MediaCodecVideoDecoder {
     private final Object newFrameLock = new Object();
     // |bufferToRender| is non-null when waiting for transition between addBufferToRender() to
     // onFrame().
-    @Nullable private DecodedOutputBuffer bufferToRender;
-    @Nullable private DecodedTextureBuffer renderedBuffer;
+      private DecodedOutputBuffer bufferToRender;
+      private DecodedTextureBuffer renderedBuffer;
 
     public TextureListener(SurfaceTextureHelper surfaceTextureHelper) {
       this.surfaceTextureHelper = surfaceTextureHelper;
@@ -785,7 +785,7 @@ public class MediaCodecVideoDecoder {
     }
 
     // Dequeues and returns a DecodedTextureBuffer if available, or null otherwise.
-    @Nullable
+
     @SuppressWarnings("WaitNotInLoop")
     public DecodedTextureBuffer dequeueTextureBuffer(int timeoutMs) {
       synchronized (newFrameLock) {
@@ -823,7 +823,7 @@ public class MediaCodecVideoDecoder {
   // unsupported format, or if |mediaCodec| is not in the Executing state. Throws CodecException
   // upon codec error.
   @CalledByNativeUnchecked
-  private @Nullable DecodedOutputBuffer dequeueOutputBuffer(int dequeueTimeoutMs) {
+  private   DecodedOutputBuffer dequeueOutputBuffer(int dequeueTimeoutMs) {
     checkOnMediaCodecThread();
     if (decodeStartTimeMs.isEmpty()) {
       return null;
@@ -910,7 +910,7 @@ public class MediaCodecVideoDecoder {
   // upon codec error. If |dequeueTimeoutMs| > 0, the oldest decoded frame will be dropped if
   // a frame can't be returned.
   @CalledByNativeUnchecked
-  private @Nullable DecodedTextureBuffer dequeueTextureBuffer(int dequeueTimeoutMs) {
+  private   DecodedTextureBuffer dequeueTextureBuffer(int dequeueTimeoutMs) {
     checkOnMediaCodecThread();
     if (!useSurface()) {
       throw new IllegalStateException("dequeueTexture() called for byte buffer decoding.");

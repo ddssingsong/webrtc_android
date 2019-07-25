@@ -11,7 +11,7 @@
 package org.webrtc;
 
 import android.media.MediaCodecInfo;
-import androidx.annotation.Nullable;
+
 import java.util.Arrays;
 
 /** Factory for Android platform software VideoDecoders. */
@@ -43,7 +43,7 @@ public class PlatformSoftwareVideoDecoderFactory extends MediaCodecVideoDecoderF
    * @param sharedContext The textures generated will be accessible from this context. May be null,
    *                      this disables texture support.
    */
-  public PlatformSoftwareVideoDecoderFactory(@Nullable EglBase.Context sharedContext) {
+  public PlatformSoftwareVideoDecoderFactory(  EglBase.Context sharedContext) {
     super(sharedContext, defaultAllowedPredicate);
   }
 }

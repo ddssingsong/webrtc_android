@@ -12,7 +12,7 @@ package org.webrtc;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import androidx.annotation.Nullable;
+
 import java.nio.FloatBuffer;
 
 /**
@@ -123,8 +123,8 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
   private final String genericFragmentSource;
   private final String vertexShader;
   private final ShaderCallbacks shaderCallbacks;
-  @Nullable private ShaderType currentShaderType;
-  @Nullable private GlShader currentShader;
+    private ShaderType currentShaderType;
+    private GlShader currentShader;
   private int inPosLocation;
   private int inTcLocation;
   private int texMatrixLocation;

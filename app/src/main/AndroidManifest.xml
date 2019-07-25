@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dds.webrtc">
 
-
     <application
         android:name="com.dds.BaseApplication"
         android:allowBackup="false"
@@ -12,7 +11,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.dds.MainActivity"
+            android:name="com.dds.NodejsActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.dds.JavaActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.dds.LauncherActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

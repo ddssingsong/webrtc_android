@@ -10,7 +10,7 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
 
 public class NV21Buffer implements VideoFrame.Buffer {
@@ -19,7 +19,7 @@ public class NV21Buffer implements VideoFrame.Buffer {
   private final int height;
   private final RefCountDelegate refCountDelegate;
 
-  public NV21Buffer(byte[] data, int width, int height, @Nullable Runnable releaseCallback) {
+  public NV21Buffer(byte[] data, int width, int height,   Runnable releaseCallback) {
     this.data = data;
     this.width = width;
     this.height = height;

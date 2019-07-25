@@ -10,7 +10,6 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 
 public class NV12Buffer implements VideoFrame.Buffer {
@@ -22,7 +21,7 @@ public class NV12Buffer implements VideoFrame.Buffer {
   private final RefCountDelegate refCountDelegate;
 
   public NV12Buffer(int width, int height, int stride, int sliceHeight, ByteBuffer buffer,
-      @Nullable Runnable releaseCallback) {
+        Runnable releaseCallback) {
     this.width = width;
     this.height = height;
     this.stride = stride;

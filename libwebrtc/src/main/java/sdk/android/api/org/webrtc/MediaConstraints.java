@@ -10,7 +10,6 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class MediaConstraints {
     }
 
     @Override
-    public boolean equals(@Nullable Object other) {
+    public boolean equals(  Object other) {
       if (this == other) {
         return true;
       }

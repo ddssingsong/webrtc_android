@@ -10,7 +10,7 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
+
 
 /** Factory for creating VideoDecoders. */
 public interface VideoDecoderFactory {
@@ -19,13 +19,13 @@ public interface VideoDecoderFactory {
    * VideoEncoderFactory.
    */
   @Deprecated
-  @Nullable
+
   default VideoDecoder createDecoder(String codecType) {
     throw new UnsupportedOperationException("Deprecated and not implemented.");
   }
 
   /** Creates a decoder for the given video codec. */
-  @Nullable
+
   @CalledByNative
   default VideoDecoder createDecoder(VideoCodecInfo info) {
     return createDecoder(info.getName());

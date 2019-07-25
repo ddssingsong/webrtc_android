@@ -11,7 +11,6 @@
 package org.webrtc;
 
 // Explicit imports necessary for JNI generation.
-import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 
 /**
@@ -23,13 +22,13 @@ class VideoEncoderWrapper {
     return scalingSettings.on;
   }
 
-  @Nullable
+
   @CalledByNative
   static Integer getScalingSettingsLow(VideoEncoder.ScalingSettings scalingSettings) {
     return scalingSettings.low;
   }
 
-  @Nullable
+
   @CalledByNative
   static Integer getScalingSettingsHigh(VideoEncoder.ScalingSettings scalingSettings) {
     return scalingSettings.high;

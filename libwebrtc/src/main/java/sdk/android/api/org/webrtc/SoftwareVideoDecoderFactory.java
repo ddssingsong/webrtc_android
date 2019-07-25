@@ -10,20 +10,19 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class SoftwareVideoDecoderFactory implements VideoDecoderFactory {
   @Deprecated
-  @Nullable
+
   @Override
   public VideoDecoder createDecoder(String codecType) {
     return createDecoder(new VideoCodecInfo(codecType, new HashMap<>()));
   }
 
-  @Nullable
+
   @Override
   public VideoDecoder createDecoder(VideoCodecInfo codecType) {
     if (codecType.getName().equalsIgnoreCase("VP8")) {

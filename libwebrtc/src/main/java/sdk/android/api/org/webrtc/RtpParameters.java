@@ -10,9 +10,6 @@
 
 package org.webrtc;
 
-import androidx.annotation.Nullable;
-import java.lang.Double;
-import java.lang.String;
 import java.util.List;
 import java.util.Map;
 
@@ -29,23 +26,23 @@ public class RtpParameters {
   public static class Encoding {
     // If non-null, this represents the RID that identifies this encoding layer.
     // RIDs are used to identify layers in simulcast.
-    @Nullable public String rid;
+      public String rid;
     // Set to true to cause this encoding to be sent, and false for it not to
     // be sent.
     public boolean active = true;
     // If non-null, this represents the Transport Independent Application
     // Specific maximum bandwidth defined in RFC3890. If null, there is no
     // maximum bitrate.
-    @Nullable public Integer maxBitrateBps;
+      public Integer maxBitrateBps;
     // The minimum bitrate in bps for video.
-    @Nullable public Integer minBitrateBps;
+      public Integer minBitrateBps;
     // The max framerate in fps for video.
-    @Nullable public Integer maxFramerate;
+      public Integer maxFramerate;
     // The number of temporal layers for video.
-    @Nullable public Integer numTemporalLayers;
+      public Integer numTemporalLayers;
     // If non-null, scale the width and height down by this factor for video. If null,
     // implementation default scaling factor will be used.
-    @Nullable public Double scaleResolutionDownBy;
+      public Double scaleResolutionDownBy;
     // SSRC to be used by this encoding.
     // Can't be changed between getParameters/setParameters.
     public Long ssrc;
@@ -70,7 +67,7 @@ public class RtpParameters {
       this.ssrc = ssrc;
     }
 
-    @Nullable
+
     @CalledByNative("Encoding")
     String getRid() {
       return rid;
@@ -81,31 +78,31 @@ public class RtpParameters {
       return active;
     }
 
-    @Nullable
+
     @CalledByNative("Encoding")
     Integer getMaxBitrateBps() {
       return maxBitrateBps;
     }
 
-    @Nullable
+
     @CalledByNative("Encoding")
     Integer getMinBitrateBps() {
       return minBitrateBps;
     }
 
-    @Nullable
+
     @CalledByNative("Encoding")
     Integer getMaxFramerate() {
       return maxFramerate;
     }
 
-    @Nullable
+
     @CalledByNative("Encoding")
     Integer getNumTemporalLayers() {
       return numTemporalLayers;
     }
 
-    @Nullable
+
     @CalledByNative("Encoding")
     Double getScaleResolutionDownBy() {
       return scaleResolutionDownBy;

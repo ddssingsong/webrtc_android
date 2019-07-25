@@ -17,11 +17,12 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import java.util.Timer;
-import java.util.TimerTask;
+
 import org.webrtc.ContextUtils;
 import org.webrtc.Logging;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 // WebRtcAudioManager handles tasks that uses android.media.AudioManager.
 // At construction, storeAudioParameters() is called and it retrieves
@@ -102,7 +103,7 @@ public class WebRtcAudioManager {
     private static final int TIMER_PERIOD_IN_SECONDS = 30;
 
     private final AudioManager audioManager;
-    private @Nullable Timer timer;
+    private   Timer timer;
 
     public VolumeLogger(AudioManager audioManager) {
       this.audioManager = audioManager;

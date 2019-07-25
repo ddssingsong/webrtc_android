@@ -12,7 +12,6 @@ package org.webrtc;
 
 import android.graphics.Matrix;
 import android.os.Handler;
-import androidx.annotation.Nullable;
 
 /**
  * Android texture buffer that glues together the necessary information together with a generic
@@ -35,7 +34,7 @@ public class TextureBufferImpl implements VideoFrame.TextureBuffer {
   private final RefCountDelegate refCountDelegate;
 
   public TextureBufferImpl(int width, int height, Type type, int id, Matrix transformMatrix,
-      Handler toI420Handler, YuvConverter yuvConverter, @Nullable Runnable releaseCallback) {
+      Handler toI420Handler, YuvConverter yuvConverter,   Runnable releaseCallback) {
     this.unscaledWidth = width;
     this.unscaledHeight = height;
     this.width = width;
@@ -50,7 +49,7 @@ public class TextureBufferImpl implements VideoFrame.TextureBuffer {
 
   private TextureBufferImpl(int unscaledWidth, int unscaledHeight, int width, int height, Type type,
       int id, Matrix transformMatrix, Handler toI420Handler, YuvConverter yuvConverter,
-      @Nullable Runnable releaseCallback) {
+        Runnable releaseCallback) {
     this.unscaledWidth = unscaledWidth;
     this.unscaledHeight = unscaledHeight;
     this.width = width;

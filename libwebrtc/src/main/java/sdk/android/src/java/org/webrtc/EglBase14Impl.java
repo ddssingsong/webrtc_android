@@ -19,7 +19,6 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.os.Build;
-import androidx.annotation.Nullable;
 import android.view.Surface;
 
 /**
@@ -33,7 +32,7 @@ class EglBase14Impl implements EglBase14 {
   private static final int EGLExt_SDK_VERSION = Build.VERSION_CODES.JELLY_BEAN_MR2;
   private static final int CURRENT_SDK_VERSION = Build.VERSION.SDK_INT;
   private EGLContext eglContext;
-  @Nullable private EGLConfig eglConfig;
+    private EGLConfig eglConfig;
   private EGLDisplay eglDisplay;
   private EGLSurface eglSurface = EGL14.EGL_NO_SURFACE;
 
@@ -262,7 +261,7 @@ class EglBase14Impl implements EglBase14 {
 
   // Return an EGLConfig, or die trying.
   private static EGLContext createEglContext(
-      @Nullable EGLContext sharedContext, EGLDisplay eglDisplay, EGLConfig eglConfig) {
+        EGLContext sharedContext, EGLDisplay eglDisplay, EGLConfig eglConfig) {
     if (sharedContext != null && sharedContext == EGL14.EGL_NO_CONTEXT) {
       throw new RuntimeException("Invalid sharedContext");
     }

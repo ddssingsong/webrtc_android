@@ -10,13 +10,13 @@
 
 package org.webrtc;
 
-import static org.webrtc.NetworkMonitorAutoDetect.INVALID_NET_ID;
-
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.webrtc.NetworkMonitorAutoDetect.INVALID_NET_ID;
 
 /**
  * Borrowed from Chromium's
@@ -49,7 +49,7 @@ public class NetworkMonitor {
 
   private final Object autoDetectLock = new Object();
   // Object that detects the connection type changes and brings up mobile networks.
-  @Nullable private NetworkMonitorAutoDetect autoDetect;
+    private NetworkMonitorAutoDetect autoDetect;
   // Also guarded by autoDetectLock.
   private int numObservers;
 
@@ -106,7 +106,7 @@ public class NetworkMonitor {
    * CHANGE_NETWORK_STATE permission.
    */
   @CalledByNative
-  private void startMonitoring(@Nullable Context applicationContext, long nativeObserver) {
+  private void startMonitoring(  Context applicationContext, long nativeObserver) {
     Logging.d(TAG, "Start monitoring with native observer " + nativeObserver);
 
     startMonitoring(
@@ -291,7 +291,7 @@ public class NetworkMonitor {
       long nativeAndroidNetworkMonitor, NetworkMonitorAutoDetect.NetworkInformation[] networkInfos);
 
   // For testing only.
-  @Nullable
+
   NetworkMonitorAutoDetect getNetworkMonitorAutoDetect() {
     synchronized (autoDetectLock) {
       return autoDetect;

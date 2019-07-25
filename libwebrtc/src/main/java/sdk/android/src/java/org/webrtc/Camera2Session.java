@@ -21,7 +21,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Handler;
-import androidx.annotation.Nullable;
+
 import android.util.Range;
 import android.view.Surface;
 import java.util.Arrays;
@@ -61,11 +61,11 @@ class Camera2Session implements CameraSession {
   private CaptureFormat captureFormat;
 
   // Initialized when camera opens
-  @Nullable private CameraDevice cameraDevice;
-  @Nullable private Surface surface;
+    private CameraDevice cameraDevice;
+    private Surface surface;
 
   // Initialized when capture session is created
-  @Nullable private CameraCaptureSession captureSession;
+    private CameraCaptureSession captureSession;
 
   // State
   private SessionState state = SessionState.RUNNING;

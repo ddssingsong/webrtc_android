@@ -18,7 +18,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import androidx.annotation.Nullable;
+
 import android.view.Surface;
 
 /**
@@ -46,13 +46,13 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
 
   private int width;
   private int height;
-  @Nullable private VirtualDisplay virtualDisplay;
-  @Nullable private SurfaceTextureHelper surfaceTextureHelper;
-  @Nullable private CapturerObserver capturerObserver;
+    private VirtualDisplay virtualDisplay;
+    private SurfaceTextureHelper surfaceTextureHelper;
+    private CapturerObserver capturerObserver;
   private long numCapturedFrames;
-  @Nullable private MediaProjection mediaProjection;
+    private MediaProjection mediaProjection;
   private boolean isDisposed;
-  @Nullable private MediaProjectionManager mediaProjectionManager;
+    private MediaProjectionManager mediaProjectionManager;
 
   /**
    * Constructs a new Screen Capturer.

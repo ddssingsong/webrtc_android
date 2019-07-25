@@ -18,8 +18,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import androidx.annotation.Nullable;
 import android.view.Surface;
+
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class EglRenderer implements VideoSink {
   // |renderThreadHandler| is a handler for communicating with |renderThread|, and is synchronized
   // on |handlerLock|.
   private final Object handlerLock = new Object();
-  @Nullable private Handler renderThreadHandler;
+    private Handler renderThreadHandler;
 
   private final ArrayList<FrameListenerAndParams> frameListeners = new ArrayList<>();
 
@@ -122,15 +122,15 @@ public class EglRenderer implements VideoSink {
 
   // EGL and GL resources for drawing YUV/OES textures. After initilization, these are only accessed
   // from the render thread.
-  @Nullable private EglBase eglBase;
+    private EglBase eglBase;
   private final VideoFrameDrawer frameDrawer;
-  @Nullable private RendererCommon.GlDrawer drawer;
+    private RendererCommon.GlDrawer drawer;
   private boolean usePresentationTimeStamp;
   private final Matrix drawMatrix = new Matrix();
 
   // Pending frame to render. Serves as a queue with size 1. Synchronized on |frameLock|.
   private final Object frameLock = new Object();
-  @Nullable private VideoFrame pendingFrame;
+    private VideoFrame pendingFrame;
 
   // These variables are synchronized on |layoutLock|.
   private final Object layoutLock = new Object();
@@ -197,7 +197,7 @@ public class EglRenderer implements VideoSink {
    * set with the frame timestamps, which specifies desired presentation time and might be useful
    * for e.g. syncing audio and video.
    */
-  public void init(@Nullable final EglBase.Context sharedContext, final int[] configAttributes,
+  public void init(  final EglBase.Context sharedContext, final int[] configAttributes,
       RendererCommon.GlDrawer drawer, boolean usePresentationTimeStamp) {
     synchronized (handlerLock) {
       if (renderThreadHandler != null) {
@@ -246,7 +246,7 @@ public class EglRenderer implements VideoSink {
    *
    * @see #init(EglBase.Context, int[], RendererCommon.GlDrawer, boolean)
    */
-  public void init(@Nullable final EglBase.Context sharedContext, final int[] configAttributes,
+  public void init(  final EglBase.Context sharedContext, final int[] configAttributes,
       RendererCommon.GlDrawer drawer) {
     init(sharedContext, configAttributes, drawer, /* usePresentationTimeStamp= */ false);
   }
@@ -448,7 +448,7 @@ public class EglRenderer implements VideoSink {
    *                          FPS reduction.
    */
   public void addFrameListener(final FrameListener listener, final float scale,
-      @Nullable final RendererCommon.GlDrawer drawerParam, final boolean applyFpsReduction) {
+        final RendererCommon.GlDrawer drawerParam, final boolean applyFpsReduction) {
     postToRenderThread(() -> {
       final RendererCommon.GlDrawer listenerDrawer = drawerParam == null ? drawer : drawerParam;
       frameListeners.add(

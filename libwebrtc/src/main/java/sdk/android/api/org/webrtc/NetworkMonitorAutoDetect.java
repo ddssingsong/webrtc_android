@@ -28,7 +28,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
-import androidx.annotation.Nullable;
+
 import android.telephony.TelephonyManager;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -213,7 +213,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
      *  Note: In some rare Android systems connectivityManager is null.  We handle that
      *  gracefully below.
      */
-    @Nullable private final ConnectivityManager connectivityManager;
+      private final ConnectivityManager connectivityManager;
 
     ConnectivityManagerDelegate(Context context) {
       connectivityManager =
@@ -242,7 +242,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
      * Only callable on Lollipop and newer releases.
      */
     @SuppressLint("NewApi")
-    NetworkState getNetworkState(@Nullable Network network) {
+    NetworkState getNetworkState(  Network network) {
       if (network == null || connectivityManager == null) {
         return new NetworkState(false, -1, -1, -1, -1);
       }
@@ -315,7 +315,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
      * the complete information about a VPN including the type of the underlying network, one should
      * use the above method getNetworkState with a Network object.
      */
-    private NetworkState getNetworkState(@Nullable NetworkInfo networkInfo) {
+    private NetworkState getNetworkState(  NetworkInfo networkInfo) {
       if (networkInfo == null || !networkInfo.isConnected()) {
         return new NetworkState(false, -1, -1, -1, -1);
       }
@@ -334,7 +334,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
       return connectivityManager.getAllNetworks();
     }
 
-    @Nullable
+
     List<NetworkInformation> getActiveNetworkList() {
       if (!supportNetworkCallback()) {
         return null;
@@ -393,7 +393,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
     }
 
     @SuppressLint("NewApi")
-    private @Nullable NetworkInformation networkToInfo(@Nullable Network network) {
+    private   NetworkInformation networkToInfo(  Network network) {
       if (network == null || connectivityManager == null) {
         return null;
       }
@@ -495,7 +495,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
 
   /** Queries the WifiManager for SSID of the current Wifi connection. */
   static class WifiManagerDelegate {
-    @Nullable private final Context context;
+      private final Context context;
     WifiManagerDelegate(Context context) {
       this.context = context;
     }
@@ -531,7 +531,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
     private final Observer observer;
     // Network information about a WifiP2p (aka WiFi-Direct) network, or null if no such network is
     // connected.
-    @Nullable private NetworkInformation wifiP2pNetworkInfo;
+      private NetworkInformation wifiP2pNetworkInfo;
 
     WifiDirectManagerDelegate(Observer observer, Context context) {
       this.context = context;
@@ -569,7 +569,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
     }
 
     /** Handle a change notification about the wifi p2p group. */
-    private void onWifiP2pGroupChange(@Nullable WifiP2pGroup wifiP2pGroup) {
+    private void onWifiP2pGroupChange(  WifiP2pGroup wifiP2pGroup) {
       if (wifiP2pGroup == null || wifiP2pGroup.getInterface() == null) {
         return;
       }
@@ -612,9 +612,9 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
   private final Context context;
   // Used to request mobile network. It does not do anything except for keeping
   // the callback for releasing the request.
-  @Nullable private final NetworkCallback mobileNetworkCallback;
+    private final NetworkCallback mobileNetworkCallback;
   // Used to receive updates on all networks.
-  @Nullable private final NetworkCallback allNetworkCallback;
+    private final NetworkCallback allNetworkCallback;
   // connectivityManagerDelegate and wifiManagerDelegate are only non-final for testing.
   private ConnectivityManagerDelegate connectivityManagerDelegate;
   private WifiManagerDelegate wifiManagerDelegate;
@@ -701,7 +701,7 @@ public class NetworkMonitorAutoDetect extends BroadcastReceiver {
     return isRegistered;
   }
 
-  @Nullable
+
   List<NetworkInformation> getActiveNetworkList() {
     List<NetworkInformation> connectivityManagerList =
         connectivityManagerDelegate.getActiveNetworkList();
