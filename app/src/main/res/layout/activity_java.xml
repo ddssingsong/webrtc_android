@@ -4,33 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     tools:context="com.dds.java.JavaActivity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:background="@android:color/holo_green_light"
-        android:gravity="center"
-        android:text="服务器使用java" />
 
     <EditText
         android:id="@+id/et_wss"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="ws://192.168.1.138:3000/websocket" />
+        android:text="ws://192.168.1.138:3000/ws"
+        android:hint="例如：ws://192.168.1.138:3000/ws" />
 
     <EditText
         android:id="@+id/et_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="请输入用户名" />
+        android:hint="请输入用户名"
+        android:text="12345678" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="用户登录状态：idle" />
+
 
     <Button
         android:id="@+id/button4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+
         android:onClick="connect"
         android:text="登录账号"
         android:textAllCaps="false" />
