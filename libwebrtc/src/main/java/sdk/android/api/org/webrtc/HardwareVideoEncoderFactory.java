@@ -110,7 +110,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
         String codecName = info.getName();
         String mime = type.mimeType();
-        Log.e("dds_test", "createEncoder codecName：" + codecName + ",mimeType" + mime);
+       // Log.e("dds_test", "createEncoder codecName：" + codecName + ",mimeType" + mime);
 
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));

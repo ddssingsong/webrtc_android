@@ -255,9 +255,9 @@ public class JavaWebSocket implements IWebSocket {
             socketId = (String) data.get("socketId");
             String sdpMid = (String) data.get("id");
             sdpMid = (null == sdpMid) ? "video" : sdpMid;
-            int sdpMLineIndex = (int) Double.parseDouble(String.valueOf(data.get("label")));
+            int label = (int) Double.parseDouble(String.valueOf(data.get("label")));
             String candidate = (String) data.get("candidate");
-            IceCandidate iceCandidate = new IceCandidate(sdpMid, sdpMLineIndex, candidate);
+            IceCandidate iceCandidate = new IceCandidate(sdpMid, label, candidate);
             events.onRemoteIceCandidate(socketId, iceCandidate);
         }
 

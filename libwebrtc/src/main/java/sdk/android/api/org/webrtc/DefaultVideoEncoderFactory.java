@@ -44,7 +44,7 @@ public class DefaultVideoEncoderFactory implements VideoEncoderFactory {
         final VideoEncoder softwareEncoder = softwareVideoEncoderFactory.createEncoder(info);
         final VideoEncoder hardwareEncoder = hardwareVideoEncoderFactory.createEncoder(info);
 
-        Log.e("dds_test", "softwareEncoder:" + softwareEncoder + "hardwareEncoder:" + hardwareEncoder);
+       // Log.e("dds_test", "softwareEncoder:" + softwareEncoder + "hardwareEncoder:" + hardwareEncoder);
 
         if (hardwareEncoder != null && softwareEncoder != null) {
 

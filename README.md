@@ -33,7 +33,6 @@ java      https://github.com/ddssingsong/webrtc_server_java
 3. Flexible configuration of signaling server and stun/turn forwarding penetration server
 4. Dynamic permission application
 6. Use the latest webrtc source code
-7. 
 
 ## Effect
 
@@ -57,6 +56,14 @@ https://github.com/zengpeace/apprtcmobile （github）
 
 
 
+## CHANGELOG
+
+- **v1.2.0：**move to androidx
+- **v1.1.2:**   release base on android support
+- **v1.1.1:**   This version has implemented the basic functions.
+
+
+
 ## QQ
 
 QQ Group：webrtc技术交流群
@@ -67,9 +74,10 @@ QQ群   号：601332720
 
 
 
+## License
 
-
-
+MIT License 
+Copyright (c) 2019 哒哒瑟 
 
 
 
