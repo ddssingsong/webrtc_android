@@ -58,7 +58,7 @@ https://github.com/zengpeace/apprtcmobile （github）
 
 ## CHANGELOG
 
-- **v1.2.0：**move to androidx
+- **v1.2.0:**  move to androidx
 - **v1.1.2:**   release base on android support
 - **v1.1.1:**   This version has implemented the basic functions.
 
