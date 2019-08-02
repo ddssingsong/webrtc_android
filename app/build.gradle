@@ -26,13 +26,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.0.0'
-    implementation 'org.java-websocket:Java-WebSocket:1.3.9'
-    implementation project(':libskywebrtc')
-
-
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
-    // Optional, if you use support library fragments:
     debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
+
+
+    // java
     implementation project(path: ':libskywebrtc2')
+    implementation 'org.java-websocket:Java-WebSocket:1.3.9'
+    implementation 'com.alibaba:fastjson:1.1.64.android'
+
+    // nodejs
+    implementation project(':libskywebrtc')
 }

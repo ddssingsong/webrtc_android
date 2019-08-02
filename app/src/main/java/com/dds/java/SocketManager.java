@@ -5,6 +5,7 @@ import android.util.Log;
 import com.dds.webrtclib.ws.JavaWebSocket;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -22,6 +23,7 @@ import javax.net.ssl.TrustManager;
 public class SocketManager implements IEvent {
     private final static String TAG = "dds_SocketManager";
     private TestWebSocket webSocket;
+    private int userState;
 
     private SocketManager() {
 
@@ -36,41 +38,52 @@ public class SocketManager implements IEvent {
     }
 
     public void connect(String url, String userId, int device) {
-        URI uri;
-        try {
-            String urls = url + "/" + userId + "/" + device;
-            uri = new URI(urls);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return;
-        }
-        webSocket = new TestWebSocket(uri, this);
-        // 设置wss
-        if (url.startsWith("wss")) {
+        if (webSocket == null || !webSocket.isOpen()) {
+            URI uri;
             try {
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                if (sslContext != null) {
-                    sslContext.init(null, new TrustManager[]{new JavaWebSocket.TrustManagerTest()}, new SecureRandom());
-                }
-
-                SSLSocketFactory factory = null;
-                if (sslContext != null) {
-                    factory = sslContext.getSocketFactory();
-                }
-
-                if (factory != null) {
-                    webSocket.setSocket(factory.createSocket());
-                }
-            } catch (NoSuchAlgorithmException e) {
+                String urls = url + "/" + userId + "/" + device;
+                uri = new URI(urls);
+            } catch (URISyntaxException e) {
                 e.printStackTrace();
-            } catch (KeyManagementException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                return;
             }
+            webSocket = new TestWebSocket(uri, this);
+            // 设置wss
+            if (url.startsWith("wss")) {
+                try {
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    if (sslContext != null) {
+                        sslContext.init(null, new TrustManager[]{new JavaWebSocket.TrustManagerTest()}, new SecureRandom());
+                    }
+
+                    SSLSocketFactory factory = null;
+                    if (sslContext != null) {
+                        factory = sslContext.getSocketFactory();
+                    }
+
+                    if (factory != null) {
+                        webSocket.setSocket(factory.createSocket());
+                    }
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (KeyManagementException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 开始connect
+            webSocket.connect();
         }
-        // 开始connect
-        webSocket.connect();
+
+
+    }
+
+    public void unConnect() {
+        if (webSocket != null) {
+            webSocket.close();
+            webSocket = null;
+        }
 
     }
 
@@ -84,11 +97,30 @@ public class SocketManager implements IEvent {
     @Override
     public void loginSuccess(String json) {
         Log.i(TAG, "loginSuccess:" + json);
+        userState = 1;
+        if (iUserState != null && iUserState.get() != null) {
+            iUserState.get().userLogin();
+        }
     }
 
     @Override
     public void logout(String str) {
         Log.i(TAG, "logout:" + str);
+        userState = 0;
+        if (iUserState != null && iUserState.get() != null) {
+            iUserState.get().userLogout();
+        }
+    }
+
+    public int getUserState() {
+        return userState;
+    }
+
+
+    private WeakReference<IUserState> iUserState;
+
+    public void addUserStateCallback(IUserState userState) {
+        iUserState = new WeakReference<>(userState);
     }
 
 }

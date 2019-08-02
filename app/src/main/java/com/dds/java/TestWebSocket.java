@@ -2,10 +2,13 @@ package com.dds.java;
 
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * Created by dds on 2019/7/26.
@@ -13,12 +16,13 @@ import java.net.URI;
  */
 public class TestWebSocket extends WebSocketClient {
     private final static String TAG = "dds_TestWebSocket";
-    IEvent iEvent;
+    private IEvent iEvent;
 
     public TestWebSocket(URI serverUri, IEvent event) {
         super(serverUri);
         this.iEvent = event;
     }
+
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
@@ -30,11 +34,17 @@ public class TestWebSocket extends WebSocketClient {
     public void onMessage(String message) {
         Log.d(TAG, message);
         handleMessage(message);
-
-
     }
 
     private void handleMessage(String message) {
+        Map map = JSON.parseObject(message, Map.class);
+        String eventName = (String) map.get("eventName");
+        if (eventName == null) return;
+        // 登录成功
+        if (eventName.equals("__login_success")) {
+            this.iEvent.loginSuccess(message);
+        }
+
 
     }
 

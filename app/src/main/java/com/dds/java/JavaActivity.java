@@ -1,33 +1,44 @@
 package com.dds.java;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.dds.webrtc.R;
 
-public class JavaActivity extends AppCompatActivity {
+public class JavaActivity extends AppCompatActivity implements IUserState {
 
     private final static String TAG = "JavaActivity";
-    private EditText editText;
+    private EditText wss;
     private EditText et_name;
+    private TextView user_state;
     private RadioGroup deviceRadioGroup;
     private int device; // 0 phone 1 pc
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_java);
         initView();
-        editText.setText("ws://192.168.1.138:3000/ws");
+
+        initData();
+
     }
 
+
     private void initView() {
-        editText = findViewById(R.id.et_wss);
+        wss = findViewById(R.id.et_wss);
         et_name = findViewById(R.id.et_name);
+        user_state = findViewById(R.id.user_state);
         deviceRadioGroup = findViewById(R.id.device);
         deviceRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.phone) {
@@ -39,13 +50,52 @@ public class JavaActivity extends AppCompatActivity {
         });
     }
 
+    private void initData() {
+        wss.setText("ws://192.168.1.138:3000/ws");
+        SocketManager.getInstance().addUserStateCallback(this);
+        int userState = SocketManager.getInstance().getUserState();
+        if (userState == 1) {
+            loginState();
+        } else {
+            logoutState();
+        }
+
+
+    }
 
     /*----------------------------java版本服务器测试--------------------------------------------*/
 
     // 登录
     public void connect(View view) {
-        SocketManager.getInstance().connect(editText.getText().toString().trim(), et_name.getText().toString().trim(), device);
+        SocketManager.getInstance().connect(wss.getText().toString().trim(), et_name.getText().toString().trim(), device);
 
     }
+
+    // 退出
+    public void unConnect(View view) {
+        SocketManager.getInstance().unConnect();
+    }
+
+    @Override
+    public void userLogin() {
+        handler.post(this::loginState);
+    }
+
+    @Override
+    public void userLogout() {
+        handler.post(this::logoutState);
+    }
+
+
+    public void loginState() {
+        user_state.setText("用户登录状态：已登录");
+        user_state.setTextColor(ContextCompat.getColor(JavaActivity.this, android.R.color.holo_red_light));
+    }
+
+    public void logoutState() {
+        user_state.setText("用户登录状态：未登录");
+        user_state.setTextColor(ContextCompat.getColor(JavaActivity.this, android.R.color.darker_gray));
+    }
+
 
 }
