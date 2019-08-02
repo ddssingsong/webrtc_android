@@ -12,7 +12,6 @@
         android:id="@+id/et_wss"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ws://192.168.1.138:3000/ws"
         android:hint="例如：ws://192.168.1.138:3000/ws" />
 
     <EditText
@@ -20,7 +19,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="请输入用户名"
-        android:text="12345678" />
+        android:text="111111" />
+
+
+    <RadioGroup
+        android:id="@+id/device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/header"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选择客户端:" />
+
+        <RadioButton
+            android:id="@+id/phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Phone" />
+
+        <RadioButton
+            android:id="@+id/pc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PC" />
+
+    </RadioGroup>
 
     <TextView
         android:layout_width="wrap_content"

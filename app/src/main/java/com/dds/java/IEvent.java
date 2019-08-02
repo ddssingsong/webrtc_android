@@ -7,7 +7,8 @@ package com.dds.java;
 public interface IEvent {
     void onOpen();
 
-    void onClose(int code, String reason, boolean remote);
+    void loginSuccess(String json);
 
-    void onError(Exception ex);
+    void logout(String str);
+
 }

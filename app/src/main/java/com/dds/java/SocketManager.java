@@ -1,5 +1,7 @@
 package com.dds.java;
 
+import android.util.Log;
+
 import com.dds.webrtclib.ws.JavaWebSocket;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import javax.net.ssl.TrustManager;
  * android_shuai@163.com
  */
 public class SocketManager implements IEvent {
+    private final static String TAG = "dds_SocketManager";
     private TestWebSocket webSocket;
 
     private SocketManager() {
@@ -32,10 +35,11 @@ public class SocketManager implements IEvent {
         return Holder.socketManager;
     }
 
-    public void connect(String url, String userId) {
+    public void connect(String url, String userId, int device) {
         URI uri;
         try {
-            uri = new URI(url + "/" + userId);
+            String urls = url + "/" + userId + "/" + device;
+            uri = new URI(urls);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
@@ -72,17 +76,19 @@ public class SocketManager implements IEvent {
 
     @Override
     public void onOpen() {
+        Log.i(TAG, "socket is open!");
 
     }
 
-    @Override
-    public void onClose(int code, String reason, boolean remote) {
 
+    @Override
+    public void loginSuccess(String json) {
+        Log.i(TAG, "loginSuccess:" + json);
     }
 
     @Override
-    public void onError(Exception ex) {
-
+    public void logout(String str) {
+        Log.i(TAG, "logout:" + str);
     }
 
 }
