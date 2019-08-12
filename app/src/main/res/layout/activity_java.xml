@@ -90,7 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:onClick="connect"
+        android:onClick="call"
         android:text="拨打视频电话"
         android:textAllCaps="false" />
 </LinearLayout>

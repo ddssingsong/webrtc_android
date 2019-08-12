@@ -51,7 +51,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     }
 
     private void initData() {
-        wss.setText("ws://192.168.1.138:3000/ws");
+        wss.setText("ws://192.168.1.122:3000/ws");
         SocketManager.getInstance().addUserStateCallback(this);
         int userState = SocketManager.getInstance().getUserState();
         if (userState == 1) {
@@ -74,6 +74,14 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     // 退出
     public void unConnect(View view) {
         SocketManager.getInstance().unConnect();
+    }
+
+
+    // 拨打电话
+    public void call(View view) {
+        String  phone = ((TextView)findViewById(R.id.phone)).getText().toString().trim();
+
+
     }
 
     @Override

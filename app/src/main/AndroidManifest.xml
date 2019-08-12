@@ -10,13 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.dds.voip.SingleCallActivity"></activity>
-        <activity
-            android:name="com.dds.nodejs.NodejsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.dds.java.JavaActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+
+
         <activity
             android:name="com.dds.LauncherActivity"
             android:label="@string/app_name"
@@ -26,6 +21,22 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--nodejs-->
+        <activity
+            android:name="com.dds.nodejs.NodejsActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--java-->
+        <activity
+            android:name="com.dds.java.JavaActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!--单聊界面-->
+        <activity android:name="com.dds.voip.SingleCallActivity">
+            <intent-filter>
+                <action android:name="${applicationId}.kit.voip.single" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
     </application>
