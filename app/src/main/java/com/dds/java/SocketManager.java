@@ -22,7 +22,7 @@ import javax.net.ssl.TrustManager;
  */
 public class SocketManager implements IEvent {
     private final static String TAG = "dds_SocketManager";
-    private TestWebSocket webSocket;
+    private DWebSocket webSocket;
     private int userState;
 
     private SocketManager() {
@@ -47,7 +47,7 @@ public class SocketManager implements IEvent {
                 e.printStackTrace();
                 return;
             }
-            webSocket = new TestWebSocket(uri, this);
+            webSocket = new DWebSocket(uri, this);
             // 设置wss
             if (url.startsWith("wss")) {
                 try {
@@ -101,6 +101,46 @@ public class SocketManager implements IEvent {
         if (iUserState != null && iUserState.get() != null) {
             iUserState.get().userLogin();
         }
+    }
+
+    @Override
+    public void onInvite(String room, int roomSize, int mediaType, String inviteId, String userList) {
+
+    }
+
+    @Override
+    public void onCancel(String inviteId) {
+
+    }
+
+    @Override
+    public void onRing(String userId) {
+
+    }
+
+    @Override
+    public void onNewPeer(String myId, String userList) {
+
+    }
+
+    @Override
+    public void onReject(String userId, int type) {
+
+    }
+
+    @Override
+    public void onOffer(String userId, String sdp) {
+
+    }
+
+    @Override
+    public void onAnswer(String userId, String sdp) {
+
+    }
+
+    @Override
+    public void onIceCandidate(String userId, String id, String label, String candidate) {
+
     }
 
     @Override
