@@ -1,7 +1,6 @@
 package com.dds.skywebrtc;
 
 import org.webrtc.PeerConnection;
-import org.webrtc.StatsReport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +12,10 @@ import java.util.List;
 public class AVEngineKit {
 
     private static AVEngineKit avEngineKit;
-
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
+
+    private CallSession currentCallSession;
+
 
     public static AVEngineKit Instance() {
         AVEngineKit var0;
@@ -35,30 +36,29 @@ public class AVEngineKit {
     }
 
 
-    public class CallSession {
+    // 拨打电话
+    public CallSession startCall(String targetId, boolean isAudio, CallSession.CallSessionCallback callback) {
+        // 发送invite 同时设置定时器
+        // 呼出中 -->对方已响铃
+
+
+        return null;
+    }
+
+    // 画面预览
+    public void startPreview() {
 
     }
 
-    public interface CallSessionCallback {
-        void didCallEndWithReason(AVEngineKit.CallEndReason var1);
-
-        void didChangeState(AVEngineKit.CallState var1);
-
-        void didChangeMode(boolean var1);
-
-        void didCreateLocalVideoTrack();
-
-        void didReceiveRemoteVideoTrack();
-
-        void didError(String var1);
-
-        void didGetStats(StatsReport[] var1);
+    public CallSession getCurrentSession() {
+        return this.currentCallSession;
     }
+
 
     public interface AVEngineCallback {
-        void onReceiveCall(AVEngineKit.CallSession var1);
+        void onReceiveCall(CallSession session);
 
-        void shouldStartRing(boolean var1);
+        void shouldStartRing(boolean isComing);
 
         void shouldSopRing();
     }

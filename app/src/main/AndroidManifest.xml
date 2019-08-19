@@ -10,7 +10,10 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <service
+            android:name="com.dds.voip.FloatingVoipService"
+            android:enabled="true"
+            android:exported="true"></service>
 
         <activity
             android:name="com.dds.LauncherActivity"
@@ -22,20 +25,17 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <!--nodejs-->
+        </activity> <!-- nodejs -->
         <activity
             android:name="com.dds.nodejs.NodejsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <!--java-->
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- java -->
         <activity
             android:name="com.dds.java.JavaActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-
-        <!--单聊界面-->
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- 单聊界面 -->
         <activity android:name="com.dds.voip.SingleCallActivity">
             <intent-filter>
                 <action android:name="${applicationId}.kit.voip.single" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
