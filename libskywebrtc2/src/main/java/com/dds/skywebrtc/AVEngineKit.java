@@ -14,7 +14,7 @@ public class AVEngineKit {
 
     private static AVEngineKit avEngineKit;
 
-    private List<PeerConnection.IceServer> n = new ArrayList<>();
+    private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
     public static AVEngineKit Instance() {
         AVEngineKit var0;
@@ -31,7 +31,7 @@ public class AVEngineKit {
                 .setUsername(username)
                 .setPassword(pwd)
                 .createIceServer();
-        var.n.add(var4);
+        var.iceServers.add(var4);
     }
 
 
