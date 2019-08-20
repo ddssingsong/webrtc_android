@@ -80,6 +80,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
 
     private void init(String targetId, boolean outgoing, boolean audioOnly) {
 
+        CallSession callSession = gEngineKit.getCurrentSession();
 
         Fragment fragment;
         if (audioOnly) {
