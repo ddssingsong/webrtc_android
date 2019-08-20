@@ -1,58 +1,83 @@
 # video conference
 ![logo](https://github.com/ddssingsong/webrtc_android/blob/master/art/logo1.png)
 
-
-
 ## 概述
 
-**sky p2p metting**是基于webrtc开发的一套可以进行单路或者多路语音、视频的系统。高仿微信九宫格显示，最多可支持 **9** 路视频。
+> [English Documents](<https://github.com/ddssingsong/webrtc_android/blob/master/README.md>)
+
+基于 [webrtc](https://webrtc.googlesource.com/) 开发的一套可以进行**单路**或者**多路**语音、视频的系统。高仿微信九宫格显示，最多可支持 **9** 路视频。
 
 
 
-**文末有Server端搭建教程！**
+通过这个项目，你可以深刻学习并理解webrtc通话的整个流程。这个项目只是作为学习使用，是一个很好的webrtc入门项目，如果你感兴趣的话，赶紧开始吧
 
-tips：这只是个demo，学习使用，需要产品化的朋友们请绕道。
+
 
 ## 服务器搭建
 
-请看：https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
+java： https://github.com/ddssingsong/webrtc_server_java
+
+nodejs：https://github.com/ddssingsong/webrtc_server
+
+
+
+如果需要详细的部署流程可参考博客
+
+https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
+
+
 
 ## 实现功能
 
-1. 支持一对一语音和视频
-2. 支持多对多语音和视频会议
-3. 灵活替换wss信令服务器和stun/turn转发穿透服务器
-4. 动态权限申请
-5. 模块独立，代码清晰
-6. 使用最新的webrtc源码
-7. 切换摄像头、免提、开启静音、监听耳机插拔、系统来电时断开、关闭视频保留声音
+- 已实现功能：
+  1. 支持一对一语音和视频
+  2. 支持多对多语音和视频会议
+  3. 灵活替换wss信令服务器和stun/turn转发穿透服务器
+  4. 动态权限申请
+  5. 切换摄像头、免提、开启静音、关闭视频保留声音
+
+- 正在开发中功能
+  
+  1. 将信令模块和UI提取出来，将核心代码封装成SDK
+  
+  2. 呼叫、响铃、拨打电话的整个流程
+  
+     
 
 ## 实现效果展示
 
 1. 单人通话
 
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/art/image3.png)
+   ![process](art/image3.png)
 
 
 
 2. 多人会话
 
-   ![process](https://github.com/ddssingsong/webrtc_android/blob/master/art/image5.jpg)
+   ![process](/art/image5.jpg)
 
 
 
 ## 更新日志
 
-v1.1.2 
+**v1.2.0**
+
+使用androidx
+
+**v1.1.2** 
 
  新增功能：
 
 1. 仿微信九宫格
 2. 会议添加扬声器和关闭摄像头功能
 
-v1.1.1 保存代码，便于后续的开发
+**v1.1.1** 
 
-v1.1.0  完成基本视频会议
+保存代码，便于后续的开发
+
+**v1.1.0**  
+
+完成基本视频会议
 
 
 
@@ -64,40 +89,26 @@ v1.1.0  完成基本视频会议
 
 
 
-## 服务器搭建
-
-服务器源码是基于skyrtc的代码进行重写实现的
-
-源码地址：
-
-nodejs : https://github.com/ddssingsong/webrtc_server.git  （github）
-
-java : https://github.com/ddssingsong/webrtc_server_java
-
-
-搭建过程请看博客
-
-https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
-
-使用tips:
-
-```
-如果只使用移动端的话，服务器不配置https代理也是可以的哦
-```
-
-
-
-
-
 ## 借鉴
-
-1. https://github.com/zengpeace/apprtcmobile （github）
-
-   apprtc官方demo，这个更新的官方demo还是比较新的
 
 2. https://github.com/LingyuCoder/SkyRTC
 
-   服务端和网页端的实现基于此
+   服务端和网页端的实现基于此修改
+   
+2. https://webrtc.org/
+
+   webrtc网站
+
+3. https://webrtc.googlesource.com/src/+/master/examples
+
+   google git demo
+
+webrtc源码编译时间：2019年4月
+
+## License
+
+MIT License 
+Copyright (c) 2019 哒哒瑟 
 
 
 
