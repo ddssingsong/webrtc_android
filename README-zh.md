@@ -81,14 +81,6 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 
 
-## 实现过程探究
-
-自定义信令
-
-![process](https://github.com/ddssingsong/webrtc_android/blob/master/art/image2.jpg)
-
-
-
 ## 借鉴
 
 2. https://github.com/LingyuCoder/SkyRTC
