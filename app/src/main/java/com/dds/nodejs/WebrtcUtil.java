@@ -29,18 +29,18 @@ public class WebrtcUtil {
                     "79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c",
                     "xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
 
-//            new MyIceServer("stun:47.107.132.117:3478?transport=udp"),
-//            new MyIceServer("turn:47.107.132.117:3478?transport=udp",
+//            new MyIceServer("stun:118.25.25.147:3478?transport=udp"),
+//            new MyIceServer("turn:118.25.25.147:3478?transport=udp",
 //                    "ddssingsong",
 //                    "123456"),
-//            new MyIceServer("turn:47.107.132.117:3478?transport=tcp",
+//            new MyIceServer("turn:118.25.25.147:3478?transport=tcp",
 //                    "ddssingsong",
 //                    "123456")
 
     };
 
     // signalling
-     private static String WSS = "wss://192.168.1.122/wss";
+     private static String WSS = "wss://118.25.25.147/wss";
     //本地测试信令地址
     // private static String WSS = "ws://192.168.1.138:3000";
 

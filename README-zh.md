@@ -79,6 +79,9 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 完成基本视频会议
 
+# demo测试
+
+apk:[Android端测试](app/release/app-release.apk)
 
 
 ## 借鉴

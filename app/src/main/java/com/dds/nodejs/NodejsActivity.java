@@ -36,7 +36,7 @@ public class NodejsActivity extends AppCompatActivity {
     }
 
     private void initVar() {
-        // et_signal.setText("ws://192.168.1.122:3000");
+        et_signal.setText("wss://118.25.25.147/wss");
         et_room.setText("666555");
     }
 
