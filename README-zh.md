@@ -17,7 +17,7 @@
 
 java： https://github.com/ddssingsong/webrtc_server_java
 
-nodejs：https://github.com/ddssingsong/webrtc_server
+nodejs：https://github.com/ddssingsong/webrtc_server_node
 
 
 
