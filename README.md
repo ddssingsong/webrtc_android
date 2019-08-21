@@ -73,16 +73,16 @@ This version has implemented the basic functions.
 Complete Basic Video Conferences
 
 
-# demo测试
+# Android demo
 
-apk:[Android端测试](app/release/app-release.apk)
+apk : [AndroidDemo.apk](app/release/app-release.apk)
 
 
 ## Links
 
 1. https://github.com/LingyuCoder/SkyRTC
 
-   服务端和网页端的实现基于此修改
+   server side,base on this
 
 2. https://webrtc.org/
 

@@ -1,9 +1,14 @@
 package com.dds.skywebrtc;
 
+import android.content.Context;
+
+import org.webrtc.EglBase;
 import org.webrtc.PeerConnection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by dds on 2019/8/19.
@@ -11,10 +16,14 @@ import java.util.List;
  */
 public class AVEngineKit {
 
+
     private static AVEngineKit avEngineKit;
-    private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private Context _context;
+    private EglBase _rootEglBase;
 
     private CallSession currentCallSession;
+    private AVEngineCallback engineCallback;
 
 
     public static AVEngineKit Instance() {
@@ -26,13 +35,9 @@ public class AVEngineKit {
         }
     }
 
-    public void addIceServer(String host, String username, String pwd) {
-        AVEngineKit var = this;
-        PeerConnection.IceServer var4 = PeerConnection.IceServer.builder(host)
-                .setUsername(username)
-                .setPassword(pwd)
-                .createIceServer();
-        var.iceServers.add(var4);
+
+    public void init(Context context) {
+        this._context = context;
     }
 
 
@@ -42,8 +47,12 @@ public class AVEngineKit {
         // 呼出中 -->对方已响铃
 
 
-
         return null;
+    }
+
+
+    public void joinHome(EglBase eglBase) {
+        _rootEglBase = eglBase;
     }
 
     // 画面预览
@@ -56,13 +65,22 @@ public class AVEngineKit {
     }
 
 
-    public interface AVEngineCallback {
-        void onReceiveCall(CallSession session);
+    // -----------iceServers---------------------
+    private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
-        void shouldStartRing(boolean isComing);
-
-        void shouldSopRing();
+    public void addIceServer(String host, String username, String pwd) {
+        AVEngineKit var = this;
+        PeerConnection.IceServer var4 = PeerConnection.IceServer.builder(host)
+                .setUsername(username)
+                .setPassword(pwd)
+                .createIceServer();
+        var.iceServers.add(var4);
     }
+
+    public List<PeerConnection.IceServer> getIceServers() {
+        return iceServers;
+    }
+
 
     public static enum CallEndReason {
         Busy,
