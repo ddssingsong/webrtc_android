@@ -1,6 +1,7 @@
 package com.dds.skywebrtc;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.webrtc.DataChannel;
 import org.webrtc.EglBase;
@@ -20,7 +21,7 @@ import java.util.Map;
  * android_shuai@163.com
  */
 public class CallSession {
-
+    public final static String TAG = "dds_CallSession";
     private CallSessionCallback sessionCallback;
     private PeerConnectionFactory _factory;
     private Context _context;
@@ -28,6 +29,8 @@ public class CallSession {
     private boolean isAudioOnly;
     private AVEngineKit avEngineKit;
     private EnumType.CallState callState = EnumType.CallState.Idle;
+    private ISocketEvent _socketEvent;
+
 
     private Map<String, Peer> _connectionPeerDic;
 
@@ -37,6 +40,7 @@ public class CallSession {
         _rootEglBase = avEngineKit._rootEglBase;
         _factory = avEngineKit._factory;
         isAudioOnly = avEngineKit.isAudioOnly;
+        _socketEvent = avEngineKit._iSocketEvent;
         this._connectionPeerDic = new HashMap<>();
     }
 
@@ -60,37 +64,41 @@ public class CallSession {
 
         //-------------Observer--------------------
         @Override
-        public void onSignalingChange(PeerConnection.SignalingState newState) {
-
+        public void onSignalingChange(PeerConnection.SignalingState signalingState) {
+            Log.i(TAG, "onSignalingChange: " + signalingState);
         }
 
         @Override
         public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
+            Log.i(TAG, "onIceConnectionChange: " + newState.toString());
 
         }
 
         @Override
         public void onIceConnectionReceivingChange(boolean receiving) {
-
+            Log.i(TAG, "onIceConnectionReceivingChange:" + receiving);
         }
 
         @Override
         public void onIceGatheringChange(PeerConnection.IceGatheringState newState) {
-
+            Log.i(TAG, "onIceGatheringChange:" + newState.toString());
         }
 
         @Override
         public void onIceCandidate(IceCandidate candidate) {
-
+            Log.i(TAG, "onIceCandidate:");
+            // 发送IceCandidate
+            _socketEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
         }
 
         @Override
         public void onIceCandidatesRemoved(IceCandidate[] candidates) {
-
+            Log.i(TAG, "onIceCandidatesRemoved:");
         }
 
         @Override
         public void onAddStream(MediaStream stream) {
+
 
         }
 

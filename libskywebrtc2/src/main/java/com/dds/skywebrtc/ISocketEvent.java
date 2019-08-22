@@ -22,6 +22,6 @@ public interface ISocketEvent {
     void sendAnswer(String userId, String sdp);
 
     // sendIceCandidate
-    void sendIceCandidate(String userId, String id, String label, String candidate);
+    void sendIceCandidate(String userId, String id, int label, String candidate);
 
 }

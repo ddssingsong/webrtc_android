@@ -20,8 +20,6 @@ import com.dds.webrtc.R;
 
 
 public class AudioFragment extends Fragment implements CallSession.CallSessionCallback {
-
-
     private ImageView minimizeImageView;
     private ImageView portraitImageView;
     private TextView nameTextView;

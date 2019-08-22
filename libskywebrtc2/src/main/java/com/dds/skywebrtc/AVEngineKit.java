@@ -57,7 +57,7 @@ public class AVEngineKit {
 
 
     private AVEngineCallback _engineCallback;
-    private ISocketEvent _iSocketEvent;
+    public ISocketEvent _iSocketEvent;
 
 
     public static AVEngineKit Instance() {
@@ -123,6 +123,8 @@ public class AVEngineKit {
                 captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
                 _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
                 _localStream.addTrack(_localVideoTrack);
+
+
             }
         });
 
