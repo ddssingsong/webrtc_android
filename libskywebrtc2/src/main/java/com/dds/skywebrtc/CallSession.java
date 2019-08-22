@@ -31,7 +31,8 @@ public class CallSession {
     private EnumType.CallState callState = EnumType.CallState.Idle;
     private ISocketEvent _socketEvent;
 
-
+    private ProxyVideoSink localRender;
+    private ProxyVideoSink remoteRender;
     private Map<String, Peer> _connectionPeerDic;
 
     public CallSession(AVEngineKit avEngineKit) {
