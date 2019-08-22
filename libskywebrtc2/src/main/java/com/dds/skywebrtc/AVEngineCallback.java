@@ -9,5 +9,5 @@ public interface AVEngineCallback {
 
     void shouldStartRing(boolean isComing);
 
-    void shouldSopRing();
+    void shouldStopRing();
 }

@@ -95,7 +95,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
 
         if (isOutgoing) {
             // 发起会话
-            gEngineKit.startCall(targetId, audioOnly, this);
+            gEngineKit.invite(targetId, audioOnly);
             // 画面预览
             gEngineKit.startPreview();
 

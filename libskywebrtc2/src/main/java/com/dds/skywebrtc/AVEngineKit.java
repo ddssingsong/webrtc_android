@@ -42,11 +42,8 @@ public class AVEngineKit {
 
 
     // 拨打电话
-    public CallSession startCall(String targetId, boolean isAudio, CallSession.CallSessionCallback callback) {
-        // 发送invite 同时设置定时器
-        // 呼出中 -->对方已响铃
-
-
+    public CallSession invite(String targetId, boolean isAudio) {
+        // 发送邀请
         return null;
     }
 

@@ -21,19 +21,38 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <Button
-        android:id="@+id/button7"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="nodejs"
-        android:text="NodeJs编写服务器端"
-        android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/button8"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="java"
-        android:text="Java编写服务器端(正在开发中)"
-        android:textAllCaps="false" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The server side is written using nodejs to complete basic video calls and videoconferencing" />
+
+        <Button
+            android:id="@+id/button7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="nodejs"
+            android:text="NodeJs"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The server side is written using Spring boot, which is in progress" />
+
+        <Button
+            android:id="@+id/button8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="java"
+            android:text="Java(正在开发中)"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
 </LinearLayout>

@@ -17,6 +17,9 @@ import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by dds on 2019/8/19.
  * android_shuai@163.com
@@ -29,16 +32,22 @@ public class CallSession {
     private EglBase _rootEglBase;
     private AVEngineKit avEngineKit;
 
+    private Map<String, Peer> _connectionPeerDic;
+
     public CallSession(AVEngineKit avEngineKit, Context context, EglBase eglBase) {
         this.avEngineKit = avEngineKit;
         _context = context;
         _rootEglBase = eglBase;
+        this._connectionPeerDic = new HashMap<>();
     }
 
+
+
     private PeerConnectionFactory createConnectionFactory() {
-        PeerConnectionFactory.initialize(
-                PeerConnectionFactory.InitializationOptions.builder(_context)
-                        .createInitializationOptions());
+        PeerConnectionFactory.initialize(PeerConnectionFactory
+                .InitializationOptions
+                .builder(_context)
+                .createInitializationOptions());
 
         final VideoEncoderFactory encoderFactory;
         final VideoDecoderFactory decoderFactory;
