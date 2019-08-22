@@ -40,9 +40,9 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     private CallSession.CallSessionCallback currentFragment;
 
 
-    public static void openActivity(Context context, String targetId, boolean isMo, boolean isAudioOnly) {
+    public static void openActivity(Context context, String targetId, boolean isOutgoing, boolean isAudioOnly) {
         Intent voip = new Intent(context, SingleCallActivity.class);
-        voip.putExtra(SingleCallActivity.EXTRA_MO, isMo);
+        voip.putExtra(SingleCallActivity.EXTRA_MO, isOutgoing);
         voip.putExtra(SingleCallActivity.EXTRA_TARGET, targetId);
         voip.putExtra(SingleCallActivity.EXTRA_AUDIO_ONLY, isAudioOnly);
 
@@ -99,13 +99,10 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
                 .add(android.R.id.content, fragment)
                 .commit();
         if (outgoing) {
-            gEngineKit.createSession();
-            // 创建房间
-            gEngineKit.createRoom(UUID.randomUUID().toString(), 2);
-            // 邀请好友
-            gEngineKit.invite(targetId, audioOnly);
-
-
+            // 创建会话
+            gEngineKit.startCall(UUID.randomUUID().toString(), 2, targetId, audioOnly);
+            // 预览视频
+            gEngineKit.startPreview();
         } else {
             if (session == null) {
                 finish();

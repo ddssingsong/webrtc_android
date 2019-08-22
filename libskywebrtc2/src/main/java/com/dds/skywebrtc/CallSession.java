@@ -3,8 +3,6 @@ package com.dds.skywebrtc;
 import android.content.Context;
 
 import org.webrtc.DataChannel;
-import org.webrtc.DefaultVideoDecoderFactory;
-import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
@@ -13,9 +11,6 @@ import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
-import org.webrtc.VideoDecoderFactory;
-import org.webrtc.VideoEncoderFactory;
-import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +25,7 @@ public class CallSession {
     private PeerConnectionFactory _factory;
     private Context _context;
     private EglBase _rootEglBase;
+    private boolean isAudioOnly;
     private AVEngineKit avEngineKit;
     private EnumType.CallState callState = EnumType.CallState.Idle;
 
@@ -39,33 +35,9 @@ public class CallSession {
         this.avEngineKit = avEngineKit;
         _context = avEngineKit._context;
         _rootEglBase = avEngineKit._rootEglBase;
+        _factory = avEngineKit._factory;
+        isAudioOnly = avEngineKit.isAudioOnly;
         this._connectionPeerDic = new HashMap<>();
-    }
-
-
-    private PeerConnectionFactory createConnectionFactory() {
-        PeerConnectionFactory.initialize(PeerConnectionFactory
-                .InitializationOptions
-                .builder(_context)
-                .createInitializationOptions());
-
-        final VideoEncoderFactory encoderFactory;
-        final VideoDecoderFactory decoderFactory;
-
-        encoderFactory = new DefaultVideoEncoderFactory(
-                _rootEglBase.getEglBaseContext(),
-                true,
-                true);
-        decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
-
-        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-
-        return PeerConnectionFactory.builder()
-                .setOptions(options)
-                .setAudioDeviceModule(JavaAudioDeviceModule.builder(_context).createAudioDeviceModule())
-                .setVideoEncoderFactory(encoderFactory)
-                .setVideoDecoderFactory(decoderFactory)
-                .createPeerConnectionFactory();
     }
 
 
@@ -81,9 +53,6 @@ public class CallSession {
         }
 
         private PeerConnection createPeerConnection() {
-            if (_factory == null) {
-                _factory = createConnectionFactory();
-            }
             // 管道连接抽象类实现方法
             PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(avEngineKit.getIceServers());
             return _factory.createPeerConnection(rtcConfig, this);
