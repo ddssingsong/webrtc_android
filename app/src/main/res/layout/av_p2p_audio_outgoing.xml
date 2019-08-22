@@ -10,7 +10,7 @@
     android:paddingRight="20dp"
     android:paddingBottom="20dp">
 
-    <Chronometer
+    <TextView
         android:id="@+id/durationTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

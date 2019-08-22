@@ -31,16 +31,16 @@ public class CallSession {
     private Context _context;
     private EglBase _rootEglBase;
     private AVEngineKit avEngineKit;
+    private EnumType.CallState callState = EnumType.CallState.Idle;
 
     private Map<String, Peer> _connectionPeerDic;
 
-    public CallSession(AVEngineKit avEngineKit, Context context, EglBase eglBase) {
+    public CallSession(AVEngineKit avEngineKit) {
         this.avEngineKit = avEngineKit;
-        _context = context;
-        _rootEglBase = eglBase;
+        _context = avEngineKit._context;
+        _rootEglBase = avEngineKit._rootEglBase;
         this._connectionPeerDic = new HashMap<>();
     }
-
 
 
     private PeerConnectionFactory createConnectionFactory() {
@@ -169,10 +169,22 @@ public class CallSession {
     }
 
 
-    public interface CallSessionCallback {
-        void didCallEndWithReason(AVEngineKit.CallEndReason var1);
+    public void setCallState(EnumType.CallState callState) {
+        this.callState = callState;
+    }
 
-        void didChangeState(AVEngineKit.CallState var1);
+    public EnumType.CallState getCallState() {
+        return callState;
+    }
+
+    public void setSessionCallback(CallSessionCallback sessionCallback) {
+        this.sessionCallback = sessionCallback;
+    }
+
+    public interface CallSessionCallback {
+        void didCallEndWithReason(EnumType.CallEndReason var1);
+
+        void didChangeState(EnumType.CallState var1);
 
         void didChangeMode(boolean isAudio);
 

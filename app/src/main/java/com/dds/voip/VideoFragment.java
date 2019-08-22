@@ -9,10 +9,12 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
+import com.dds.skywebrtc.CallSession;
+import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
 
 
-public class VideoFragment extends Fragment {
+public class VideoFragment extends Fragment implements CallSession.CallSessionCallback{
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -73,6 +75,36 @@ public class VideoFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void didCallEndWithReason(EnumType.CallEndReason var1) {
+
+    }
+
+    @Override
+    public void didChangeState(EnumType.CallState var1) {
+
+    }
+
+    @Override
+    public void didChangeMode(boolean isAudio) {
+
+    }
+
+    @Override
+    public void didCreateLocalVideoTrack() {
+
+    }
+
+    @Override
+    public void didReceiveRemoteVideoTrack() {
+
+    }
+
+    @Override
+    public void didError(String error) {
+
     }
 
     public interface OnFragmentInteractionListener {

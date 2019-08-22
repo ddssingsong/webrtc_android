@@ -17,13 +17,18 @@ import java.util.concurrent.Executors;
 public class AVEngineKit {
 
 
-    private static AVEngineKit avEngineKit;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private Context _context;
-    private EglBase _rootEglBase;
+    public Context _context;
+    public EglBase _rootEglBase;
 
+
+    private static AVEngineKit avEngineKit;
     private CallSession currentCallSession;
-    private AVEngineCallback engineCallback;
+    private EnumType.CallState callState;
+
+
+    private AVEngineCallback _engineCallback;
+    private ISocketEvent _iSocketEvent;
 
 
     public static AVEngineKit Instance() {
@@ -36,26 +41,45 @@ public class AVEngineKit {
     }
 
 
-    public void init(Context context) {
-        this._context = context;
+    public static void init(Context context, ISocketEvent iSocketEvent) {
+        avEngineKit = new AVEngineKit();
+        avEngineKit._context = context;
+        avEngineKit._iSocketEvent = iSocketEvent;
     }
 
 
-    // 拨打电话
-    public CallSession invite(String targetId, boolean isAudio) {
+    // 创建会话
+    public void createSession() {
+        if (avEngineKit != null) {
+            currentCallSession = new CallSession(avEngineKit);
+        }
+    }
+
+
+    // 创建房间并进入房间
+    public void createRoom(String room, int roomSize) {
+        if (_iSocketEvent != null) {
+            // 创建房间
+            _iSocketEvent.createRoom(room, roomSize);
+            if (currentCallSession != null) {
+                // state --> Outgoing
+                currentCallSession.setCallState(EnumType.CallState.Outgoing);
+            }
+        }
+
+    }
+
+    // 邀请好友
+    public void invite(String targetId, boolean isAudio) {
         // 发送邀请
-        return null;
+        if (_iSocketEvent != null) {
+            // state-->Outgoing
+            callState = EnumType.CallState.Outgoing;
+            // 发送邀请
+            _iSocketEvent.sendInvite(targetId, isAudio);
+        }
     }
 
-
-    public void joinHome(EglBase eglBase) {
-        _rootEglBase = eglBase;
-    }
-
-    // 画面预览
-    public void startPreview() {
-
-    }
 
     public CallSession getCurrentSession() {
         return this.currentCallSession;
@@ -79,28 +103,4 @@ public class AVEngineKit {
     }
 
 
-    public static enum CallEndReason {
-        Busy,
-        SignalError,
-        Hangup,
-        MediaError,
-        RemoteHangup,
-        OpenCameraFailure,
-        Timeout,
-        AcceptByOtherClient;
-
-        private CallEndReason() {
-        }
-    }
-
-    public static enum CallState {
-        Idle,
-        Outgoing,
-        Incoming,
-        Connecting,
-        Connected;
-
-        private CallState() {
-        }
-    }
 }

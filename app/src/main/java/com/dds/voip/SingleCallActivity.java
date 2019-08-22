@@ -15,10 +15,14 @@ import androidx.fragment.app.FragmentManager;
 
 import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
+import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.NotInitializedExecption;
 import com.dds.webrtc.R;
 
+import java.util.UUID;
+
 public class SingleCallActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
+
 
     public static final String EXTRA_TARGET = "targetId";
     public static final String EXTRA_MO = "isOutGoing";
@@ -32,6 +36,8 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     private boolean isFromFloatingView;
 
     private AVEngineKit gEngineKit;
+
+    private CallSession.CallSessionCallback currentFragment;
 
 
     public static void openActivity(Context context, String targetId, boolean isMo, boolean isAudioOnly) {
@@ -79,29 +85,35 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     }
 
     private void init(String targetId, boolean outgoing, boolean audioOnly) {
-
-        CallSession callSession = gEngineKit.getCurrentSession();
-
+        CallSession session = gEngineKit.getCurrentSession();
         Fragment fragment;
         if (audioOnly) {
             fragment = new AudioFragment();
         } else {
             fragment = new VideoFragment();
         }
+
+        currentFragment = (CallSession.CallSessionCallback) fragment;
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .add(android.R.id.content, fragment)
                 .commit();
-
-        if (isOutgoing) {
-            // 发起会话
+        if (outgoing) {
+            gEngineKit.createSession();
+            // 创建房间
+            gEngineKit.createRoom(UUID.randomUUID().toString(), 2);
+            // 邀请好友
             gEngineKit.invite(targetId, audioOnly);
-            // 画面预览
-            gEngineKit.startPreview();
+
 
         } else {
-
+            if (session == null) {
+                finish();
+            } else {
+                session.setSessionCallback(this);
+            }
         }
+
     }
 
     @TargetApi(19)
@@ -115,13 +127,15 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
 
 
     // =========================================================================
+
+
     @Override
-    public void didCallEndWithReason(AVEngineKit.CallEndReason var1) {
+    public void didCallEndWithReason(EnumType.CallEndReason var1) {
 
     }
 
     @Override
-    public void didChangeState(AVEngineKit.CallState var1) {
+    public void didChangeState(EnumType.CallState callState) {
 
     }
 
@@ -146,4 +160,11 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     }
 
 
+    public AVEngineKit getEngineKit() {
+        return gEngineKit;
+    }
+
+    public boolean isOutgoing() {
+        return isOutgoing;
+    }
 }
