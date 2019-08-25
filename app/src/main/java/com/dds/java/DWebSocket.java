@@ -26,17 +26,32 @@ public class DWebSocket extends WebSocketClient {
     }
 
 
+    public void createRoom(String room, int roomSize, String myId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("eventName", "__create");
+
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("room", room);
+        childMap.put("roomSize", roomSize);
+        childMap.put("userID", myId);
+
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
+        send(jsonString);
+    }
+
     // 发送邀请
-    public void sendInvite(String room, int roomSize, int mediaType, String myId, String userList) {
+    public void sendInvite(String room, String myId, String userId, boolean audioOnly) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__invite");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("room", room);
-        childMap.put("roomSize", roomSize);
-        childMap.put("mediaType", mediaType);
+        childMap.put("audioOnly", audioOnly);
         childMap.put("inviteID", myId);
-        childMap.put("userList", userList);
+        childMap.put("userList", userId);
 
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
@@ -177,7 +192,7 @@ public class DWebSocket extends WebSocketClient {
         if (eventName == null) return;
         // 登录成功
         if (eventName.equals("__login_success")) {
-            this.iEvent.loginSuccess(message);
+            handleLogin(map);
             return;
         }
         // 被邀请
@@ -219,6 +234,17 @@ public class DWebSocket extends WebSocketClient {
         if (eventName.equals("__ice_candidate")) {
             handleIceCandidate(map);
         }
+    }
+
+    private void handleLogin(Map map) {
+        Map data = (Map) map.get("data");
+        if (data != null) {
+            String userID = (String) data.get("userID");
+            String avatar = (String) data.get("avatar");
+            this.iEvent.loginSuccess(userID, avatar);
+        }
+
+
     }
 
     private void handleIceCandidate(Map map) {

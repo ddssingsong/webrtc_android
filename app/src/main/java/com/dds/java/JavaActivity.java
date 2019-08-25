@@ -11,6 +11,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.dds.skywebrtc.AVEngineKit;
+import com.dds.voip.SingleCallActivity;
+import com.dds.voip.WebSocketEvent;
 import com.dds.webrtc.R;
 
 public class JavaActivity extends AppCompatActivity implements IUserState {
@@ -79,8 +82,9 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
 
     // 拨打电话
     public void call(View view) {
-        String  phone = ((TextView)findViewById(R.id.phone)).getText().toString().trim();
-
+        String phone = ((TextView) findViewById(R.id.phone)).getText().toString().trim();
+        AVEngineKit.init(getApplicationContext(), new WebSocketEvent());
+        SingleCallActivity.openActivity(this, phone, true, true);
 
     }
 

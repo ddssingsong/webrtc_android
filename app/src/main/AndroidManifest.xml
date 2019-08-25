@@ -39,6 +39,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <receiver android:name="com.dds.voip.VoipReceiver">
+            <intent-filter>
+                <action android:name="${applicationId}.voip.Receiver" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

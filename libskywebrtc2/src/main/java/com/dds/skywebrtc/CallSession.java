@@ -29,7 +29,7 @@ public class CallSession {
     private boolean isAudioOnly;
     private AVEngineKit avEngineKit;
     private EnumType.CallState callState = EnumType.CallState.Idle;
-    private ISocketEvent _socketEvent;
+    private ISendEvent _socketEvent;
 
     private ProxyVideoSink localRender;
     private ProxyVideoSink remoteRender;

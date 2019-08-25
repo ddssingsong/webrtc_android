@@ -100,7 +100,9 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
                 .commit();
         if (outgoing) {
             // 创建会话
-            gEngineKit.startCall(UUID.randomUUID().toString(), 2, targetId, audioOnly);
+            String room = UUID.randomUUID().toString();
+            int roomSize = 2;
+            gEngineKit.startCall(room, roomSize, targetId, audioOnly);
             // 预览视频
             gEngineKit.startPreview();
         } else {

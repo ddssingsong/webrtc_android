@@ -57,7 +57,7 @@ public class AVEngineKit {
 
 
     private AVEngineCallback _engineCallback;
-    public ISocketEvent _iSocketEvent;
+    public ISendEvent _iSocketEvent;
 
 
     public static AVEngineKit Instance() {
@@ -70,7 +70,7 @@ public class AVEngineKit {
     }
 
 
-    public static void init(Context context, ISocketEvent iSocketEvent) {
+    public static void init(Context context, ISendEvent iSocketEvent) {
         avEngineKit = new AVEngineKit();
         avEngineKit._context = context;
         avEngineKit._iSocketEvent = iSocketEvent;
@@ -84,26 +84,23 @@ public class AVEngineKit {
             currentCallSession = new CallSession(avEngineKit);
             // state --> Outgoing
             currentCallSession.setCallState(EnumType.CallState.Outgoing);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // 创建factory
-                    if (_factory == null) {
-                        _factory = createConnectionFactory();
-                    }
-                    // 创建本地流
-                    if (_localStream == null) {
-                        createLocalStream();
-                    }
-                    if (_iSocketEvent != null) {
-                        // 创建房间
-                        _iSocketEvent.createRoom(room, roomSize);
-                        // 发送邀请
-                        _iSocketEvent.sendInvite(targetId, isAudio);
-                    }
-
-
+            executor.execute(() -> {
+                // 创建factory
+                if (_factory == null) {
+                    _factory = createConnectionFactory();
                 }
+                // 创建本地流
+                if (_localStream == null) {
+                    createLocalStream();
+                }
+                if (_iSocketEvent != null) {
+                    // 创建房间
+                    _iSocketEvent.createRoom(room, roomSize);
+                    // 发送邀请
+                    _iSocketEvent.sendInvite(room, targetId, isAudio);
+                }
+
+
             });
         }
     }
@@ -111,21 +108,18 @@ public class AVEngineKit {
     // 预览视频
     public void startPreview() {
         if (isAudioOnly) return;
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                //创建需要传入设备的名称
-                captureAndroid = createVideoCapture();
-                // 视频
-                surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
-                videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
-                captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
-                captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
-                _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
-                _localStream.addTrack(_localVideoTrack);
+        executor.execute(() -> {
+            //创建需要传入设备的名称
+            captureAndroid = createVideoCapture();
+            // 视频
+            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
+            videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
+            captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
+            captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
+            _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
+            _localStream.addTrack(_localVideoTrack);
 
 
-            }
         });
 
     }

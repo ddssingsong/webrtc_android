@@ -8,7 +8,7 @@ public interface IEvent {
 
     void onOpen();
 
-    void loginSuccess(String json);
+    void loginSuccess(String userId,String avatar);
 
 
     void onInvite(String room, int roomSize, int mediaType, String inviteId, String userList);

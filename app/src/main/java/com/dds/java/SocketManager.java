@@ -1,7 +1,12 @@
 package com.dds.java;
 
+import android.content.ComponentName;
+import android.content.Intent;
 import android.util.Log;
 
+import com.dds.App;
+import com.dds.voip.Utils;
+import com.dds.voip.VoipReceiver;
 import com.dds.webrtclib.ws.JavaWebSocket;
 
 import java.io.IOException;
@@ -24,6 +29,7 @@ public class SocketManager implements IEvent {
     private final static String TAG = "dds_SocketManager";
     private DWebSocket webSocket;
     private int userState;
+    private String myId;
 
     private SocketManager() {
 
@@ -93,18 +99,59 @@ public class SocketManager implements IEvent {
 
     }
 
-
     @Override
-    public void loginSuccess(String json) {
-        Log.i(TAG, "loginSuccess:" + json);
+    public void loginSuccess(String userId, String avatar) {
+        Log.i(TAG, "loginSuccess:" + userId);
+        myId = userId;
         userState = 1;
         if (iUserState != null && iUserState.get() != null) {
             iUserState.get().userLogin();
         }
     }
 
+
+    public void createRoom(String room, int roomSize) {
+        if (webSocket != null) {
+            webSocket.createRoom(room, roomSize, myId);
+        }
+
+    }
+
+    public void sendInvite(String room, String userId, boolean audioOnly) {
+        if (webSocket != null) {
+            webSocket.sendInvite(room, myId, userId, audioOnly);
+        }
+    }
+
+    public void sendMeetingInvite(String userList) {
+
+    }
+
+    public void sendOffer(String userId, String sdp) {
+
+    }
+
+    public void sendAnswer(String userId, String sdp) {
+
+    }
+
+    public void sendIceCandidate(String userId, String id, int label, String candidate) {
+
+    }
+
+
     @Override
     public void onInvite(String room, int roomSize, int mediaType, String inviteId, String userList) {
+        Intent intent = new Intent();
+        intent.putExtra("room", room);
+        intent.putExtra("roomSize", roomSize);
+        intent.putExtra("mediaType", mediaType);
+        intent.putExtra("inviteId", inviteId);
+        intent.putExtra("userList", userList);
+        intent.setAction(Utils.ACTION_VOIP_RECEIVER);
+        intent.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));
+        Log.e("dds_test", VoipReceiver.class.getName());
+        App.getInstance().sendBroadcast(intent);
 
     }
 
