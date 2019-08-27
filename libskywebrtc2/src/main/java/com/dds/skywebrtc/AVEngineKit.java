@@ -53,10 +53,9 @@ public class AVEngineKit {
 
     private static AVEngineKit avEngineKit;
     private CallSession currentCallSession;
-    private EnumType.CallState callState;
+    public EnumType.CallState _callState = EnumType.CallState.Idle;
 
 
-    private AVEngineCallback _engineCallback;
     public ISendEvent _iSocketEvent;
 
 
@@ -71,19 +70,26 @@ public class AVEngineKit {
 
 
     public static void init(Context context, ISendEvent iSocketEvent) {
-        avEngineKit = new AVEngineKit();
+        if (avEngineKit == null) {
+            avEngineKit = new AVEngineKit();
+        }
         avEngineKit._context = context;
         avEngineKit._iSocketEvent = iSocketEvent;
     }
 
 
+    public void receiveCall(final String room, final int roomSize, final String targetId, final boolean isAudio) {
+
+    }
+
     // 发起会话
     public void startCall(final String room, final int roomSize, final String targetId, final boolean isAudio) {
-        if (avEngineKit != null && currentCallSession == null) {
+        if (avEngineKit != null && currentCallSession == null && _callState == EnumType.CallState.Idle) {
+
             isAudioOnly = isAudio;
-            currentCallSession = new CallSession(avEngineKit);
             // state --> Outgoing
-            currentCallSession.setCallState(EnumType.CallState.Outgoing);
+            _callState = EnumType.CallState.Outgoing;
+
             executor.execute(() -> {
                 // 创建factory
                 if (_factory == null) {
@@ -93,6 +99,8 @@ public class AVEngineKit {
                 if (_localStream == null) {
                     createLocalStream();
                 }
+                currentCallSession = new CallSession(avEngineKit);
+
                 if (_iSocketEvent != null) {
                     // 创建房间
                     _iSocketEvent.createRoom(room, roomSize);

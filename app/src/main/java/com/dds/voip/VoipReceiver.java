@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.dds.skywebrtc.AVEngineKit;
+
 /**
  * Created by dds on 2019/8/25.
  * android_shuai@163.com
@@ -19,9 +21,10 @@ public class VoipReceiver extends BroadcastReceiver {
             int mediaType = intent.getIntExtra("mediaType", 0);
             String inviteId = intent.getStringExtra("inviteId");
             String userId = intent.getStringExtra("userList");
+
+            AVEngineKit.Instance().receiveCall(room, roomSize, inviteId, mediaType == 0);
+
             SingleCallActivity.openActivity(context, inviteId, false, mediaType == 0);
-
-
 
 
         }

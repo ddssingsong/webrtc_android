@@ -28,7 +28,7 @@ public class CallSession {
     private EglBase _rootEglBase;
     private boolean isAudioOnly;
     private AVEngineKit avEngineKit;
-    private EnumType.CallState callState = EnumType.CallState.Idle;
+    private EnumType.CallState callState;
     private ISendEvent _socketEvent;
 
     private ProxyVideoSink localRender;
@@ -42,6 +42,7 @@ public class CallSession {
         _factory = avEngineKit._factory;
         isAudioOnly = avEngineKit.isAudioOnly;
         _socketEvent = avEngineKit._iSocketEvent;
+        callState = avEngineKit._callState;
         this._connectionPeerDic = new HashMap<>();
     }
 
@@ -147,9 +148,6 @@ public class CallSession {
     }
 
 
-    public void setCallState(EnumType.CallState callState) {
-        this.callState = callState;
-    }
 
     public EnumType.CallState getCallState() {
         return callState;
