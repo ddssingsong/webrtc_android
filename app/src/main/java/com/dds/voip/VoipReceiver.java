@@ -15,7 +15,7 @@ public class VoipReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.equals(Utils.ACTION_VOIP_RECEIVER)) {
+        if (Utils.ACTION_VOIP_RECEIVER.equals(action)) {
             String room = intent.getStringExtra("room");
             int roomSize = intent.getIntExtra("roomSize", 2);
             int mediaType = intent.getIntExtra("mediaType", 0);
@@ -24,7 +24,10 @@ public class VoipReceiver extends BroadcastReceiver {
 
 
             AVEngineKit.init(new WebSocketEvent());
-            AVEngineKit.Instance().receiveCall(room, roomSize, inviteId, mediaType == 0);
+
+            AVEngineKit.Instance().receiveCall(context, room, roomSize, inviteId, mediaType == 0);
+
+
             SingleCallActivity.openActivity(context, inviteId, false, mediaType == 0);
 
 
