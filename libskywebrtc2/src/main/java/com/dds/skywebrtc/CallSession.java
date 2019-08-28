@@ -148,7 +148,6 @@ public class CallSession {
     }
 
 
-
     public EnumType.CallState getCallState() {
         return callState;
     }

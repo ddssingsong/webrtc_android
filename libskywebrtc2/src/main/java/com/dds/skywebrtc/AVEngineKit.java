@@ -69,23 +69,27 @@ public class AVEngineKit {
     }
 
 
-    public static void init(Context context, ISendEvent iSocketEvent) {
+    public static void init(ISendEvent iSocketEvent) {
         if (avEngineKit == null) {
             avEngineKit = new AVEngineKit();
+            avEngineKit._iSocketEvent = iSocketEvent;
         }
-        avEngineKit._context = context;
-        avEngineKit._iSocketEvent = iSocketEvent;
     }
 
 
-    public void receiveCall(final String room, final int roomSize, final String targetId, final boolean isAudio) {
+    public void receiveCall(Context context, final String room, final int roomSize,
+                            final String targetId, final boolean isAudio) {
+
+
 
     }
 
     // 发起会话
-    public void startCall(final String room, final int roomSize, final String targetId, final boolean isAudio) {
-        if (avEngineKit != null && currentCallSession == null && _callState == EnumType.CallState.Idle) {
-
+    public void startCall(Context context, final String room, final int roomSize,
+                          final String targetId, final boolean isAudio) {
+        if (avEngineKit != null && currentCallSession == null
+                && _callState == EnumType.CallState.Idle) {
+            _context = context;
             isAudioOnly = isAudio;
             // state --> Outgoing
             _callState = EnumType.CallState.Outgoing;
@@ -99,6 +103,7 @@ public class AVEngineKit {
                 if (_localStream == null) {
                     createLocalStream();
                 }
+
                 currentCallSession = new CallSession(avEngineKit);
 
                 if (_iSocketEvent != null) {

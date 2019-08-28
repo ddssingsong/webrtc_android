@@ -102,7 +102,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
             // 创建会话
             String room = UUID.randomUUID().toString();
             int roomSize = 2;
-            gEngineKit.startCall(room, roomSize, targetId, audioOnly);
+            gEngineKit.startCall(this, room, roomSize, targetId, audioOnly);
             // 预览视频
             gEngineKit.startPreview();
         } else {
