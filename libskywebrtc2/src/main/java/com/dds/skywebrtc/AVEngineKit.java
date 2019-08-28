@@ -1,6 +1,7 @@
 package com.dds.skywebrtc;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -32,8 +33,7 @@ import java.util.concurrent.Executors;
  * android_shuai@163.com
  */
 public class AVEngineKit {
-
-
+    private final static String TAG = "dds_AVEngineKit";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     public Context _context;
     public EglBase _rootEglBase;
@@ -49,13 +49,13 @@ public class AVEngineKit {
     public static final int VIDEO_RESOLUTION_WIDTH = 320;
     public static final int VIDEO_RESOLUTION_HEIGHT = 240;
     public static final int FPS = 10;
-    public boolean isAudioOnly;
+    public boolean _isAudioOnly;
+    public String _targetId;
+    public String _room;
 
     private static AVEngineKit avEngineKit;
     private CallSession currentCallSession;
     public EnumType.CallState _callState = EnumType.CallState.Idle;
-
-
     public ISendEvent _iSocketEvent;
 
 
@@ -77,9 +77,34 @@ public class AVEngineKit {
     }
 
 
-    public void receiveCall(Context context, final String room, final int roomSize,
-                            final String targetId, final boolean isAudio) {
+    public boolean receiveCall(Context context, String room, final String inviteId, final boolean audioOnly) {
+        if (avEngineKit == null) {
+            Log.e(TAG, "receiveCall error,init is not set");
+            return false;
+        }
+        // 忙线中
+        if (currentCallSession != null && _callState != EnumType.CallState.Idle) {
+            if (_iSocketEvent != null) {
+                _iSocketEvent.sendRefuse(inviteId, EnumType.RefuseType.Busy.ordinal());
+                currentCallSession.callEnd(EnumType.CallEndReason.Busy);
+            }
+            return false;
+        } else {
+            _context = context;
+            // audioOnly
+            _isAudioOnly = audioOnly;
+            // state --> Outgoing
+            _callState = EnumType.CallState.Outgoing;
+            _room = room;
+            _targetId = inviteId;
+            // new Session
+            currentCallSession = new CallSession(avEngineKit);
 
+            createFactoryAndLocalStream();
+
+            return true;
+
+        }
 
 
     }
@@ -87,40 +112,53 @@ public class AVEngineKit {
     // 发起会话
     public void startCall(Context context, final String room, final int roomSize,
                           final String targetId, final boolean isAudio) {
-        if (avEngineKit != null && currentCallSession == null
-                && _callState == EnumType.CallState.Idle) {
-            _context = context;
-            isAudioOnly = isAudio;
-            // state --> Outgoing
-            _callState = EnumType.CallState.Outgoing;
-
-            executor.execute(() -> {
-                // 创建factory
-                if (_factory == null) {
-                    _factory = createConnectionFactory();
-                }
-                // 创建本地流
-                if (_localStream == null) {
-                    createLocalStream();
-                }
-
-                currentCallSession = new CallSession(avEngineKit);
-
-                if (_iSocketEvent != null) {
-                    // 创建房间
-                    _iSocketEvent.createRoom(room, roomSize);
-                    // 发送邀请
-                    _iSocketEvent.sendInvite(room, targetId, isAudio);
-                }
-
-
-            });
+        if (avEngineKit == null) {
+            Log.e(TAG, "receiveCall error,init is not set");
+            return;
         }
+        if (currentCallSession != null && _callState != EnumType.CallState.Idle) {
+            Log.e(TAG, "startCall error,currentCallSession is exist");
+            return;
+        }
+
+        _context = context;
+        // audioOnly
+        _isAudioOnly = isAudio;
+        // state --> Outgoing
+        _callState = EnumType.CallState.Outgoing;
+        _room = room;
+        _targetId = targetId;
+
+        createFactoryAndLocalStream();
+
+        executor.execute(() -> {
+            if (_iSocketEvent != null) {
+                // 创建房间
+                _iSocketEvent.createRoom(room, roomSize);
+                // 发送邀请
+                _iSocketEvent.sendInvite(room, targetId, isAudio);
+            }
+
+
+        });
+    }
+
+    private void createFactoryAndLocalStream() {
+        executor.execute(() -> {
+            // 创建factory
+            if (_factory == null) {
+                _factory = createConnectionFactory();
+            }
+            // 创建本地流
+            if (_localStream == null) {
+                createLocalStream();
+            }
+        });
     }
 
     // 预览视频
     public void startPreview() {
-        if (isAudioOnly) return;
+        if (_isAudioOnly) return;
         executor.execute(() -> {
             //创建需要传入设备的名称
             captureAndroid = createVideoCapture();

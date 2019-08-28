@@ -123,20 +123,38 @@ public class SocketManager implements IEvent {
         }
     }
 
+    public void sendRefuse(String inviteId, int refuseType) {
+        if (webSocket != null) {
+            webSocket.sendRefuse(inviteId, myId, refuseType);
+        }
+    }
+
+    public void sendJoin(String room) {
+        if (webSocket != null) {
+            webSocket.sendJoin(room, myId);
+        }
+    }
+
     public void sendMeetingInvite(String userList) {
 
     }
 
     public void sendOffer(String userId, String sdp) {
-
+        if (webSocket != null) {
+            webSocket.sendOffer(userId, sdp);
+        }
     }
 
     public void sendAnswer(String userId, String sdp) {
-
+        if (webSocket != null) {
+            webSocket.sendAnswer(userId, sdp);
+        }
     }
 
     public void sendIceCandidate(String userId, String id, int label, String candidate) {
-
+        if (webSocket != null) {
+            webSocket.sendIceCandidate(userId, id, label, candidate);
+        }
     }
 
 

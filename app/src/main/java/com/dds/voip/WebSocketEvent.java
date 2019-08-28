@@ -27,6 +27,17 @@ public class WebSocketEvent implements ISendEvent {
     }
 
     @Override
+    public void sendRefuse(String inviteId, int refuseType) {
+        SocketManager.getInstance().sendRefuse(inviteId, refuseType);
+    }
+
+    @Override
+    public void sendJoin(String room) {
+        SocketManager.getInstance().sendJoin(room);
+    }
+
+
+    @Override
     public void sendOffer(String userId, String sdp) {
         SocketManager.getInstance().sendOffer(userId, sdp);
     }

@@ -109,14 +109,14 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 拒接接听
-    public void sendReject(String inviteID, String myId, int rejectType) {
+    public void sendRefuse(String inviteID, String myId, int refuseType) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__reject");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("inviteID", inviteID);
         childMap.put("fromID", myId);
-        childMap.put("rejectType", rejectType);
+        childMap.put("refuseType", refuseType);
 
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
@@ -126,7 +126,7 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // send offer
-    public void sendOffer(String sdp, String userId) {
+    public void sendOffer(String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__offer");
 
@@ -142,7 +142,7 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // send answer
-    public void sendAnswer(String sdp, String userId) {
+    public void sendAnswer(String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__answer");
 
@@ -158,11 +158,12 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // send ice-candidate
-    public void sendIceCandidate(String id, String label, String candidate) {
+    public void sendIceCandidate(String userId, String id, int label, String candidate) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__ice_candidate");
 
         Map<String, Object> childMap = new HashMap<>();
+        childMap.put("userID", userId);
         childMap.put("id", id);
         childMap.put("label", label);
         childMap.put("candidate", candidate);

@@ -17,18 +17,13 @@ public class VoipReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (Utils.ACTION_VOIP_RECEIVER.equals(action)) {
             String room = intent.getStringExtra("room");
-            int roomSize = intent.getIntExtra("roomSize", 2);
             int mediaType = intent.getIntExtra("mediaType", 0);
             String inviteId = intent.getStringExtra("inviteId");
-            String userId = intent.getStringExtra("userList");
-
-
             AVEngineKit.init(new WebSocketEvent());
-
-            AVEngineKit.Instance().receiveCall(context, room, roomSize, inviteId, mediaType == 0);
-
-
-            SingleCallActivity.openActivity(context, inviteId, false, mediaType == 0);
+            boolean b = AVEngineKit.Instance().receiveCall(context, room, inviteId, mediaType == 0);
+            if (b) {
+                SingleCallActivity.openActivity(context, inviteId, false, mediaType == 0);
+            }
 
 
         }

@@ -130,7 +130,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
 
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason var1) {
-
+        finish();
     }
 
     @Override

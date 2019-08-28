@@ -17,7 +17,7 @@ public class EnumType {
         }
     }
 
-    public static enum CallEndReason {
+    public enum CallEndReason {
         Busy,
         SignalError,
         Hangup,
@@ -30,5 +30,11 @@ public class EnumType {
         private CallEndReason() {
         }
     }
+
+    public enum RefuseType {
+        Busy,
+        Hangup,
+    }
+
 
 }

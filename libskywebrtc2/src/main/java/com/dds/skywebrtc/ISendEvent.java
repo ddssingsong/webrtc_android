@@ -10,10 +10,14 @@ public interface ISendEvent {
     void createRoom(String room, int roomSize);
 
     // 发送单人邀请
-    void sendInvite(String room,String userId, boolean audioOnly);
+    void sendInvite(String room, String userId, boolean audioOnly);
 
     // 发起会议邀请
     void sendMeetingInvite(String userList);
+
+    void sendRefuse(String inviteId, int refuseType);
+
+    void sendJoin(String room);
 
     // sendOffer
     void sendOffer(String userId, String sdp);

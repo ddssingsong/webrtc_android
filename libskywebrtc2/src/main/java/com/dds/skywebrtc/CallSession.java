@@ -1,14 +1,11 @@
 package com.dds.skywebrtc;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.webrtc.DataChannel;
-import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
-import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
@@ -23,13 +20,7 @@ import java.util.Map;
 public class CallSession {
     public final static String TAG = "dds_CallSession";
     private CallSessionCallback sessionCallback;
-    private PeerConnectionFactory _factory;
-    private Context _context;
-    private EglBase _rootEglBase;
-    private boolean isAudioOnly;
     private AVEngineKit avEngineKit;
-    private EnumType.CallState callState;
-    private ISendEvent _socketEvent;
 
     private ProxyVideoSink localRender;
     private ProxyVideoSink remoteRender;
@@ -37,13 +28,14 @@ public class CallSession {
 
     public CallSession(AVEngineKit avEngineKit) {
         this.avEngineKit = avEngineKit;
-        _context = avEngineKit._context;
-        _rootEglBase = avEngineKit._rootEglBase;
-        _factory = avEngineKit._factory;
-        isAudioOnly = avEngineKit.isAudioOnly;
-        _socketEvent = avEngineKit._iSocketEvent;
-        callState = avEngineKit._callState;
         this._connectionPeerDic = new HashMap<>();
+    }
+
+    public void callEnd(EnumType.CallEndReason callEndReason) {
+        if (sessionCallback != null) {
+            sessionCallback.didCallEndWithReason(callEndReason);
+        }
+
     }
 
 
@@ -61,7 +53,7 @@ public class CallSession {
         private PeerConnection createPeerConnection() {
             // 管道连接抽象类实现方法
             PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(avEngineKit.getIceServers());
-            return _factory.createPeerConnection(rtcConfig, this);
+            return avEngineKit._factory.createPeerConnection(rtcConfig, this);
         }
 
         //-------------Observer--------------------
@@ -90,7 +82,7 @@ public class CallSession {
         public void onIceCandidate(IceCandidate candidate) {
             Log.i(TAG, "onIceCandidate:");
             // 发送IceCandidate
-            _socketEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
+            avEngineKit._iSocketEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
         }
 
         @Override
@@ -149,7 +141,7 @@ public class CallSession {
 
 
     public EnumType.CallState getCallState() {
-        return callState;
+        return avEngineKit._callState;
     }
 
     public void setSessionCallback(CallSessionCallback sessionCallback) {
