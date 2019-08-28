@@ -1,5 +1,6 @@
 package com.dds.voip;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -17,6 +18,7 @@ import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.NotInitializedExecption;
+import com.dds.skywebrtc.permission.Permissions;
 import com.dds.webrtc.R;
 
 import java.util.UUID;
@@ -78,7 +80,20 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
         } else {
             isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
             isAudioOnly = intent.getBooleanExtra(EXTRA_AUDIO_ONLY, false);
-            init(targetId, isOutgoing, isAudioOnly);
+            // 权限检测
+            String[] per;
+            if (isAudioOnly) {
+                per = new String[]{Manifest.permission.RECORD_AUDIO};
+            } else {
+                per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
+            }
+            Permissions.request(this, per, integer -> {
+                if (integer == 0) {
+                    init(targetId, isOutgoing, isAudioOnly);
+                } else {
+                    SingleCallActivity.this.finish();
+                }
+            });
         }
 
 
