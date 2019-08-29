@@ -51,7 +51,6 @@
         android:layout_alignParentBottom="true"
         android:visibility="gone" />
 
-
     <!--接听按钮显示-->
     <include
         android:id="@+id/incomingActionContainer"

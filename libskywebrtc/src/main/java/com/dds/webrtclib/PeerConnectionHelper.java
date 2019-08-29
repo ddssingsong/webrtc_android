@@ -57,27 +57,27 @@ public class PeerConnectionHelper {
     public static final int VIDEO_RESOLUTION_WIDTH = 320;
     public static final int VIDEO_RESOLUTION_HEIGHT = 240;
     public static final int FPS = 10;
-    private static final String VIDEO_CODEC_H264 = "H264";
+    public static final String VIDEO_CODEC_H264 = "H264";
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
     public static final String AUDIO_TRACK_ID = "ARDAMSa0";
 
-    private PeerConnectionFactory _factory;
-    private MediaStream _localStream;
-    private VideoTrack _localVideoTrack;
-    private AudioTrack _localAudioTrack;
-    private VideoCapturer captureAndroid;
-    private VideoSource videoSource;
-    private AudioSource audioSource;
+    public PeerConnectionFactory _factory;
+    public MediaStream _localStream;
+    public VideoTrack _localVideoTrack;
+    public AudioTrack _localAudioTrack;
+    public VideoCapturer captureAndroid;
+    public VideoSource videoSource;
+    public AudioSource audioSource;
 
-    private ArrayList<String> _connectionIdArray;
-    private Map<String, Peer> _connectionPeerDic;
+    public ArrayList<String> _connectionIdArray;
+    public Map<String, Peer> _connectionPeerDic;
 
-    private String _myId;
-    private IViewCallback viewCallback;
+    public String _myId;
+    public IViewCallback viewCallback;
 
-    private ArrayList<PeerConnection.IceServer> ICEServers;
-    private boolean videoEnable;
-    private int _mediaType;
+    public ArrayList<PeerConnection.IceServer> ICEServers;
+    public boolean videoEnable;
+    public int _mediaType;
 
     private AudioManager mAudioManager;
 

@@ -2,13 +2,24 @@ package com.dds.skywebrtc;
 
 import android.util.Log;
 
+import org.webrtc.AudioSource;
+import org.webrtc.AudioTrack;
 import org.webrtc.DataChannel;
+import org.webrtc.DefaultVideoDecoderFactory;
+import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.IceCandidate;
+import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
+import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
+import org.webrtc.VideoDecoderFactory;
+import org.webrtc.VideoEncoderFactory;
+import org.webrtc.VideoSource;
+import org.webrtc.VideoTrack;
+import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,16 +37,102 @@ public class CallSession {
     private ProxyVideoSink remoteRender;
     private Map<String, Peer> _connectionPeerDic;
 
+    public static final String VIDEO_TRACK_ID = "ARDAMSv0";
+    public static final String AUDIO_TRACK_ID = "ARDAMSa0";
+    public static final int VIDEO_RESOLUTION_WIDTH = 320;
+    public static final int VIDEO_RESOLUTION_HEIGHT = 240;
+    public static final int FPS = 10;
+
+    public PeerConnectionFactory _factory;
+    public MediaStream _localStream;
+    public VideoTrack _localVideoTrack;
+    public AudioTrack _localAudioTrack;
+    public VideoSource videoSource;
+    public AudioSource audioSource;
+
+    public boolean _isAudioOnly;
+    public String _targetId;
+    public String _room;
+
     public CallSession(AVEngineKit avEngineKit) {
         this.avEngineKit = avEngineKit;
         this._connectionPeerDic = new HashMap<>();
     }
 
+    //通话结束
     public void callEnd(EnumType.CallEndReason callEndReason) {
         if (sessionCallback != null) {
             sessionCallback.didCallEndWithReason(callEndReason);
         }
 
+    }
+
+
+    // --------------------------create Factory and LocalStream--------------------------
+    public void createFactoryAndLocalStream() {
+        avEngineKit.executor.execute(() -> {
+            // 创建factory
+            if (_factory == null) {
+                _factory = createConnectionFactory();
+            }
+            // 创建本地流
+            if (_localStream == null) {
+                createLocalStream();
+            }
+        });
+    }
+
+    public void createLocalStream() {
+        _localStream = _factory.createLocalMediaStream("ARDAMS");
+        // 音频
+        audioSource = _factory.createAudioSource(createAudioConstraints());
+        _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
+        _localStream.addTrack(_localAudioTrack);
+    }
+
+    public PeerConnectionFactory createConnectionFactory() {
+        PeerConnectionFactory.initialize(PeerConnectionFactory
+                .InitializationOptions
+                .builder(avEngineKit._context)
+                .createInitializationOptions());
+
+        final VideoEncoderFactory encoderFactory;
+        final VideoDecoderFactory decoderFactory;
+
+        encoderFactory = new DefaultVideoEncoderFactory(
+                avEngineKit._rootEglBase.getEglBaseContext(),
+                true,
+                true);
+        decoderFactory = new DefaultVideoDecoderFactory(avEngineKit._rootEglBase.getEglBaseContext());
+
+        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
+
+        return PeerConnectionFactory.builder()
+                .setOptions(options)
+                .setAudioDeviceModule(JavaAudioDeviceModule.builder(avEngineKit._context).createAudioDeviceModule())
+                .setVideoEncoderFactory(encoderFactory)
+                .setVideoDecoderFactory(decoderFactory)
+                .createPeerConnectionFactory();
+    }
+
+
+    public void createOffer() {
+        avEngineKit.executor.execute(() -> {
+
+        });
+
+    }
+
+    public void answerCall(boolean isAudioOnly) {
+
+    }
+
+    public void endCall() {
+
+    }
+
+    public boolean muteAudio(boolean b) {
+        return false;
     }
 
 
@@ -53,7 +150,7 @@ public class CallSession {
         private PeerConnection createPeerConnection() {
             // 管道连接抽象类实现方法
             PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(avEngineKit.getIceServers());
-            return avEngineKit._factory.createPeerConnection(rtcConfig, this);
+            return _factory.createPeerConnection(rtcConfig, this);
         }
 
         //-------------Observer--------------------
@@ -92,53 +189,100 @@ public class CallSession {
 
         @Override
         public void onAddStream(MediaStream stream) {
+            Log.i(TAG, "onAddStream:");
 
 
         }
 
         @Override
         public void onRemoveStream(MediaStream stream) {
-
+            Log.i(TAG, "onRemoveStream:");
         }
 
         @Override
         public void onDataChannel(DataChannel dataChannel) {
-
+            Log.i(TAG, "onDataChannel:");
         }
 
         @Override
         public void onRenegotiationNeeded() {
-
+            Log.i(TAG, "onRenegotiationNeeded:");
         }
 
         @Override
         public void onAddTrack(RtpReceiver receiver, MediaStream[] mediaStreams) {
-
+            Log.i(TAG, "onAddTrack:");
         }
 
 
         //-------------SdpObserver--------------------
         @Override
-        public void onCreateSuccess(SessionDescription sdp) {
+        public void onCreateSuccess(SessionDescription origSdp) {
+            Log.v(TAG, "sdp创建成功       " + origSdp.type);
+            String sdpDescription = origSdp.description;
+            final SessionDescription sdp = new SessionDescription(origSdp.type, sdpDescription);
+
+            avEngineKit.executor.execute(() -> pc.setLocalDescription(Peer.this, sdp));
 
         }
 
         @Override
         public void onSetSuccess() {
 
+
+            // 已经createOffer并setLocalDescription
+            if (pc.signalingState() == PeerConnection.SignalingState.HAVE_LOCAL_OFFER) {
+
+            }
+            // 收到offer并setRemoteDescription
+            if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
+
+            }
         }
 
         @Override
         public void onCreateFailure(String error) {
-
+            Log.i(TAG, " SdpObserver onCreateFailure:");
         }
 
         @Override
         public void onSetFailure(String error) {
-
+            Log.i(TAG, "SdpObserver onSetFailure:");
         }
     }
 
+
+    //**************************************各种约束******************************************/
+    private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
+    private static final String AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl";
+    private static final String AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter";
+    private static final String AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression";
+
+    private MediaConstraints createAudioConstraints() {
+        MediaConstraints audioConstraints = new MediaConstraints();
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "true"));
+        audioConstraints.mandatory.add(
+                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
+        return audioConstraints;
+    }
+
+
+    public void setIsAudioOnly(boolean _isAudioOnly) {
+        this._isAudioOnly = _isAudioOnly;
+    }
+
+    public void setTargetId(String _targetId) {
+        this._targetId = _targetId;
+    }
+
+    public void setRoom(String _room) {
+        this._room = _room;
+    }
 
     public EnumType.CallState getCallState() {
         return avEngineKit._callState;

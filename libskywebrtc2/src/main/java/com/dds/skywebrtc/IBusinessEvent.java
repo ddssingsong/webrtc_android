@@ -4,7 +4,7 @@ package com.dds.skywebrtc;
  * Created by dds on 2019/8/21.
  * android_shuai@163.com
  */
-public interface ISendEvent {
+public interface IBusinessEvent {
 
     // 创建房间
     void createRoom(String room, int roomSize);
@@ -27,5 +27,11 @@ public interface ISendEvent {
 
     // sendIceCandidate
     void sendIceCandidate(String userId, String id, int label, String candidate);
+
+
+    void shouldStartRing(boolean isComing);
+
+    void shouldStopRing();
+
 
 }

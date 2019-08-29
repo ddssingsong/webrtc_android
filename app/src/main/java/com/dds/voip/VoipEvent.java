@@ -1,14 +1,23 @@
 package com.dds.voip;
 
+import android.media.AudioManager;
+import android.net.Uri;
+
+import com.dds.App;
 import com.dds.java.SocketManager;
-import com.dds.skywebrtc.ISendEvent;
+import com.dds.skywebrtc.IBusinessEvent;
+import com.dds.webrtc.R;
 
 /**
  * Created by dds on 2019/8/25.
  * android_shuai@163.com
  */
-public class WebSocketEvent implements ISendEvent {
+public class VoipEvent implements IBusinessEvent {
+    private AsyncPlayer ringPlayer;
 
+    public VoipEvent() {
+        ringPlayer = new AsyncPlayer(null);
+    }
 
     @Override
     public void createRoom(String room, int roomSize) {
@@ -51,5 +60,21 @@ public class WebSocketEvent implements ISendEvent {
     @Override
     public void sendIceCandidate(String userId, String id, int label, String candidate) {
         SocketManager.getInstance().sendIceCandidate(userId, id, label, candidate);
+    }
+
+    @Override
+    public void shouldStartRing(boolean isComing) {
+        if (isComing) {
+            Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.incoming_call_ring);
+            ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
+        } else {
+            Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.outgoing_call_ring);
+            ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
+        }
+    }
+
+    @Override
+    public void shouldStopRing() {
+        ringPlayer.stop();
     }
 }

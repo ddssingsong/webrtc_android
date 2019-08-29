@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat;
 
 import com.dds.skywebrtc.AVEngineKit;
 import com.dds.voip.SingleCallActivity;
-import com.dds.voip.WebSocketEvent;
+import com.dds.voip.VoipEvent;
 import com.dds.webrtc.R;
 
 public class JavaActivity extends AppCompatActivity implements IUserState {
@@ -83,7 +83,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     // 拨打电话
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.phone)).getText().toString().trim();
-        AVEngineKit.init(new WebSocketEvent());
+        AVEngineKit.init(new VoipEvent());
         SingleCallActivity.openActivity(this, phone, true, true);
 
     }

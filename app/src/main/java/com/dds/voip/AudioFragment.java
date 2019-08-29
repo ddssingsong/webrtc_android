@@ -1,7 +1,7 @@
 package com.dds.voip;
 
 import android.content.Context;
-import android.net.Uri;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +19,7 @@ import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
 
 
-public class AudioFragment extends Fragment implements CallSession.CallSessionCallback {
+public class AudioFragment extends Fragment implements CallSession.CallSessionCallback, View.OnClickListener {
     private ImageView minimizeImageView;
     private ImageView portraitImageView;
     private TextView nameTextView;
@@ -42,12 +42,6 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
     private SingleCallActivity activity;
 
 
-    private OnFragmentInteractionListener mListener;
-
-    public AudioFragment() {
-    }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +51,6 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_audio, container, false);
         initView(view);
         init();
@@ -80,6 +73,13 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
 
         outgoingActionContainer = view.findViewById(R.id.outgoingActionContainer);
         incomingActionContainer = view.findViewById(R.id.incomingActionContainer);
+
+        acceptImageView.setOnClickListener(this);
+        incomingHangupImageView.setOnClickListener(this);
+
+        outgoingHangupImageView.setOnClickListener(this);
+        muteImageView.setOnClickListener(this);
+        speakerImageView.setOnClickListener(this);
     }
 
     private void init() {
@@ -104,30 +104,16 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
 
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         activity = (SingleCallActivity) getActivity();
-
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        activity = null;
     }
 
     @Override
@@ -136,8 +122,17 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
-    public void didChangeState(EnumType.CallState var1) {
-
+    public void didChangeState(EnumType.CallState state) {
+        runOnUiThread(() -> {
+            if (state == EnumType.CallState.Connected) {
+                incomingActionContainer.setVisibility(View.GONE);
+                outgoingActionContainer.setVisibility(View.VISIBLE);
+                descTextView.setVisibility(View.GONE);
+                durationTextView.setVisibility(View.VISIBLE);
+            } else {
+                // do nothing now
+            }
+        });
     }
 
     @Override
@@ -160,7 +155,58 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
 
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+
+    private void runOnUiThread(Runnable runnable) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(runnable);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        // 接听
+        if (id == R.id.acceptImageView) {
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null && session.getCallState() == EnumType.CallState.Incoming) {
+                session.answerCall(false);
+            } else {
+                activity.finish();
+            }
+        }
+        // 挂断电话
+        if (id == R.id.incomingHangupImageView || id == R.id.outgoingHangupImageView) {
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null && session.getCallState() == EnumType.CallState.Incoming) {
+                session.endCall();
+            } else {
+                activity.finish();
+            }
+        }
+        // 静音
+        if (id == R.id.muteImageView) {
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null && session.getCallState() != EnumType.CallState.Idle) {
+                if (session.muteAudio(!micEnabled)) {
+                    micEnabled = !micEnabled;
+                }
+                muteImageView.setSelected(!micEnabled);
+            }
+        }
+        // 扬声器
+        if (id == R.id.speakerImageView) {
+            AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+            if (isSpeakerOn) {
+                isSpeakerOn = false;
+                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+            } else {
+                isSpeakerOn = true;
+                audioManager.setMode(AudioManager.MODE_NORMAL);
+
+            }
+            speakerImageView.setSelected(isSpeakerOn);
+            audioManager.setSpeakerphoneOn(isSpeakerOn);
+        }
+
     }
 }

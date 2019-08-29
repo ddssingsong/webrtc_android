@@ -19,7 +19,7 @@ public class VoipReceiver extends BroadcastReceiver {
             String room = intent.getStringExtra("room");
             int mediaType = intent.getIntExtra("mediaType", 0);
             String inviteId = intent.getStringExtra("inviteId");
-            AVEngineKit.init(new WebSocketEvent());
+            AVEngineKit.init(new VoipEvent());
             boolean b = AVEngineKit.Instance().receiveCall(context, room, inviteId, mediaType == 0);
             if (b) {
                 SingleCallActivity.openActivity(context, inviteId, false, mediaType == 0);
