@@ -216,6 +216,11 @@ public class DWebSocket extends WebSocketClient {
             handlePeers(map);
             return;
         }
+        // 新人入房间
+        if (eventName.equals("__new_peer")) {
+            handleNewPeer(map);
+            return;
+        }
         // 拒绝接听
         if (eventName.equals("__reject")) {
             handleReject(map);
@@ -236,6 +241,7 @@ public class DWebSocket extends WebSocketClient {
             handleIceCandidate(map);
         }
     }
+
 
     private void handleLogin(Map map) {
         Map data = (Map) map.get("data");
@@ -292,7 +298,15 @@ public class DWebSocket extends WebSocketClient {
         if (data != null) {
             String userID = (String) data.get("userID");
             String connections = (String) data.get("connections");
-            this.iEvent.onNewPeer(userID, connections);
+            this.iEvent.onPeers(userID, connections);
+        }
+    }
+
+    private void handleNewPeer(Map map) {
+        Map data = (Map) map.get("data");
+        if (data != null) {
+            String userID = (String) data.get("userID");
+            this.iEvent.onNewPeer(userID);
         }
     }
 

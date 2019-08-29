@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.dds.App;
+import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.CallSession;
 import com.dds.voip.Utils;
 import com.dds.voip.VoipReceiver;
 import com.dds.webrtclib.ws.JavaWebSocket;
@@ -184,9 +186,22 @@ public class SocketManager implements IEvent {
     }
 
     @Override
-    public void onNewPeer(String myId, String userList) {
-
+    public void onPeers(String myId, String userId) {
+        //自己进入了房间，然后开始发送offer
+        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+        if (currentSession != null) {
+            currentSession.onJoinHome(myId, userId);
+        }
     }
+
+    @Override
+    public void onNewPeer(String userId) {
+        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+        if (currentSession != null) {
+            currentSession.newPeer(userId);
+        }
+    }
+
 
     @Override
     public void onReject(String userId, int type) {

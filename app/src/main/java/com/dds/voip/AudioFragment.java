@@ -177,7 +177,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
         // 挂断电话
         if (id == R.id.incomingHangupImageView || id == R.id.outgoingHangupImageView) {
             CallSession session = gEngineKit.getCurrentSession();
-            if (session != null && session.getCallState() == EnumType.CallState.Incoming) {
+            if (session != null) {
                 session.endCall();
             } else {
                 activity.finish();

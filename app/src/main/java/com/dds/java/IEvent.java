@@ -8,7 +8,7 @@ public interface IEvent {
 
     void onOpen();
 
-    void loginSuccess(String userId,String avatar);
+    void loginSuccess(String userId, String avatar);
 
 
     void onInvite(String room, int roomSize, int mediaType, String inviteId, String userList);
@@ -18,7 +18,10 @@ public interface IEvent {
 
     void onRing(String userId);
 
-    void onNewPeer(String myId, String userList);
+
+    void onPeers(String myId, String userList);
+
+    void onNewPeer(String myId);
 
 
     void onReject(String userId, int type);

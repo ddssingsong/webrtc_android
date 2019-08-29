@@ -6,7 +6,6 @@ import android.util.Log;
 import org.webrtc.Camera1Enumerator;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
-import org.webrtc.EglBase;
 import org.webrtc.PeerConnection;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
@@ -24,14 +23,9 @@ public class AVEngineKit {
     private final static String TAG = "dds_AVEngineKit";
     public final ExecutorService executor = Executors.newSingleThreadExecutor();
     public Context _context;
-    public EglBase _rootEglBase;
-
-    public VideoCapturer captureAndroid;
-
 
     public static AVEngineKit avEngineKit;
     private CallSession currentCallSession;
-    public EnumType.CallState _callState = EnumType.CallState.Idle;
     public IBusinessEvent _iSocketEvent;
 
 
@@ -59,7 +53,7 @@ public class AVEngineKit {
             return false;
         }
         // 忙线中
-        if (currentCallSession != null && _callState != EnumType.CallState.Idle) {
+        if (currentCallSession != null && currentCallSession.getCallState() != EnumType.CallState.Idle) {
             if (_iSocketEvent != null) {
                 // 发送->忙线中...
                 _iSocketEvent.sendRefuse(inviteId, EnumType.RefuseType.Busy.ordinal());
@@ -87,7 +81,7 @@ public class AVEngineKit {
             Log.e(TAG, "receiveCall error,init is not set");
             return;
         }
-        if (currentCallSession != null && _callState != EnumType.CallState.Idle) {
+        if (currentCallSession != null && currentCallSession.getCallState() != EnumType.CallState.Idle) {
             Log.e(TAG, "startCall error,currentCallSession is exist");
             return;
         }
@@ -112,10 +106,6 @@ public class AVEngineKit {
         });
     }
 
-
-    public void joinHome() {
-
-    }
 
     // 预览视频
     public void startPreview() {

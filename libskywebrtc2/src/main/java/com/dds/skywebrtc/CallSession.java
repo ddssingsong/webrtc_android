@@ -7,6 +7,7 @@ import org.webrtc.AudioTrack;
 import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
+import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
@@ -21,7 +22,10 @@ import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,8 +37,7 @@ public class CallSession {
     private CallSessionCallback sessionCallback;
     private AVEngineKit avEngineKit;
 
-    private ProxyVideoSink localRender;
-    private ProxyVideoSink remoteRender;
+    public List<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
@@ -49,14 +52,20 @@ public class CallSession {
     public AudioTrack _localAudioTrack;
     public VideoSource videoSource;
     public AudioSource audioSource;
+    public EglBase _rootEglBase;
 
     public boolean _isAudioOnly;
     public String _targetId;
     public String _room;
+    public String _myId;
+
+    public EnumType.CallState _callState = EnumType.CallState.Idle;
 
     public CallSession(AVEngineKit avEngineKit) {
         this.avEngineKit = avEngineKit;
+        _connectionIdArray = new ArrayList<>();
         this._connectionPeerDic = new HashMap<>();
+        _rootEglBase = EglBase.create();
     }
 
     //通话结束
@@ -64,7 +73,6 @@ public class CallSession {
         if (sessionCallback != null) {
             sessionCallback.didCallEndWithReason(callEndReason);
         }
-
     }
 
 
@@ -100,10 +108,10 @@ public class CallSession {
         final VideoDecoderFactory decoderFactory;
 
         encoderFactory = new DefaultVideoEncoderFactory(
-                avEngineKit._rootEglBase.getEglBaseContext(),
+                _rootEglBase.getEglBaseContext(),
                 true,
                 true);
-        decoderFactory = new DefaultVideoDecoderFactory(avEngineKit._rootEglBase.getEglBaseContext());
+        decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
 
         PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
 
@@ -115,24 +123,85 @@ public class CallSession {
                 .createPeerConnectionFactory();
     }
 
-
-    public void createOffer() {
-        avEngineKit.executor.execute(() -> {
-
-        });
-
-    }
-
     public void answerCall(boolean isAudioOnly) {
-
+        // 加入房间
+        _callState = EnumType.CallState.Connecting;
+        if (avEngineKit._iSocketEvent != null) {
+            avEngineKit._iSocketEvent.sendJoin(_room);
+        }
     }
 
     public void endCall() {
+
 
     }
 
     public boolean muteAudio(boolean b) {
         return false;
+    }
+
+
+    //--------------------------receive-------------------------------
+    public void onJoinHome(String myId, String userId) {
+        avEngineKit.executor.execute(() -> {
+            _myId = myId;
+            String[] split = userId.split(",");
+            List<String> strings = Arrays.asList(split);
+            _connectionIdArray.addAll(strings);
+            if (_factory == null) {
+                _factory = createConnectionFactory();
+            }
+            if (_localStream == null) {
+                createLocalStream();
+            }
+            createPeerConnections();
+            addStreams();
+            createOffers();
+
+        });
+    }
+
+    public void newPeer(String userId) {
+        avEngineKit.executor.execute(() -> {
+            Peer mPeer = new Peer(userId);
+            mPeer.pc.addStream(_localStream);
+            _connectionIdArray.add(userId);
+            _connectionPeerDic.put(userId, mPeer);
+
+        });
+    }
+
+    // 创建所有连接
+    private void createPeerConnections() {
+        for (Object str : _connectionIdArray) {
+            Peer peer = new Peer((String) str);
+            _connectionPeerDic.put((String) str, peer);
+        }
+    }
+
+    // 为所有连接添加流
+    private void addStreams() {
+        Log.v(TAG, "为所有连接添加流");
+        for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
+            if (_localStream == null) {
+                createLocalStream();
+            }
+            try {
+                entry.getValue().pc.addStream(_localStream);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    // 为所有连接创建offer
+    private void createOffers() {
+        for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
+            Peer mPeer = entry.getValue();
+            mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
+        }
+
     }
 
 
@@ -271,6 +340,14 @@ public class CallSession {
         return audioConstraints;
     }
 
+    private MediaConstraints offerOrAnswerConstraint() {
+        MediaConstraints mediaConstraints = new MediaConstraints();
+        ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
+        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", String.valueOf(!_isAudioOnly)));
+        mediaConstraints.mandatory.addAll(keyValuePairs);
+        return mediaConstraints;
+    }
 
     public void setIsAudioOnly(boolean _isAudioOnly) {
         this._isAudioOnly = _isAudioOnly;
@@ -285,7 +362,7 @@ public class CallSession {
     }
 
     public EnumType.CallState getCallState() {
-        return avEngineKit._callState;
+        return _callState;
     }
 
     public void setSessionCallback(CallSessionCallback sessionCallback) {
