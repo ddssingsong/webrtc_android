@@ -208,5 +208,9 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
             audioManager.setSpeakerphoneOn(isSpeakerOn);
         }
 
+        if (id == R.id.minimizeImageView) {
+            activity.showFloatingView();
+        }
+
     }
 }

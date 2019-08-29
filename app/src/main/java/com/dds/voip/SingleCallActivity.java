@@ -5,11 +5,16 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -22,11 +27,10 @@ import com.dds.skywebrtc.NotInitializedExecption;
 import com.dds.skywebrtc.permission.Permissions;
 import com.dds.webrtc.R;
 
+import java.util.List;
 import java.util.UUID;
 
 public class SingleCallActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
-
-
     public static final String EXTRA_TARGET = "targetId";
     public static final String EXTRA_MO = "isOutGoing";
     public static final String EXTRA_AUDIO_ONLY = "audioOnly";
@@ -181,5 +185,34 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
 
     public boolean isOutgoing() {
         return isOutgoing;
+    }
+
+
+    public void showFloatingView() {
+        if (!checkOverlayPermission()) {
+            return;
+        }
+        Intent intent = new Intent(this, FloatingVoipService.class);
+        intent.putExtra(EXTRA_TARGET, targetId);
+        intent.putExtra(EXTRA_AUDIO_ONLY, isAudioOnly);
+        intent.putExtra(EXTRA_MO, isOutgoing);
+        startService(intent);
+        finish();
+    }
+
+    private boolean checkOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "需要悬浮窗权限", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                List<ResolveInfo> infos = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                if (infos == null || infos.isEmpty()) {
+                    return true;
+                }
+                startActivity(intent);
+                return false;
+            }
+        }
+        return true;
     }
 }

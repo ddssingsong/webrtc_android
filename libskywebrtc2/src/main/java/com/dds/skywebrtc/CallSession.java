@@ -1,6 +1,7 @@
 package com.dds.skywebrtc;
 
 import android.util.Log;
+import android.view.SurfaceView;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -68,13 +69,6 @@ public class CallSession {
         _rootEglBase = EglBase.create();
     }
 
-    //通话结束
-    public void callEnd(EnumType.CallEndReason callEndReason) {
-        if (sessionCallback != null) {
-            sessionCallback.didCallEndWithReason(callEndReason);
-        }
-    }
-
 
     // --------------------------create Factory and LocalStream--------------------------
     public void createFactoryAndLocalStream() {
@@ -132,7 +126,6 @@ public class CallSession {
     }
 
     public void endCall() {
-
 
     }
 
@@ -201,6 +194,18 @@ public class CallSession {
             Peer mPeer = entry.getValue();
             mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
         }
+
+    }
+
+    public long getStartTime() {
+        return 0;
+    }
+
+    public SurfaceView createRendererView() {
+        return null;
+    }
+
+    public void setupRemoteVideo(SurfaceView surfaceView, int i) {
 
     }
 
@@ -352,6 +357,11 @@ public class CallSession {
     public void setIsAudioOnly(boolean _isAudioOnly) {
         this._isAudioOnly = _isAudioOnly;
     }
+
+    public boolean isAudioOnly() {
+        return _isAudioOnly;
+    }
+
 
     public void setTargetId(String _targetId) {
         this._targetId = _targetId;
