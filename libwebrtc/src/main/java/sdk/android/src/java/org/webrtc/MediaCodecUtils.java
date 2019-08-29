@@ -67,8 +67,7 @@ class MediaCodecUtils {
         }
     }
 
-    static
-    Integer selectColorFormat(
+    static Integer selectColorFormat(
             int[] supportedColorFormats, CodecCapabilities capabilities) {
         for (int supportedColorFormat : supportedColorFormats) {
             for (int codecColorFormat : capabilities.colorFormats) {
@@ -93,7 +92,7 @@ class MediaCodecUtils {
         switch (type) {
             case VP8:
             case VP9:
-                return new HashMap<String, String>();
+                return new HashMap<>();
             case H264:
                 return H264Utils.getDefaultH264Params(highProfile);
             default:

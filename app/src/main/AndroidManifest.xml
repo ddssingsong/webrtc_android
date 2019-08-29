@@ -3,7 +3,7 @@
     package="com.dds.webrtc">
 
     <application
-        android:name="com.dds.BaseApplication"
+        android:name="com.dds.App"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

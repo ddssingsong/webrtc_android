@@ -73,7 +73,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
      *                              when predicate is not provided.
      */
     public HardwareVideoEncoderFactory(EglBase.Context sharedContext, boolean enableIntelVp8Encoder,
-                                       boolean enableH264HighProfile,   Predicate<MediaCodecInfo> codecAllowedPredicate) {
+                                       boolean enableH264HighProfile, Predicate<MediaCodecInfo> codecAllowedPredicate) {
         // Texture mode requires EglBase14.
         if (sharedContext instanceof EglBase14.Context) {
             this.sharedContext = (EglBase14.Context) sharedContext;
@@ -104,13 +104,12 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         MediaCodecInfo info = findCodecForType(type);
 
         if (info == null) {
-            Log.e("dds_test", "info ==null");
             return null;
         }
 
         String codecName = info.getName();
         String mime = type.mimeType();
-       // Log.e("dds_test", "createEncoder codecName：" + codecName + ",mimeType" + mime);
+        // Log.e("dds_test", "createEncoder codecName：" + codecName + ",mimeType" + mime);
 
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));
@@ -167,8 +166,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         return supportedCodecInfos.toArray(new VideoCodecInfo[0]);
     }
 
-    private
-    MediaCodecInfo findCodecForType(VideoCodecType type) {
+    private MediaCodecInfo findCodecForType(VideoCodecType type) {
         for (int i = 0; i < MediaCodecList.getCodecCount(); ++i) {
             MediaCodecInfo info = null;
             try {
@@ -244,7 +242,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         return (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) ||
                 // Exynos H264 encoder is supported in LOLLIPOP or later.
                 (name.startsWith(EXYNOS_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ||
-                // @ fix  华为手机无法硬编码的问题
+                // dds_test @ fix  华为手机无法硬编码的问题
                 (name.startsWith("OMX.google.") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 ;
     }
@@ -297,8 +295,6 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
     }
 
     private boolean isH264HighProfileSupported(MediaCodecInfo info) {
-
-
         return enableH264HighProfile && Build.VERSION.SDK_INT > Build.VERSION_CODES.M && info.getName().startsWith(EXYNOS_PREFIX);
     }
 }

@@ -48,7 +48,7 @@ public class FloatingVoipService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return null;
     }
 
 
@@ -172,7 +172,7 @@ public class FloatingVoipService extends Service {
         stopSelf();
     }
 
-    View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+    private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
         float lastX, lastY;
         int oldOffsetX, oldOffsetY;
         int tag = 0;

@@ -146,7 +146,7 @@ class MediaCodecVideoDecoderFactory implements VideoDecoderFactory {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && name.startsWith(EXYNOS_PREFIX)) {
             return true;
         }
-        // @ fix  华为手机无法硬编码的问题
+        // dds_test @ fix  华为手机无法硬编码的问题
         if ((name.startsWith("OMX.google.") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
             return true;
         }
