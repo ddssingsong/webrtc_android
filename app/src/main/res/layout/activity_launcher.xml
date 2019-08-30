@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="nodejs"
-            android:text="NodeJs"
+            android:text="NodeJs(开发完成)"
             android:textAllCaps="false" />
 
         <TextView

@@ -86,7 +86,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
         gEngineKit = activity.getEngineKit();
         CallSession currentSession = gEngineKit.getCurrentSession();
         // 如果已经接通
-        if (currentSession != null && currentSession.getCallState() == EnumType.CallState.Connected) {
+        if (currentSession != null && currentSession.getState() == EnumType.CallState.Connected) {
             descTextView.setVisibility(View.GONE); // 提示语
             outgoingActionContainer.setVisibility(View.VISIBLE);
             durationTextView.setVisibility(View.VISIBLE);
@@ -168,7 +168,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
         // 接听
         if (id == R.id.acceptImageView) {
             CallSession session = gEngineKit.getCurrentSession();
-            if (session != null && session.getCallState() == EnumType.CallState.Incoming) {
+            if (session != null && session.getState() == EnumType.CallState.Incoming) {
                 session.answerCall(false);
             } else {
                 activity.finish();
@@ -186,7 +186,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
         // 静音
         if (id == R.id.muteImageView) {
             CallSession session = gEngineKit.getCurrentSession();
-            if (session != null && session.getCallState() != EnumType.CallState.Idle) {
+            if (session != null && session.getState() != EnumType.CallState.Idle) {
                 if (session.muteAudio(!micEnabled)) {
                     micEnabled = !micEnabled;
                 }

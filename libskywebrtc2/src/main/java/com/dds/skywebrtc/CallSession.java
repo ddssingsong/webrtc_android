@@ -1,10 +1,14 @@
 package com.dds.skywebrtc;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.SurfaceView;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
+import org.webrtc.Camera1Enumerator;
+import org.webrtc.Camera2Enumerator;
+import org.webrtc.CameraEnumerator;
 import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
@@ -17,6 +21,8 @@ import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
+import org.webrtc.SurfaceTextureHelper;
+import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
 import org.webrtc.VideoSource;
@@ -54,6 +60,7 @@ public class CallSession {
     public VideoSource videoSource;
     public AudioSource audioSource;
     public EglBase _rootEglBase;
+    private Context _context;
 
     public boolean _isAudioOnly;
     public String _targetId;
@@ -95,7 +102,7 @@ public class CallSession {
     public PeerConnectionFactory createConnectionFactory() {
         PeerConnectionFactory.initialize(PeerConnectionFactory
                 .InitializationOptions
-                .builder(avEngineKit._context)
+                .builder(_context)
                 .createInitializationOptions());
 
         final VideoEncoderFactory encoderFactory;
@@ -111,7 +118,7 @@ public class CallSession {
 
         return PeerConnectionFactory.builder()
                 .setOptions(options)
-                .setAudioDeviceModule(JavaAudioDeviceModule.builder(avEngineKit._context).createAudioDeviceModule())
+                .setAudioDeviceModule(JavaAudioDeviceModule.builder(_context).createAudioDeviceModule())
                 .setVideoEncoderFactory(encoderFactory)
                 .setVideoDecoderFactory(decoderFactory)
                 .createPeerConnectionFactory();
@@ -325,6 +332,50 @@ public class CallSession {
         }
     }
 
+    private SurfaceTextureHelper surfaceTextureHelper;
+
+
+    private VideoCapturer createVideoCapture() {
+        VideoCapturer videoCapturer;
+        if (useCamera2()) {
+            videoCapturer = createCameraCapture(new Camera2Enumerator(_context));
+        } else {
+            videoCapturer = createCameraCapture(new Camera1Enumerator(true));
+        }
+        return videoCapturer;
+    }
+
+    private VideoCapturer createCameraCapture(CameraEnumerator enumerator) {
+        final String[] deviceNames = enumerator.getDeviceNames();
+
+        // First, try to find front facing camera
+        for (String deviceName : deviceNames) {
+            if (enumerator.isFrontFacing(deviceName)) {
+                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
+
+                if (videoCapturer != null) {
+                    return videoCapturer;
+                }
+            }
+        }
+
+        // Front facing camera not found, try something else
+        for (String deviceName : deviceNames) {
+            if (!enumerator.isFrontFacing(deviceName)) {
+                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
+
+                if (videoCapturer != null) {
+                    return videoCapturer;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private boolean useCamera2() {
+        return Camera2Enumerator.isSupported(_context);
+    }
 
     //**************************************各种约束******************************************/
     private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
@@ -371,7 +422,7 @@ public class CallSession {
         this._room = _room;
     }
 
-    public EnumType.CallState getCallState() {
+    public EnumType.CallState getState() {
         return _callState;
     }
 

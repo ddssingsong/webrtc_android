@@ -59,7 +59,7 @@ public class FloatingVoipService extends Service {
         }
         isStarted = true;
         session = AVEngineKit.Instance().getCurrentSession();
-        if (session == null || EnumType.CallState.Idle == session.getCallState()) {
+        if (session == null || EnumType.CallState.Idle == session.getState()) {
             stopSelf();
         }
         resumeActivityIntent = new Intent(this, SingleCallActivity.class);

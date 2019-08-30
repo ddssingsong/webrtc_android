@@ -3,12 +3,7 @@ package com.dds.skywebrtc;
 import android.content.Context;
 import android.util.Log;
 
-import org.webrtc.Camera1Enumerator;
-import org.webrtc.Camera2Enumerator;
-import org.webrtc.CameraEnumerator;
 import org.webrtc.PeerConnection;
-import org.webrtc.SurfaceTextureHelper;
-import org.webrtc.VideoCapturer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +17,6 @@ import java.util.concurrent.Executors;
 public class AVEngineKit {
     private final static String TAG = "dds_AVEngineKit";
     public final ExecutorService executor = Executors.newSingleThreadExecutor();
-    public Context _context;
 
     public static AVEngineKit avEngineKit;
     private CallSession currentCallSession;
@@ -53,14 +47,13 @@ public class AVEngineKit {
             return false;
         }
         // 忙线中
-        if (currentCallSession != null && currentCallSession.getCallState() != EnumType.CallState.Idle) {
+        if (currentCallSession != null && currentCallSession.getState() != EnumType.CallState.Idle) {
             if (_iSocketEvent != null) {
                 // 发送->忙线中...
                 _iSocketEvent.sendRefuse(inviteId, EnumType.RefuseType.Busy.ordinal());
             }
             return false;
         } else {
-            _context = context;
             // new Session
             currentCallSession = new CallSession(avEngineKit);
             currentCallSession.setIsAudioOnly(audioOnly);
@@ -81,12 +74,11 @@ public class AVEngineKit {
             Log.e(TAG, "receiveCall error,init is not set");
             return;
         }
-        if (currentCallSession != null && currentCallSession.getCallState() != EnumType.CallState.Idle) {
+        if (currentCallSession != null && currentCallSession.getState() != EnumType.CallState.Idle) {
             Log.e(TAG, "startCall error,currentCallSession is exist");
             return;
         }
 
-        _context = context;
         // new Session
         currentCallSession = new CallSession(avEngineKit);
         currentCallSession.setIsAudioOnly(audioOnly);
@@ -126,50 +118,6 @@ public class AVEngineKit {
     }
 
 
-    private SurfaceTextureHelper surfaceTextureHelper;
-
-
-    private VideoCapturer createVideoCapture() {
-        VideoCapturer videoCapturer;
-        if (useCamera2()) {
-            videoCapturer = createCameraCapture(new Camera2Enumerator(_context));
-        } else {
-            videoCapturer = createCameraCapture(new Camera1Enumerator(true));
-        }
-        return videoCapturer;
-    }
-
-    private VideoCapturer createCameraCapture(CameraEnumerator enumerator) {
-        final String[] deviceNames = enumerator.getDeviceNames();
-
-        // First, try to find front facing camera
-        for (String deviceName : deviceNames) {
-            if (enumerator.isFrontFacing(deviceName)) {
-                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
-
-                if (videoCapturer != null) {
-                    return videoCapturer;
-                }
-            }
-        }
-
-        // Front facing camera not found, try something else
-        for (String deviceName : deviceNames) {
-            if (!enumerator.isFrontFacing(deviceName)) {
-                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
-
-                if (videoCapturer != null) {
-                    return videoCapturer;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private boolean useCamera2() {
-        return Camera2Enumerator.isSupported(_context);
-    }
 
 
     public CallSession getCurrentSession() {

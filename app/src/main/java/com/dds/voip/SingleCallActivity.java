@@ -52,7 +52,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
         voip.putExtra(SingleCallActivity.EXTRA_MO, isOutgoing);
         voip.putExtra(SingleCallActivity.EXTRA_TARGET, targetId);
         voip.putExtra(SingleCallActivity.EXTRA_AUDIO_ONLY, isAudioOnly);
-
+        voip.putExtra(SingleCallActivity.EXTRA_FROM_FLOATING_VIEW, false);
         if (context instanceof Activity) {
             context.startActivity(voip);
         } else {
@@ -65,14 +65,16 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //全屏显示
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         getWindow().getDecorView().setSystemUiVisibility(getSystemUiVisibility());
         setContentView(R.layout.activity_single_call);
 
         try {
             gEngineKit = AVEngineKit.Instance();
-        } catch (NotInitializedExecption notInitializedExecption) {
+        } catch (NotInitializedExecption e) {
             finish();
         }
         final Intent intent = getIntent();
@@ -94,8 +96,10 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
             }
             Permissions.request(this, per, integer -> {
                 if (integer == 0) {
+                    // 权限同意
                     init(targetId, isOutgoing, isAudioOnly);
                 } else {
+                    // 权限拒绝
                     SingleCallActivity.this.finish();
                 }
             });

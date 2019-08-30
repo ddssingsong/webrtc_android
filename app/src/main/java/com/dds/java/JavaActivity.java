@@ -18,7 +18,6 @@ import com.dds.webrtc.R;
 
 public class JavaActivity extends AppCompatActivity implements IUserState {
 
-    private final static String TAG = "JavaActivity";
     private EditText wss;
     private EditText et_name;
     private TextView user_state;
@@ -66,7 +65,6 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
 
     }
 
-    /*----------------------------java版本服务器测试--------------------------------------------*/
 
     // 登录
     public void connect(View view) {
@@ -83,10 +81,14 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     // 拨打电话
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.phone)).getText().toString().trim();
+
+
         AVEngineKit.init(new VoipEvent());
+
         SingleCallActivity.openActivity(this, phone, true, true);
 
     }
+
 
     @Override
     public void userLogin() {

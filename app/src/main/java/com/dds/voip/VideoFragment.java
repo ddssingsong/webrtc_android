@@ -1,80 +1,141 @@
 package com.dds.voip;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
 
 
-public class VideoFragment extends Fragment implements CallSession.CallSessionCallback{
+public class VideoFragment extends Fragment implements CallSession.CallSessionCallback {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private FrameLayout fullscreenVideoView;
+    private FrameLayout pipVideoView;
+    private LinearLayout inviteeInfoContainer;
+    private ImageView portraitImageView;
+    private TextView nameTextView;
+    private TextView descTextView;
+    private ImageView minimizeImageView;
+    private ImageView outgoingAudioOnlyImageView;
+    private ImageView outgoingHangupImageView;
+    private LinearLayout audioLayout;
+    private ImageView incomingAudioOnlyImageView;
+    private LinearLayout hangupLinearLayout;
+    private ImageView incomingHangupImageView;
+    private LinearLayout acceptLinearLayout;
+    private ImageView acceptImageView;
+    private TextView durationTextView;
+    private ImageView connectedAudioOnlyImageView;
+    private ImageView connectedHangupImageView;
+    private ImageView switchCameraImageView;
+
+    private View incomingActionContainer;
+    private View outgoingActionContainer;
+    private View connectedActionContainer;
 
 
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
+    private SingleCallActivity activity;
+    private AVEngineKit gEngineKit;
+    private boolean isOutgoing;
+    private String targetId;
 
     public VideoFragment() {
         // Required empty public constructor
     }
 
 
-    public static VideoFragment newInstance(String param1, String param2) {
-        VideoFragment fragment = new VideoFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_video, container, false);
+        View view = inflater.inflate(R.layout.fragment_video, container, false);
+        initView(view);
+        init();
+        return view;
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+
+    private void initView(View view) {
+        fullscreenVideoView = view.findViewById(R.id.fullscreen_video_view);
+        pipVideoView = view.findViewById(R.id.pip_video_view);
+        inviteeInfoContainer = view.findViewById(R.id.inviteeInfoContainer);
+        portraitImageView = view.findViewById(R.id.portraitImageView);
+        nameTextView = view.findViewById(R.id.nameTextView);
+        descTextView = view.findViewById(R.id.descTextView);
+        minimizeImageView = view.findViewById(R.id.minimizeImageView);
+        outgoingAudioOnlyImageView = view.findViewById(R.id.outgoingAudioOnlyImageView);
+        outgoingHangupImageView = view.findViewById(R.id.outgoingHangupImageView);
+        audioLayout = view.findViewById(R.id.audioLayout);
+        incomingAudioOnlyImageView = view.findViewById(R.id.incomingAudioOnlyImageView);
+        hangupLinearLayout = view.findViewById(R.id.hangupLinearLayout);
+        incomingHangupImageView = view.findViewById(R.id.incomingHangupImageView);
+        acceptLinearLayout = view.findViewById(R.id.acceptLinearLayout);
+        acceptImageView = view.findViewById(R.id.acceptImageView);
+        durationTextView = view.findViewById(R.id.durationTextView);
+        connectedAudioOnlyImageView = view.findViewById(R.id.connectedAudioOnlyImageView);
+        connectedHangupImageView = view.findViewById(R.id.connectedHangupImageView);
+        switchCameraImageView = view.findViewById(R.id.switchCameraImageView);
+
+        incomingActionContainer = view.findViewById(R.id.incomingActionContainer);
+        outgoingActionContainer = view.findViewById(R.id.outgoingActionContainer);
+        connectedActionContainer = view.findViewById(R.id.connectedActionContainer);
+
     }
+
+    private void init() {
+        gEngineKit = activity.getEngineKit();
+        CallSession session = gEngineKit.getCurrentSession();
+        if (session == null || EnumType.CallState.Idle == session.getState()) {
+            activity.finish();
+        } else if (EnumType.CallState.Connected == session.getState()) {
+            incomingActionContainer.setVisibility(View.GONE);
+            outgoingActionContainer.setVisibility(View.GONE);
+            connectedActionContainer.setVisibility(View.VISIBLE);
+            inviteeInfoContainer.setVisibility(View.GONE);
+            minimizeImageView.setVisibility(View.VISIBLE);
+        } else {
+            if (isOutgoing) {
+                incomingActionContainer.setVisibility(View.GONE);
+                outgoingActionContainer.setVisibility(View.VISIBLE);
+                connectedActionContainer.setVisibility(View.GONE);
+                descTextView.setText(R.string.av_waiting);
+            } else {
+                incomingActionContainer.setVisibility(View.VISIBLE);
+                outgoingActionContainer.setVisibility(View.GONE);
+                connectedActionContainer.setVisibility(View.GONE);
+                descTextView.setText(R.string.av_video_invite);
+            }
+        }
+
+
+    }
+
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+        activity = (SingleCallActivity) getActivity();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        activity = null;
     }
 
     @Override
@@ -107,7 +168,4 @@ public class VideoFragment extends Fragment implements CallSession.CallSessionCa
 
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
 }
