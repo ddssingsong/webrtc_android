@@ -104,18 +104,28 @@ public class AVEngineKit {
 
     public void endCall() {
         if (currentCallSession.isComing) {
-            // 接收到邀请，还没同意，发送拒绝
-            if (_iSocketEvent != null) {
-                _iSocketEvent.sendRefuse(currentCallSession._targetId, EnumType.RefuseType.Hangup.ordinal());
+            if (currentCallSession.getState() == EnumType.CallState.Incoming) {
+                // 接收到邀请，还没同意，发送拒绝
+                if (_iSocketEvent != null) {
+                    _iSocketEvent.sendRefuse(currentCallSession._targetId, EnumType.RefuseType.Hangup.ordinal());
+                }
             } else {
+                // 已经接通，挂断电话
 
             }
 
 
         } else {
+            if (currentCallSession.getState() == EnumType.CallState.Outgoing) {
+                if (_iSocketEvent != null) {
+                    // 取消拨出
+                    _iSocketEvent.sendCancel(currentCallSession._targetId);
+                }
+            } else {
+                // 已经接通，挂断电话
 
+            }
         }
-
     }
 
     // 预览视频

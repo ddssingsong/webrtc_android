@@ -17,6 +17,8 @@ public interface IBusinessEvent {
 
     void sendRefuse(String inviteId, int refuseType);
 
+    void sendCancel(String toId);
+
     void sendJoin(String room);
 
     void sendRingBack(String targetId);

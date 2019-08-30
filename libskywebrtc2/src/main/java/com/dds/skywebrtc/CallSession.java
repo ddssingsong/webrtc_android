@@ -135,19 +135,6 @@ public class CallSession {
     }
 
     public void endCall() {
-        if (isComing) {
-            if (_callState == EnumType.CallState.Incoming) {
-                // 接收到邀请，还没同意，发送拒绝
-                if (avEngineKit._iSocketEvent != null) {
-                    avEngineKit._iSocketEvent.sendRefuse(_targetId, EnumType.RefuseType.Hangup.ordinal());
-                }
-            } else {
-                // 已经接通 挂断电话
-            }
-        } else {
-
-        }
-
 
     }
 

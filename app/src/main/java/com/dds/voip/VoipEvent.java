@@ -41,6 +41,11 @@ public class VoipEvent implements IBusinessEvent {
     }
 
     @Override
+    public void sendCancel(String toId) {
+        SocketManager.getInstance().sendCancel(toId);
+    }
+
+    @Override
     public void sendJoin(String room) {
         SocketManager.getInstance().sendJoin(room);
     }

@@ -137,12 +137,18 @@ public class SocketManager implements IEvent {
         }
     }
 
+    public void sendCancel(String userId) {
+        if (webSocket != null) {
+            webSocket.sendCancel(myId, userId);
+        }
+    }
 
     public void sendJoin(String room) {
         if (webSocket != null) {
             webSocket.sendJoin(room, myId);
         }
     }
+
 
     public void sendMeetingInvite(String userList) {
 
