@@ -60,6 +60,10 @@ public class DWebSocket extends WebSocketClient {
         send(jsonString);
     }
 
+    public void sendMeetingInvite(String room, String myId, String userId) {
+
+    }
+
     // 取消邀请
     public void sendCancel(String useId, String userList) {
         Map<String, Object> map = new HashMap<>();
@@ -83,8 +87,8 @@ public class DWebSocket extends WebSocketClient {
         map.put("eventName", "__ring");
 
         Map<String, Object> childMap = new HashMap<>();
-        childMap.put("inviteID", inviteId);
-        childMap.put("fromID", myId);
+        childMap.put("myID", inviteId);
+        childMap.put("toID", myId);
 
 
         map.put("data", childMap);

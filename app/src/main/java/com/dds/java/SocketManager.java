@@ -125,11 +125,18 @@ public class SocketManager implements IEvent {
         }
     }
 
+    public void sendRingBack(String targetId) {
+        if (webSocket != null) {
+            webSocket.sendRing(myId, targetId);
+        }
+    }
+
     public void sendRefuse(String inviteId, int refuseType) {
         if (webSocket != null) {
             webSocket.sendRefuse(inviteId, myId, refuseType);
         }
     }
+
 
     public void sendJoin(String room) {
         if (webSocket != null) {

@@ -1,5 +1,6 @@
 package com.dds.skywebrtc;
 
+import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -416,6 +417,15 @@ public class CallSession {
 
     public void setTargetId(String _targetId) {
         this._targetId = _targetId;
+    }
+
+    public void setContext(Context context) {
+        if (context instanceof Application) {
+            this._context = context;
+        } else {
+            this._context = context.getApplicationContext();
+        }
+
     }
 
     public void setRoom(String _room) {

@@ -19,6 +19,8 @@ public interface IBusinessEvent {
 
     void sendJoin(String room);
 
+    void sendRingBack(String targetId);
+
     // sendOffer
     void sendOffer(String userId, String sdp);
 

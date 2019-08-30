@@ -41,61 +41,63 @@ public class AVEngineKit {
     }
 
 
-    public boolean receiveCall(Context context, String room, final String inviteId, final boolean audioOnly) {
+    // 发起会话
+    public boolean startCall(Context context,
+                             final String room, final int roomSize,
+                             final String targetId, final boolean audioOnly,
+                             boolean isComing) {
         if (avEngineKit == null) {
             Log.e(TAG, "receiveCall error,init is not set");
             return false;
         }
-        // 忙线中
-        if (currentCallSession != null && currentCallSession.getState() != EnumType.CallState.Idle) {
-            if (_iSocketEvent != null) {
-                // 发送->忙线中...
-                _iSocketEvent.sendRefuse(inviteId, EnumType.RefuseType.Busy.ordinal());
+        if (currentCallSession != null &&
+                currentCallSession.getState() != EnumType.CallState.Idle) {
+            if (isComing) {
+                if (_iSocketEvent != null) {
+                    // 发送->忙线中...
+                    Log.e(TAG, "startCall error,currentCallSession is exist," +
+                            "start sendRefuse!");
+                    _iSocketEvent.sendRefuse(targetId, EnumType.RefuseType.Busy.ordinal());
+                }
+            } else {
+                Log.e(TAG, "startCall error,currentCallSession is exist");
             }
             return false;
-        } else {
-            // new Session
-            currentCallSession = new CallSession(avEngineKit);
-            currentCallSession.setIsAudioOnly(audioOnly);
-            currentCallSession.setRoom(room);
-            currentCallSession.setTargetId(inviteId);
-            currentCallSession.createFactoryAndLocalStream();
-            return true;
-
         }
-
-
-    }
-
-    // 发起会话
-    public void startCall(Context context, final String room, final int roomSize,
-                          final String targetId, final boolean audioOnly) {
-        if (avEngineKit == null) {
-            Log.e(TAG, "receiveCall error,init is not set");
-            return;
-        }
-        if (currentCallSession != null && currentCallSession.getState() != EnumType.CallState.Idle) {
-            Log.e(TAG, "startCall error,currentCallSession is exist");
-            return;
-        }
-
         // new Session
         currentCallSession = new CallSession(avEngineKit);
         currentCallSession.setIsAudioOnly(audioOnly);
         currentCallSession.setRoom(room);
         currentCallSession.setTargetId(targetId);
+        currentCallSession.setContext(context);
         currentCallSession.createFactoryAndLocalStream();
+        if (!isComing) {
+            executor.execute(() -> {
+                if (_iSocketEvent != null) {
+                    // 创建房间
+                    _iSocketEvent.createRoom(room, roomSize);
+                    // 发送邀请
+                    _iSocketEvent.sendInvite(room, targetId, audioOnly);
+                }
 
-        executor.execute(() -> {
+
+            });
+        } else {
             if (_iSocketEvent != null) {
-                // 创建房间
-                _iSocketEvent.createRoom(room, roomSize);
-                // 发送邀请
-                _iSocketEvent.sendInvite(room, targetId, audioOnly);
+                // 开始响铃
+                _iSocketEvent.shouldStartRing(true);
             }
+            executor.execute(() -> {
+                if (_iSocketEvent != null) {
+                    // 发送响铃回复
+                    _iSocketEvent.sendRingBack(targetId);
+                }
 
+            });
 
-        });
+        }
+        return true;
+
     }
 
     // 预览视频
@@ -116,8 +118,6 @@ public class AVEngineKit {
 //        });
 
     }
-
-
 
 
     public CallSession getCurrentSession() {
