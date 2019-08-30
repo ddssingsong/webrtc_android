@@ -178,7 +178,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
         if (id == R.id.incomingHangupImageView || id == R.id.outgoingHangupImageView) {
             CallSession session = gEngineKit.getCurrentSession();
             if (session != null) {
-                session.endCall();
+                AVEngineKit.Instance().endCall();
             } else {
                 activity.finish();
             }

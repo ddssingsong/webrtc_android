@@ -87,7 +87,7 @@ public class DWebSocket extends WebSocketClient {
         map.put("eventName", "__ring");
 
         Map<String, Object> childMap = new HashMap<>();
-        childMap.put("myID", inviteId);
+        childMap.put("fromID", inviteId);
         childMap.put("toID", myId);
 
 
@@ -317,8 +317,7 @@ public class DWebSocket extends WebSocketClient {
     private void handleRing(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String inviteID = (String) data.get("inviteID");
-            String fromId = (String) data.get("fromID");
+            String inviteID = (String) data.get("fromID");
             this.iEvent.onRing(inviteID);
         }
     }
@@ -336,11 +335,10 @@ public class DWebSocket extends WebSocketClient {
         Map data = (Map) map.get("data");
         if (data != null) {
             String room = (String) data.get("room");
-            int roomSize = (int) data.get("roomSize");
-            int mediaType = (int) data.get("mediaType");
+            boolean audioOnly = (boolean) data.get("audioOnly");
             String inviteID = (String) data.get("inviteID");
             String userList = (String) data.get("userList");
-            this.iEvent.onInvite(room, roomSize, mediaType, inviteID, userList);
+            this.iEvent.onInvite(room, audioOnly, inviteID, userList);
         }
     }
 

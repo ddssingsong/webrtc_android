@@ -67,6 +67,7 @@ public class CallSession {
     public String _targetId;
     public String _room;
     public String _myId;
+    public boolean isComing;
 
     public EnumType.CallState _callState = EnumType.CallState.Idle;
 
@@ -134,6 +135,19 @@ public class CallSession {
     }
 
     public void endCall() {
+        if (isComing) {
+            if (_callState == EnumType.CallState.Incoming) {
+                // 接收到邀请，还没同意，发送拒绝
+                if (avEngineKit._iSocketEvent != null) {
+                    avEngineKit._iSocketEvent.sendRefuse(_targetId, EnumType.RefuseType.Hangup.ordinal());
+                }
+            } else {
+                // 已经接通 挂断电话
+            }
+        } else {
+
+        }
+
 
     }
 
@@ -141,6 +155,12 @@ public class CallSession {
         return false;
     }
 
+    // 对方已响铃
+    public void ringBack() {
+        if (avEngineKit._iSocketEvent != null) {
+            avEngineKit._iSocketEvent.shouldStartRing(false);
+        }
+    }
 
     //--------------------------receive-------------------------------
     public void onJoinHome(String myId, String userId) {
@@ -428,12 +448,24 @@ public class CallSession {
 
     }
 
+    public void setIsComing(boolean isComing) {
+        this.isComing = isComing;
+    }
+
     public void setRoom(String _room) {
         this._room = _room;
     }
 
     public EnumType.CallState getState() {
         return _callState;
+    }
+
+    public void setCallState(EnumType.CallState callState) {
+        this._callState = callState;
+    }
+
+    public boolean isComing() {
+        return isComing;
     }
 
     public void setSessionCallback(CallSessionCallback sessionCallback) {

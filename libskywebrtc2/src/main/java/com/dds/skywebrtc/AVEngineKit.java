@@ -70,7 +70,9 @@ public class AVEngineKit {
         currentCallSession.setRoom(room);
         currentCallSession.setTargetId(targetId);
         currentCallSession.setContext(context);
-        currentCallSession.createFactoryAndLocalStream();
+        currentCallSession.setIsComing(isComing);
+        currentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
+
         if (!isComing) {
             executor.execute(() -> {
                 if (_iSocketEvent != null) {
@@ -97,6 +99,22 @@ public class AVEngineKit {
 
         }
         return true;
+
+    }
+
+    public void endCall() {
+        if (currentCallSession.isComing) {
+            // 接收到邀请，还没同意，发送拒绝
+            if (_iSocketEvent != null) {
+                _iSocketEvent.sendRefuse(currentCallSession._targetId, EnumType.RefuseType.Hangup.ordinal());
+            } else {
+
+            }
+
+
+        } else {
+
+        }
 
     }
 

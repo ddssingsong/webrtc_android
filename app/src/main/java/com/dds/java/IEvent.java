@@ -11,7 +11,7 @@ public interface IEvent {
     void loginSuccess(String userId, String avatar);
 
 
-    void onInvite(String room, int roomSize, int mediaType, String inviteId, String userList);
+    void onInvite(String room, boolean audioOnly, String inviteId, String userList);
 
 
     void onCancel(String inviteId);

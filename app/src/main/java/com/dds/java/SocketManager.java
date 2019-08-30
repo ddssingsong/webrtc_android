@@ -168,16 +168,14 @@ public class SocketManager implements IEvent {
 
 
     @Override
-    public void onInvite(String room, int roomSize, int mediaType, String inviteId, String userList) {
+    public void onInvite(String room, boolean audioOnly, String inviteId, String userList) {
         Intent intent = new Intent();
         intent.putExtra("room", room);
-        intent.putExtra("roomSize", roomSize);
-        intent.putExtra("mediaType", mediaType);
+        intent.putExtra("audioOnly", audioOnly);
         intent.putExtra("inviteId", inviteId);
         intent.putExtra("userList", userList);
         intent.setAction(Utils.ACTION_VOIP_RECEIVER);
         intent.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));
-        Log.e("dds_test", VoipReceiver.class.getName());
         App.getInstance().sendBroadcast(intent);
 
     }
@@ -189,6 +187,10 @@ public class SocketManager implements IEvent {
 
     @Override
     public void onRing(String userId) {
+        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+        if (currentSession != null) {
+            currentSession.ringBack();
+        }
 
     }
 
