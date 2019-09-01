@@ -55,6 +55,11 @@ public class VoipEvent implements IBusinessEvent {
         SocketManager.getInstance().sendRingBack(targetId);
     }
 
+    @Override
+    public void sendLeave(String room, String userId) {
+        SocketManager.getInstance().sendLeave(room,userId);
+    }
+
 
     @Override
     public void sendOffer(String userId, String sdp) {

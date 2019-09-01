@@ -129,6 +129,22 @@ public class DWebSocket extends WebSocketClient {
         send(jsonString);
     }
 
+    // 离开房间
+    public void sendLeave(String room, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("eventName", "__leave");
+
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("room", room);
+        childMap.put("userID", userId);
+
+        map.put("data", childMap);
+        JSONObject object = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
+        send(jsonString);
+    }
+
     // send offer
     public void sendOffer(String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
@@ -355,4 +371,6 @@ public class DWebSocket extends WebSocketClient {
         this.iEvent.logout("onError");
 
     }
+
+
 }

@@ -101,7 +101,15 @@ public class CallSession {
         return false;
     }
 
+    public void leave() {
+        if (avEngineKit._iSocketEvent != null) {
+            avEngineKit._iSocketEvent.sendLeave(_room, _myId);
+        }
 
+        avEngineKit.executor.execute(() -> {
+
+        });
+    }
     //------------------------------------receive---------------------------------------------------
 
     // 加入房间成功

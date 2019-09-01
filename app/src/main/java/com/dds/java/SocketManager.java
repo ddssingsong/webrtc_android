@@ -2,6 +2,8 @@ package com.dds.java;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.dds.App;
@@ -33,9 +35,12 @@ public class SocketManager implements IEvent {
     private int userState;
     private String myId;
 
+    private Handler handler = new Handler(Looper.getMainLooper());
+
     private SocketManager() {
 
     }
+
 
     private static class Holder {
         private static SocketManager socketManager = new SocketManager();
@@ -125,6 +130,12 @@ public class SocketManager implements IEvent {
         }
     }
 
+    public void sendLeave(String room, String userId) {
+        if (webSocket != null) {
+            webSocket.sendLeave(room, userId);
+        }
+    }
+
     public void sendRingBack(String targetId) {
         if (webSocket != null) {
             webSocket.sendRing(myId, targetId);
@@ -193,15 +204,21 @@ public class SocketManager implements IEvent {
 
     @Override
     public void onRing(String userId) {
-        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
-        if (currentSession != null) {
-            currentSession.onRingBack();
-        }
+        handler.post(() -> {
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onRingBack();
+            }
+        });
+
 
     }
 
     @Override
     public void onPeers(String myId, String userId) {
+        handler.post(() -> {
+
+        });
         //自己进入了房间，然后开始发送offer
         CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
         if (currentSession != null) {
@@ -211,41 +228,56 @@ public class SocketManager implements IEvent {
 
     @Override
     public void onNewPeer(String userId) {
-        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
-        if (currentSession != null) {
-            currentSession.newPeer(userId);
-        }
+        handler.post(() -> {
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.newPeer(userId);
+            }
+        });
+
     }
 
 
     @Override
     public void onReject(String userId, int type) {
+        handler.post(() -> {
+
+        });
 
     }
 
     @Override
     public void onOffer(String userId, String sdp) {
-        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
-        if (currentSession != null) {
-            currentSession.onReceiveOffer(userId, sdp);
-        }
+        handler.post(() -> {
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onReceiveOffer(userId, sdp);
+            }
+        });
+
 
     }
 
     @Override
     public void onAnswer(String userId, String sdp) {
-        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
-        if (currentSession != null) {
-            currentSession.onReceiverAnswer(userId, sdp);
-        }
+        handler.post(() -> {
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onReceiverAnswer(userId, sdp);
+            }
+        });
+
     }
 
     @Override
     public void onIceCandidate(String userId, String id, int label, String candidate) {
-        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
-        if (currentSession != null) {
-            currentSession.onRemoteIceCandidate(userId, id, label, candidate);
-        }
+        handler.post(() -> {
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onRemoteIceCandidate(userId, id, label, candidate);
+            }
+        });
+
     }
 
     @Override

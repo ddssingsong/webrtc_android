@@ -23,6 +23,8 @@ public interface IBusinessEvent {
 
     void sendRingBack(String targetId);
 
+    void sendLeave(String room, String userId);
+
     // sendOffer
     void sendOffer(String userId, String sdp);
 

@@ -99,7 +99,6 @@ public class AVEngineKit {
     }
 
 
-
     public void endCall() {
         if (currentCallSession.isComing) {
             if (currentCallSession.getState() == EnumType.CallState.Incoming) {
@@ -109,9 +108,7 @@ public class AVEngineKit {
                 }
             } else {
                 // 已经接通，挂断电话
-                if (_iSocketEvent != null) {
-
-                }
+                currentCallSession.leave();
             }
 
 
@@ -123,28 +120,9 @@ public class AVEngineKit {
                 }
             } else {
                 // 已经接通，挂断电话
-
+                currentCallSession.leave();
             }
         }
-    }
-
-    // 预览视频
-    public void startPreview() {
-//        if (_isAudioOnly) return;
-//        executor.execute(() -> {
-//            //创建需要传入设备的名称
-//            captureAndroid = createVideoCapture();
-//            // 视频
-//            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
-//            videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
-//            captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
-//            captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
-//            _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
-//            _localStream.addTrack(_localVideoTrack);
-//
-//
-//        });
-
     }
 
 
