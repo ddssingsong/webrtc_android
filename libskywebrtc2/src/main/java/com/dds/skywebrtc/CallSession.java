@@ -79,54 +79,10 @@ public class CallSession {
     }
 
 
-    // --------------------------create Factory and LocalStream--------------------------
-    public void createFactoryAndLocalStream() {
-        avEngineKit.executor.execute(() -> {
-            // 创建factory
-            if (_factory == null) {
-                _factory = createConnectionFactory();
-            }
-            // 创建本地流
-            if (_localStream == null) {
-                createLocalStream();
-            }
-        });
-    }
+    // ----------------------------------------各种控制--------------------------------------------
 
-    public void createLocalStream() {
-        _localStream = _factory.createLocalMediaStream("ARDAMS");
-        // 音频
-        audioSource = _factory.createAudioSource(createAudioConstraints());
-        _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
-        _localStream.addTrack(_localAudioTrack);
-    }
-
-    public PeerConnectionFactory createConnectionFactory() {
-        PeerConnectionFactory.initialize(PeerConnectionFactory
-                .InitializationOptions
-                .builder(_context)
-                .createInitializationOptions());
-
-        final VideoEncoderFactory encoderFactory;
-        final VideoDecoderFactory decoderFactory;
-
-        encoderFactory = new DefaultVideoEncoderFactory(
-                _rootEglBase.getEglBaseContext(),
-                true,
-                true);
-        decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
-
-        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-
-        return PeerConnectionFactory.builder()
-                .setOptions(options)
-                .setAudioDeviceModule(JavaAudioDeviceModule.builder(_context).createAudioDeviceModule())
-                .setVideoEncoderFactory(encoderFactory)
-                .setVideoDecoderFactory(decoderFactory)
-                .createPeerConnectionFactory();
-    }
-
-    public void answerCall(boolean isAudioOnly) {
+    // 加入房间
+    public void joinHome(boolean isAudioOnly) {
         // 加入房间
         _callState = EnumType.CallState.Connecting;
         if (avEngineKit._iSocketEvent != null) {
@@ -134,20 +90,18 @@ public class CallSession {
         }
     }
 
-    public void endCall() {
-
-    }
-
-    public boolean muteAudio(boolean b) {
-        return false;
-    }
-
-    // 对方已响铃
+    // 响铃回复
     public void ringBack() {
         if (avEngineKit._iSocketEvent != null) {
             avEngineKit._iSocketEvent.shouldStartRing(false);
         }
     }
+
+    // 设置静音
+    public boolean muteAudio(boolean b) {
+        return false;
+    }
+
 
     //--------------------------receive-------------------------------
     public void onJoinHome(String myId, String userId) {
@@ -340,8 +294,55 @@ public class CallSession {
         }
     }
 
-    private SurfaceTextureHelper surfaceTextureHelper;
 
+    //------------------------------------各种初始化---------------------------------------------
+    public void createFactoryAndLocalStream() {
+        avEngineKit.executor.execute(() -> {
+            // 创建factory
+            if (_factory == null) {
+                _factory = createConnectionFactory();
+            }
+            // 创建本地流
+            if (_localStream == null) {
+                createLocalStream();
+            }
+        });
+    }
+
+    public void createLocalStream() {
+        _localStream = _factory.createLocalMediaStream("ARDAMS");
+        // 音频
+        audioSource = _factory.createAudioSource(createAudioConstraints());
+        _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
+        _localStream.addTrack(_localAudioTrack);
+    }
+
+    public PeerConnectionFactory createConnectionFactory() {
+        PeerConnectionFactory.initialize(PeerConnectionFactory
+                .InitializationOptions
+                .builder(_context)
+                .createInitializationOptions());
+
+        final VideoEncoderFactory encoderFactory;
+        final VideoDecoderFactory decoderFactory;
+
+        encoderFactory = new DefaultVideoEncoderFactory(
+                _rootEglBase.getEglBaseContext(),
+                true,
+                true);
+        decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
+
+        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
+
+        return PeerConnectionFactory.builder()
+                .setOptions(options)
+                .setAudioDeviceModule(JavaAudioDeviceModule.builder(_context).createAudioDeviceModule())
+                .setVideoEncoderFactory(encoderFactory)
+                .setVideoDecoderFactory(decoderFactory)
+                .createPeerConnectionFactory();
+    }
+
+    private SurfaceTextureHelper surfaceTextureHelper;
 
     private VideoCapturer createVideoCapture() {
         VideoCapturer videoCapturer;
@@ -413,6 +414,8 @@ public class CallSession {
         return mediaConstraints;
     }
 
+
+    // ***********************************各种参数******************************************/
     public void setIsAudioOnly(boolean _isAudioOnly) {
         this._isAudioOnly = _isAudioOnly;
     }

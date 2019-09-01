@@ -53,6 +53,7 @@ public class AVEngineKit {
         if (currentCallSession != null &&
                 currentCallSession.getState() != EnumType.CallState.Idle) {
             if (isComing) {
+                // 来电忙线中
                 if (_iSocketEvent != null) {
                     // 发送->忙线中...
                     Log.e(TAG, "startCall error,currentCallSession is exist," +
@@ -72,8 +73,20 @@ public class AVEngineKit {
         currentCallSession.setContext(context);
         currentCallSession.setIsComing(isComing);
         currentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
+        currentCallSession.createFactoryAndLocalStream();
+        if (isComing) {
+            // 开始响铃
+            if (_iSocketEvent != null) {
+                _iSocketEvent.shouldStartRing(true);
+            }
+            // 发送响铃回复
+            executor.execute(() -> {
+                if (_iSocketEvent != null) {
+                    _iSocketEvent.sendRingBack(targetId);
+                }
 
-        if (!isComing) {
+            });
+        } else {
             executor.execute(() -> {
                 if (_iSocketEvent != null) {
                     // 创建房间
@@ -81,20 +94,6 @@ public class AVEngineKit {
                     // 发送邀请
                     _iSocketEvent.sendInvite(room, targetId, audioOnly);
                 }
-
-
-            });
-        } else {
-            if (_iSocketEvent != null) {
-                // 开始响铃
-                _iSocketEvent.shouldStartRing(true);
-            }
-            executor.execute(() -> {
-                if (_iSocketEvent != null) {
-                    // 发送响铃回复
-                    _iSocketEvent.sendRingBack(targetId);
-                }
-
             });
 
         }
@@ -111,7 +110,9 @@ public class AVEngineKit {
                 }
             } else {
                 // 已经接通，挂断电话
+                if (_iSocketEvent != null) {
 
+                }
             }
 
 
