@@ -50,6 +50,7 @@ public class CallSession {
 
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
     public static final String AUDIO_TRACK_ID = "ARDAMSa0";
+    public static final String VIDEO_CODEC_H264 = "H264";
     public static final int VIDEO_RESOLUTION_WIDTH = 320;
     public static final int VIDEO_RESOLUTION_HEIGHT = 240;
     public static final int FPS = 10;
@@ -69,6 +70,7 @@ public class CallSession {
     public String _myId;
     public boolean isComing;
 
+
     public EnumType.CallState _callState = EnumType.CallState.Idle;
 
     public CallSession(AVEngineKit avEngineKit) {
@@ -82,7 +84,7 @@ public class CallSession {
     // ----------------------------------------各种控制--------------------------------------------
 
     // 加入房间
-    public void joinHome(boolean isAudioOnly) {
+    public void joinHome() {
         // 加入房间
         _callState = EnumType.CallState.Connecting;
         if (avEngineKit._iSocketEvent != null) {
@@ -90,12 +92,6 @@ public class CallSession {
         }
     }
 
-    // 响铃回复
-    public void ringBack() {
-        if (avEngineKit._iSocketEvent != null) {
-            avEngineKit._iSocketEvent.shouldStartRing(false);
-        }
-    }
 
     // 设置静音
     public boolean muteAudio(boolean b) {
@@ -103,7 +99,9 @@ public class CallSession {
     }
 
 
-    //--------------------------receive-------------------------------
+    //------------------------------------receive---------------------------------------------------
+
+    // 加入房间成功
     public void onJoinHome(String myId, String userId) {
         avEngineKit.executor.execute(() -> {
             _myId = myId;
@@ -120,9 +118,15 @@ public class CallSession {
             addStreams();
             createOffers();
 
+            // 如果是发起人，发送邀请
+            if (!isComing) {
+                avEngineKit._iSocketEvent.sendInvite(_room, _targetId, _isAudioOnly);
+            }
+
         });
     }
 
+    // 新成员进入
     public void newPeer(String userId) {
         avEngineKit.executor.execute(() -> {
             Peer mPeer = new Peer(userId);
@@ -130,41 +134,55 @@ public class CallSession {
             _connectionIdArray.add(userId);
             _connectionPeerDic.put(userId, mPeer);
 
+            // 有人进入房间
+            if (avEngineKit._iSocketEvent != null) {
+                avEngineKit._iSocketEvent.shouldStopRing();
+            }
         });
     }
 
-    // 创建所有连接
-    private void createPeerConnections() {
-        for (Object str : _connectionIdArray) {
-            Peer peer = new Peer((String) str);
-            _connectionPeerDic.put((String) str, peer);
+    // 对方已响铃
+    public void onRingBack() {
+        if (avEngineKit._iSocketEvent != null) {
+            avEngineKit._iSocketEvent.shouldStartRing(false);
         }
     }
 
-    // 为所有连接添加流
-    private void addStreams() {
-        Log.v(TAG, "为所有连接添加流");
-        for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
-            if (_localStream == null) {
-                createLocalStream();
+    public void onReceiveOffer(String socketId, String description) {
+        avEngineKit.executor.execute(() -> {
+            Peer mPeer = _connectionPeerDic.get(socketId);
+            SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
+            if (mPeer != null) {
+                mPeer.pc.setRemoteDescription(mPeer, sdp);
             }
-            try {
-                entry.getValue().pc.addStream(_localStream);
-            } catch (Exception e) {
-                e.printStackTrace();
+        });
+
+    }
+
+    public void onReceiverAnswer(String socketId, String sdp) {
+        avEngineKit.executor.execute(() -> {
+            Peer mPeer = _connectionPeerDic.get(socketId);
+            SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
+            if (mPeer != null) {
+                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
             }
-        }
+        });
 
     }
 
-    // 为所有连接创建offer
-    private void createOffers() {
-        for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
-            Peer mPeer = entry.getValue();
-            mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
-        }
+    public void onRemoteIceCandidate(String userId, String id, int label, String candidate) {
+        avEngineKit.executor.execute(() -> {
+            Peer peer = _connectionPeerDic.get(userId);
+            if (peer != null) {
+                IceCandidate iceCandidate = new IceCandidate(id, label, candidate);
+                peer.pc.addIceCandidate(iceCandidate);
+            }
+        });
 
     }
+
+
+    // --------------------------------界面显示相关-------------------------------------------------
 
     public long getStartTime() {
         return 0;
@@ -296,6 +314,38 @@ public class CallSession {
 
 
     //------------------------------------各种初始化---------------------------------------------
+    private void createPeerConnections() {
+        for (Object str : _connectionIdArray) {
+            Peer peer = new Peer((String) str);
+            _connectionPeerDic.put((String) str, peer);
+        }
+    }
+
+    // 为所有连接添加流
+    private void addStreams() {
+        Log.v(TAG, "为所有连接添加流");
+        for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
+            if (_localStream == null) {
+                createLocalStream();
+            }
+            try {
+                entry.getValue().pc.addStream(_localStream);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    // 为所有连接创建offer
+    private void createOffers() {
+        for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
+            Peer mPeer = entry.getValue();
+            mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
+        }
+
+    }
+
     public void createFactoryAndLocalStream() {
         avEngineKit.executor.execute(() -> {
             // 创建factory

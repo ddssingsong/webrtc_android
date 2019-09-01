@@ -73,7 +73,6 @@ public class AVEngineKit {
         currentCallSession.setContext(context);
         currentCallSession.setIsComing(isComing);
         currentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
-        currentCallSession.createFactoryAndLocalStream();
         if (isComing) {
             // 开始响铃
             if (_iSocketEvent != null) {
@@ -91,8 +90,6 @@ public class AVEngineKit {
                 if (_iSocketEvent != null) {
                     // 创建房间
                     _iSocketEvent.createRoom(room, roomSize);
-                    // 发送邀请
-                    _iSocketEvent.sendInvite(room, targetId, audioOnly);
                 }
             });
 
@@ -100,6 +97,8 @@ public class AVEngineKit {
         return true;
 
     }
+
+
 
     public void endCall() {
         if (currentCallSession.isComing) {

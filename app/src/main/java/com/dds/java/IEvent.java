@@ -35,7 +35,7 @@ public interface IEvent {
     void onAnswer(String userId, String sdp);
 
     // ice-candidate
-    void onIceCandidate(String userId, String id, String label, String candidate);
+    void onIceCandidate(String userId, String id, int label, String candidate);
 
 
     void logout(String str);

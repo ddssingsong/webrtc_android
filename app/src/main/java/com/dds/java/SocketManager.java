@@ -195,7 +195,7 @@ public class SocketManager implements IEvent {
     public void onRing(String userId) {
         CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
         if (currentSession != null) {
-            currentSession.ringBack();
+            currentSession.onRingBack();
         }
 
     }
@@ -225,17 +225,27 @@ public class SocketManager implements IEvent {
 
     @Override
     public void onOffer(String userId, String sdp) {
+        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+        if (currentSession != null) {
+            currentSession.onReceiveOffer(userId, sdp);
+        }
 
     }
 
     @Override
     public void onAnswer(String userId, String sdp) {
-
+        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+        if (currentSession != null) {
+            currentSession.onReceiverAnswer(userId, sdp);
+        }
     }
 
     @Override
-    public void onIceCandidate(String userId, String id, String label, String candidate) {
-
+    public void onIceCandidate(String userId, String id, int label, String candidate) {
+        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+        if (currentSession != null) {
+            currentSession.onRemoteIceCandidate(userId, id, label, candidate);
+        }
     }
 
     @Override

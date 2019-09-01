@@ -263,7 +263,7 @@ public class DWebSocket extends WebSocketClient {
         if (data != null) {
             String userID = (String) data.get("userID");
             String id = (String) data.get("id");
-            String label = (String) data.get("label");
+            int label = (int) data.get("label");
             String candidate = (String) data.get("candidate");
             this.iEvent.onIceCandidate(userID, id, label, candidate);
         }
