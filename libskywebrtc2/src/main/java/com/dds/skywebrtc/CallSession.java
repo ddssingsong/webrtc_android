@@ -70,6 +70,8 @@ public class CallSession {
     public String _myId;
     public boolean isComing;
 
+    private boolean isOffer;
+
 
     public EnumType.CallState _callState = EnumType.CallState.Idle;
 
@@ -78,6 +80,7 @@ public class CallSession {
         _connectionIdArray = new ArrayList<>();
         this._connectionPeerDic = new HashMap<>();
         _rootEglBase = EglBase.create();
+        isOffer = false;
     }
 
 
@@ -150,17 +153,20 @@ public class CallSession {
 
     public void onReceiveOffer(String socketId, String description) {
         avEngineKit.executor.execute(() -> {
+            isOffer = true;
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
             if (mPeer != null) {
                 mPeer.pc.setRemoteDescription(mPeer, sdp);
             }
+
         });
 
     }
 
     public void onReceiverAnswer(String socketId, String sdp) {
         avEngineKit.executor.execute(() -> {
+            isOffer = false;
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
             if (mPeer != null) {
@@ -178,21 +184,6 @@ public class CallSession {
                 peer.pc.addIceCandidate(iceCandidate);
             }
         });
-
-    }
-
-
-    // --------------------------------界面显示相关-------------------------------------------------
-
-    public long getStartTime() {
-        return 0;
-    }
-
-    public SurfaceView createRendererView() {
-        return null;
-    }
-
-    public void setupRemoteVideo(SurfaceView surfaceView, int i) {
 
     }
 
@@ -289,16 +280,22 @@ public class CallSession {
 
         @Override
         public void onSetSuccess() {
+            if (isOffer) {
+                if (pc.getRemoteDescription() == null) {
+                    avEngineKit._iSocketEvent.sendOffer(userId, pc.getLocalDescription().description);
 
-
-            // 已经createOffer并setLocalDescription
-            if (pc.signalingState() == PeerConnection.SignalingState.HAVE_LOCAL_OFFER) {
-
+                } else {
+                    pc.createAnswer(Peer.this, offerOrAnswerConstraint());
+                }
+            } else {
+                if (pc.getLocalDescription() != null) {
+                    avEngineKit._iSocketEvent.sendAnswer(userId, pc.getLocalDescription().description);
+                } else {
+                    Log.d(TAG, "nothing");
+                }
             }
-            // 收到offer并setRemoteDescription
-            if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
 
-            }
+
         }
 
         @Override
@@ -310,6 +307,21 @@ public class CallSession {
         public void onSetFailure(String error) {
             Log.i(TAG, "SdpObserver onSetFailure:");
         }
+    }
+
+
+    // --------------------------------界面显示相关-------------------------------------------------
+
+    public long getStartTime() {
+        return 0;
+    }
+
+    public SurfaceView createRendererView() {
+        return null;
+    }
+
+    public void setupRemoteVideo(SurfaceView surfaceView, int i) {
+
     }
 
 
