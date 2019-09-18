@@ -81,10 +81,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     // 拨打电话
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.phone)).getText().toString().trim();
-
-
         AVEngineKit.init(new VoipEvent());
-
         SingleCallActivity.openActivity(this, phone, true, true);
 
     }

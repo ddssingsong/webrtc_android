@@ -1,7 +1,5 @@
 package com.dds.voip;
 
-import android.content.Context;
-
 import com.dds.App;
 
 /**
@@ -11,8 +9,4 @@ import com.dds.App;
 public class Utils {
     public static String ACTION_VOIP_RECEIVER = App.getInstance().getPackageName() + ".voip.Receiver";
 
-    public static void onCall(Context context, String targetId, boolean isMo, boolean isAudioOnly) {
-
-
-    }
 }
