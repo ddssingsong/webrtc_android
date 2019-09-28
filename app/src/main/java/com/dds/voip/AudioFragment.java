@@ -18,6 +18,9 @@ import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
 
+/**
+ * 语音通话界面
+ */
 
 public class AudioFragment extends Fragment implements CallSession.CallSessionCallback, View.OnClickListener {
     private ImageView minimizeImageView;
@@ -37,15 +40,17 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
     private View outgoingActionContainer;
     private View incomingActionContainer;
 
-    private boolean micEnabled = true;
-    private boolean isSpeakerOn = false;
+    private boolean micEnabled = true;  // 静音
+    private boolean isSpeakerOn = false;// 扬声器
     private SingleCallActivity activity;
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        activity = (SingleCallActivity) getActivity();
+        if (activity != null) {
+            gEngineKit = activity.getEngineKit();
+        }
     }
 
     @Override
@@ -83,7 +88,6 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
     }
 
     private void init() {
-        gEngineKit = activity.getEngineKit();
         CallSession currentSession = gEngineKit.getCurrentSession();
         // 如果已经接通
         if (currentSession != null && currentSession.getState() == EnumType.CallState.Connected) {
@@ -91,6 +95,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
             outgoingActionContainer.setVisibility(View.VISIBLE);
             durationTextView.setVisibility(View.VISIBLE);
         } else {
+            // 如果未接通
             if (activity.isOutgoing()) {
                 descTextView.setText(R.string.av_waiting);
                 outgoingActionContainer.setVisibility(View.VISIBLE);
@@ -104,11 +109,6 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
 
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        activity = (SingleCallActivity) getActivity();
-    }
 
     @Override
     public void onDetach() {

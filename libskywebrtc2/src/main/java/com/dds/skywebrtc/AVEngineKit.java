@@ -16,12 +16,11 @@ import java.util.concurrent.Executors;
  */
 public class AVEngineKit {
     private final static String TAG = "dds_AVEngineKit";
-    public final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    public static AVEngineKit avEngineKit;
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static AVEngineKit avEngineKit;
     private CallSession currentCallSession;
     public IBusinessEvent _iSocketEvent;
-
+    private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
     public static AVEngineKit Instance() {
         AVEngineKit var0;
@@ -100,6 +99,7 @@ public class AVEngineKit {
 
 
     public void endCall() {
+        if (currentCallSession == null) return;
         if (currentCallSession.isComing) {
             if (currentCallSession.getState() == EnumType.CallState.Incoming) {
                 // 接收到邀请，还没同意，发送拒绝
@@ -132,7 +132,6 @@ public class AVEngineKit {
 
 
     // -----------iceServers---------------------
-    private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
     public void addIceServer(String host, String username, String pwd) {
         AVEngineKit var = this;

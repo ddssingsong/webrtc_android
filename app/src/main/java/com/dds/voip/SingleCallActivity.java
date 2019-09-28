@@ -47,7 +47,8 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     private CallSession.CallSessionCallback currentFragment;
 
 
-    public static void openActivity(Context context, String targetId, boolean isOutgoing, boolean isAudioOnly) {
+    public static void openActivity(Context context, String targetId, boolean isOutgoing,
+                                    boolean isAudioOnly) {
         Intent voip = new Intent(context, SingleCallActivity.class);
         voip.putExtra(SingleCallActivity.EXTRA_MO, isOutgoing);
         voip.putExtra(SingleCallActivity.EXTRA_TARGET, targetId);
@@ -64,7 +65,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //全屏显示
+        //全屏+锁屏+常亮显示
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
@@ -109,7 +110,6 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     }
 
     private void init(String targetId, boolean outgoing, boolean audioOnly) {
-        CallSession session = gEngineKit.getCurrentSession();
         Fragment fragment;
         if (audioOnly) {
             fragment = new AudioFragment();
@@ -128,6 +128,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
             int roomSize = 2;
             gEngineKit.startCall(this, room, roomSize, targetId, audioOnly, false);
         } else {
+            CallSession session = gEngineKit.getCurrentSession();
             if (session == null) {
                 finish();
             } else {
