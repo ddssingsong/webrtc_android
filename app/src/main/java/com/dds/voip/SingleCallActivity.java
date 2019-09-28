@@ -138,9 +138,28 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
 
     }
 
+    public AVEngineKit getEngineKit() {
+        return gEngineKit;
+    }
 
-    // =========================================================================
+    public boolean isOutgoing() {
+        return isOutgoing;
+    }
 
+    // 显示小窗
+    public void showFloatingView() {
+        if (!checkOverlayPermission()) {
+            return;
+        }
+        Intent intent = new Intent(this, FloatingVoipService.class);
+        intent.putExtra(EXTRA_TARGET, targetId);
+        intent.putExtra(EXTRA_AUDIO_ONLY, isAudioOnly);
+        intent.putExtra(EXTRA_MO, isOutgoing);
+        startService(intent);
+        finish();
+    }
+
+    // ======================================界面回调================================
 
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason var1) {
@@ -173,26 +192,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
     }
 
 
-    public AVEngineKit getEngineKit() {
-        return gEngineKit;
-    }
-
-    public boolean isOutgoing() {
-        return isOutgoing;
-    }
-
-
-    public void showFloatingView() {
-        if (!checkOverlayPermission()) {
-            return;
-        }
-        Intent intent = new Intent(this, FloatingVoipService.class);
-        intent.putExtra(EXTRA_TARGET, targetId);
-        intent.putExtra(EXTRA_AUDIO_ONLY, isAudioOnly);
-        intent.putExtra(EXTRA_MO, isOutgoing);
-        startService(intent);
-        finish();
-    }
+    // ========================================================================================
 
     private boolean checkOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -220,4 +220,8 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
         return flags;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

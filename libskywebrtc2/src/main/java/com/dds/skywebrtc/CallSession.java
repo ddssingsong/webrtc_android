@@ -95,17 +95,16 @@ public class CallSession {
         }
     }
 
-
     // 设置静音
     public boolean muteAudio(boolean b) {
         return false;
     }
 
+    // 离开房间
     public void leave() {
         if (avEngineKit._iSocketEvent != null) {
             avEngineKit._iSocketEvent.sendLeave(_room, _myId);
         }
-
         avEngineKit.executor.execute(() -> {
 
         });

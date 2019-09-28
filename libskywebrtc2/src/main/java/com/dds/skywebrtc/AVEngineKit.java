@@ -98,8 +98,8 @@ public class AVEngineKit {
     }
 
 
+    // 挂断会话
     public void endCall() {
-        if (currentCallSession == null) return;
         if (currentCallSession.isComing) {
             if (currentCallSession.getState() == EnumType.CallState.Incoming) {
                 // 接收到邀请，还没同意，发送拒绝

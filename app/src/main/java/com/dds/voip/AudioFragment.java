@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,16 +23,15 @@ import com.dds.webrtc.R;
 
 public class AudioFragment extends Fragment implements CallSession.CallSessionCallback, View.OnClickListener {
     private ImageView minimizeImageView;
-    private ImageView portraitImageView;
-    private TextView nameTextView;
-    private TextView descTextView;
-    private TextView durationTextView;
+    private ImageView portraitImageView;  // 用户头像
+    private TextView nameTextView;        // 用户昵称
+    private TextView descTextView;        // 状态提示用语
+    private TextView durationTextView;    // 通话时长
+
     private ImageView muteImageView;
     private ImageView outgoingHangupImageView;
     private ImageView speakerImageView;
-    private LinearLayout hangupLinearLayout;
     private ImageView incomingHangupImageView;
-    private LinearLayout acceptLinearLayout;
     private ImageView acceptImageView;
     private AVEngineKit gEngineKit;
 
@@ -71,9 +69,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
         muteImageView = view.findViewById(R.id.muteImageView);
         outgoingHangupImageView = view.findViewById(R.id.outgoingHangupImageView);
         speakerImageView = view.findViewById(R.id.speakerImageView);
-        hangupLinearLayout = view.findViewById(R.id.hangupLinearLayout);
         incomingHangupImageView = view.findViewById(R.id.incomingHangupImageView);
-        acceptLinearLayout = view.findViewById(R.id.acceptLinearLayout);
         acceptImageView = view.findViewById(R.id.acceptImageView);
 
         outgoingActionContainer = view.findViewById(R.id.outgoingActionContainer);
@@ -81,10 +77,10 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
 
         acceptImageView.setOnClickListener(this);
         incomingHangupImageView.setOnClickListener(this);
-
         outgoingHangupImageView.setOnClickListener(this);
         muteImageView.setOnClickListener(this);
         speakerImageView.setOnClickListener(this);
+        minimizeImageView.setOnClickListener(this);
     }
 
     private void init() {
@@ -109,15 +105,15 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
 
     }
 
-
     @Override
     public void onDetach() {
         super.onDetach();
         activity = null;
     }
 
+    // ======================================界面回调================================
     @Override
-    public void didCallEndWithReason(EnumType.CallEndReason var1) {
+    public void didCallEndWithReason(EnumType.CallEndReason callEndReason) {
 
     }
 
@@ -208,6 +204,7 @@ public class AudioFragment extends Fragment implements CallSession.CallSessionCa
             audioManager.setSpeakerphoneOn(isSpeakerOn);
         }
 
+        // 小窗
         if (id == R.id.minimizeImageView) {
             activity.showFloatingView();
         }
