@@ -43,7 +43,7 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 发送邀请
-    public void sendInvite(String room, String myId, String userId, boolean audioOnly) {
+    public void sendInvite(String room, String myId, String users, boolean audioOnly) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__invite");
 
@@ -51,7 +51,7 @@ public class DWebSocket extends WebSocketClient {
         childMap.put("room", room);
         childMap.put("audioOnly", audioOnly);
         childMap.put("inviteID", myId);
-        childMap.put("userList", userId);
+        childMap.put("userList", users);
 
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
@@ -82,13 +82,13 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 发送响铃通知
-    public void sendRing(String myId, String inviteId) {
+    public void sendRing(String myId, String toId) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__ring");
 
         Map<String, Object> childMap = new HashMap<>();
-        childMap.put("fromID", inviteId);
-        childMap.put("toID", myId);
+        childMap.put("fromID", myId);
+        childMap.put("toID", toId);
 
 
         map.put("data", childMap);
@@ -333,8 +333,8 @@ public class DWebSocket extends WebSocketClient {
     private void handleRing(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String inviteID = (String) data.get("fromID");
-            this.iEvent.onRing(inviteID);
+            String fromId = (String) data.get("fromID");
+            this.iEvent.onRing(fromId);
         }
     }
 

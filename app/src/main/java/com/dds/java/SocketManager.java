@@ -117,6 +117,7 @@ public class SocketManager implements IEvent {
     }
 
 
+    // ======================================================================================
     public void createRoom(String room, int roomSize) {
         if (webSocket != null) {
             webSocket.createRoom(room, roomSize, myId);
@@ -124,9 +125,9 @@ public class SocketManager implements IEvent {
 
     }
 
-    public void sendInvite(String room, String userId, boolean audioOnly) {
+    public void sendInvite(String room, String users, boolean audioOnly) {
         if (webSocket != null) {
-            webSocket.sendInvite(room, myId, userId, audioOnly);
+            webSocket.sendInvite(room, myId, users, audioOnly);
         }
     }
 
@@ -160,7 +161,6 @@ public class SocketManager implements IEvent {
         }
     }
 
-
     public void sendMeetingInvite(String userList) {
 
     }
@@ -184,6 +184,7 @@ public class SocketManager implements IEvent {
     }
 
 
+    // ========================================================================================
     @Override
     public void onInvite(String room, boolean audioOnly, String inviteId, String userList) {
         Intent intent = new Intent();
@@ -193,6 +194,7 @@ public class SocketManager implements IEvent {
         intent.putExtra("userList", userList);
         intent.setAction(Utils.ACTION_VOIP_RECEIVER);
         intent.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));
+        // 发送广播
         App.getInstance().sendBroadcast(intent);
 
     }
@@ -203,27 +205,27 @@ public class SocketManager implements IEvent {
     }
 
     @Override
-    public void onRing(String userId) {
+    public void onRing(String fromId) {
         handler.post(() -> {
             CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
-                currentSession.onRingBack();
+                currentSession.onRingBack(fromId);
             }
         });
 
 
     }
 
-    @Override
+    @Override  // 加入房间
     public void onPeers(String myId, String userId) {
         handler.post(() -> {
-
+            //自己进入了房间，然后开始发送offer
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onJoinHome(myId, userId);
+            }
         });
-        //自己进入了房间，然后开始发送offer
-        CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
-        if (currentSession != null) {
-            currentSession.onJoinHome(myId, userId);
-        }
+
     }
 
     @Override
@@ -280,6 +282,8 @@ public class SocketManager implements IEvent {
 
     }
 
+    //===========================================================================================
+
     @Override
     public void logout(String str) {
         Log.i(TAG, "logout:" + str);
@@ -292,7 +296,6 @@ public class SocketManager implements IEvent {
     public int getUserState() {
         return userState;
     }
-
 
     private WeakReference<IUserState> iUserState;
 

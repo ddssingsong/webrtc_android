@@ -45,7 +45,7 @@ public class CallSession {
     private CallSessionCallback sessionCallback;
     private AVEngineKit avEngineKit;
 
-    public List<String> _connectionIdArray;
+    public ArrayList<String> _connectionIdArray;
     private Map<String, Peer> _connectionPeerDic;
 
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
@@ -61,11 +61,12 @@ public class CallSession {
     public AudioTrack _localAudioTrack;
     public VideoSource videoSource;
     public AudioSource audioSource;
+    public VideoCapturer captureAndroid;
     public EglBase _rootEglBase;
     private Context _context;
 
     public boolean _isAudioOnly;
-    public String _targetId;
+    public String _targetIds;
     public String _room;
     public String _myId;
     public boolean isComing;
@@ -88,7 +89,6 @@ public class CallSession {
 
     // 加入房间
     public void joinHome() {
-        // 加入房间
         _callState = EnumType.CallState.Connecting;
         if (avEngineKit._iSocketEvent != null) {
             avEngineKit._iSocketEvent.sendJoin(_room);
@@ -106,31 +106,83 @@ public class CallSession {
             avEngineKit._iSocketEvent.sendLeave(_room, _myId);
         }
         avEngineKit.executor.execute(() -> {
+            // 释放资源
+            ArrayList myCopy;
+            myCopy = (ArrayList) _connectionIdArray.clone();
+            for (Object Id : myCopy) {
+                closePeerConnection((String) Id);
+            }
+            if (_connectionIdArray != null) {
+                _connectionIdArray.clear();
+            }
+            if (audioSource != null) {
+                audioSource.dispose();
+                audioSource = null;
+            }
+            if (videoSource != null) {
+                videoSource.dispose();
+                videoSource = null;
+            }
 
+            if (captureAndroid != null) {
+                try {
+                    captureAndroid.stopCapture();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                captureAndroid.dispose();
+                captureAndroid = null;
+            }
+
+            if (surfaceTextureHelper != null) {
+                surfaceTextureHelper.dispose();
+                surfaceTextureHelper = null;
+            }
+
+            if (_factory != null) {
+                _factory.dispose();
+                _factory = null;
+            }
+            _callState = EnumType.CallState.Idle;
+            if (sessionCallback != null) {
+                sessionCallback.didCallEndWithReason(null);
+            }
         });
+    }
+
+    private void closePeerConnection(String connectionId) {
+        Peer mPeer = _connectionPeerDic.get(connectionId);
+        if (mPeer != null) {
+            mPeer.pc.close();
+        }
+        _connectionPeerDic.remove(connectionId);
+        _connectionIdArray.remove(connectionId);
     }
     //------------------------------------receive---------------------------------------------------
 
     // 加入房间成功
-    public void onJoinHome(String myId, String userId) {
+    public void onJoinHome(String myId, String users) {
         avEngineKit.executor.execute(() -> {
             _myId = myId;
-            String[] split = userId.split(",");
-            List<String> strings = Arrays.asList(split);
-            _connectionIdArray.addAll(strings);
+            if (users != null) {
+                String[] split = users.split(",");
+                List<String> strings = Arrays.asList(split);
+                _connectionIdArray.addAll(strings);
+            }
             if (_factory == null) {
                 _factory = createConnectionFactory();
             }
             if (_localStream == null) {
                 createLocalStream();
             }
+
             createPeerConnections();
             addStreams();
             createOffers();
 
             // 如果是发起人，发送邀请
             if (!isComing) {
-                avEngineKit._iSocketEvent.sendInvite(_room, _targetId, _isAudioOnly);
+                avEngineKit._iSocketEvent.sendInvite(_room, _targetIds, _isAudioOnly);
             }
 
         });
@@ -152,7 +204,7 @@ public class CallSession {
     }
 
     // 对方已响铃
-    public void onRingBack() {
+    public void onRingBack(String fromId) {
         if (avEngineKit._iSocketEvent != null) {
             avEngineKit._iSocketEvent.shouldStartRing(false);
         }
@@ -290,7 +342,6 @@ public class CallSession {
             if (isOffer) {
                 if (pc.getRemoteDescription() == null) {
                     avEngineKit._iSocketEvent.sendOffer(userId, pc.getLocalDescription().description);
-
                 } else {
                     pc.createAnswer(Peer.this, offerOrAnswerConstraint());
                 }
@@ -342,16 +393,9 @@ public class CallSession {
 
     // 为所有连接添加流
     private void addStreams() {
-        Log.v(TAG, "为所有连接添加流");
+        if (_localStream == null) return;
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
-            if (_localStream == null) {
-                createLocalStream();
-            }
-            try {
-                entry.getValue().pc.addStream(_localStream);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            entry.getValue().pc.addStream(_localStream);
         }
 
     }
@@ -360,22 +404,12 @@ public class CallSession {
     private void createOffers() {
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
             Peer mPeer = entry.getValue();
+            if (mPeer.pc == null) {
+                break;
+            }
             mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
         }
 
-    }
-
-    public void createFactoryAndLocalStream() {
-        avEngineKit.executor.execute(() -> {
-            // 创建factory
-            if (_factory == null) {
-                _factory = createConnectionFactory();
-            }
-            // 创建本地流
-            if (_localStream == null) {
-                createLocalStream();
-            }
-        });
     }
 
     public void createLocalStream() {
@@ -384,6 +418,18 @@ public class CallSession {
         audioSource = _factory.createAudioSource(createAudioConstraints());
         _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
         _localStream.addTrack(_localAudioTrack);
+
+        // 视频
+        if (!_isAudioOnly) {
+            captureAndroid = createVideoCapture();
+            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", _rootEglBase.getEglBaseContext());
+            videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
+            captureAndroid.initialize(surfaceTextureHelper, _context, videoSource.getCapturerObserver());
+            captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
+            _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
+            _localStream.addTrack(_localVideoTrack);
+        }
+
     }
 
     public PeerConnectionFactory createConnectionFactory() {
@@ -400,9 +446,7 @@ public class CallSession {
                 true,
                 true);
         decoderFactory = new DefaultVideoDecoderFactory(_rootEglBase.getEglBaseContext());
-
         PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-
         return PeerConnectionFactory.builder()
                 .setOptions(options)
                 .setAudioDeviceModule(JavaAudioDeviceModule.builder(_context).createAudioDeviceModule())
@@ -494,8 +538,8 @@ public class CallSession {
     }
 
 
-    public void setTargetId(String _targetId) {
-        this._targetId = _targetId;
+    public void setTargetId(String targetIds) {
+        this._targetIds = targetIds;
     }
 
     public void setContext(Context context) {
@@ -531,7 +575,8 @@ public class CallSession {
         this.sessionCallback = sessionCallback;
     }
 
-    public interface CallSessionCallback {
+    public interface CallSessionCallback
+    {
         void didCallEndWithReason(EnumType.CallEndReason var1);
 
         void didChangeState(EnumType.CallState var1);

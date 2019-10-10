@@ -36,6 +36,21 @@ public class AVEngineKit {
         if (avEngineKit == null) {
             avEngineKit = new AVEngineKit();
             avEngineKit._iSocketEvent = iSocketEvent;
+
+
+            PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
+                    .createIceServer();
+            PeerConnection.IceServer var2 = PeerConnection.IceServer.builder("turn:global.turn.twilio.com:3478?transport=udp")
+                    .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
+                    .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
+                    .createIceServer();
+            PeerConnection.IceServer var3 = PeerConnection.IceServer.builder("turn:global.turn.twilio.com:3478?transport=tcp")
+                    .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
+                    .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
+                    .createIceServer();
+            avEngineKit.iceServers.add(var1);
+            avEngineKit.iceServers.add(var2);
+            avEngineKit.iceServers.add(var3);
         }
     }
 
@@ -43,7 +58,8 @@ public class AVEngineKit {
     // 发起会话
     public boolean startCall(Context context,
                              final String room, final int roomSize,
-                             final String targetId, final boolean audioOnly,
+                             final String targetId,
+                             final boolean audioOnly,
                              boolean isComing) {
         if (avEngineKit == null) {
             Log.e(TAG, "receiveCall error,init is not set");
@@ -68,7 +84,9 @@ public class AVEngineKit {
         currentCallSession = new CallSession(avEngineKit);
         currentCallSession.setIsAudioOnly(audioOnly);
         currentCallSession.setRoom(room);
-        currentCallSession.setTargetId(targetId);
+        if (!isComing) {
+            currentCallSession.setTargetId(targetId);
+        }
         currentCallSession.setContext(context);
         currentCallSession.setIsComing(isComing);
         currentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
@@ -104,19 +122,17 @@ public class AVEngineKit {
             if (currentCallSession.getState() == EnumType.CallState.Incoming) {
                 // 接收到邀请，还没同意，发送拒绝
                 if (_iSocketEvent != null) {
-                    _iSocketEvent.sendRefuse(currentCallSession._targetId, EnumType.RefuseType.Hangup.ordinal());
+                    _iSocketEvent.sendRefuse(currentCallSession._targetIds, EnumType.RefuseType.Hangup.ordinal());
                 }
             } else {
                 // 已经接通，挂断电话
                 currentCallSession.leave();
             }
-
-
         } else {
             if (currentCallSession.getState() == EnumType.CallState.Outgoing) {
                 if (_iSocketEvent != null) {
                     // 取消拨出
-                    _iSocketEvent.sendCancel(currentCallSession._targetId);
+                    _iSocketEvent.sendCancel(currentCallSession._targetIds);
                 }
             } else {
                 // 已经接通，挂断电话
@@ -124,7 +140,6 @@ public class AVEngineKit {
             }
         }
     }
-
 
     public CallSession getCurrentSession() {
         return this.currentCallSession;

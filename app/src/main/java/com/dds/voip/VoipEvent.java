@@ -25,8 +25,8 @@ public class VoipEvent implements IBusinessEvent {
     }
 
     @Override
-    public void sendInvite(String room, String userId, boolean audioOnly) {
-        SocketManager.getInstance().sendInvite(room, userId, audioOnly);
+    public void sendInvite(String room, String users, boolean audioOnly) {
+        SocketManager.getInstance().sendInvite(room, users, audioOnly);
     }
 
     @Override
@@ -77,6 +77,8 @@ public class VoipEvent implements IBusinessEvent {
         SocketManager.getInstance().sendIceCandidate(userId, id, label, candidate);
     }
 
+
+    //==============================================================================
     @Override
     public void shouldStartRing(boolean isComing) {
         if (isComing) {

@@ -126,7 +126,7 @@ public class SingleCallActivity extends AppCompatActivity implements CallSession
             // 创建会话
             String room = UUID.randomUUID().toString();
             int roomSize = 2;
-            gEngineKit.startCall(this, room, roomSize, targetId, audioOnly, false);
+            gEngineKit.startCall(getApplicationContext(), room, roomSize, targetId, audioOnly, false);
         } else {
             CallSession session = gEngineKit.getCurrentSession();
             if (session == null) {

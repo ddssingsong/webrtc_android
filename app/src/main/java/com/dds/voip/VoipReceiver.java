@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.dds.App;
 import com.dds.skywebrtc.AVEngineKit;
 
 /**
@@ -17,12 +18,20 @@ public class VoipReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (Utils.ACTION_VOIP_RECEIVER.equals(action)) {
             String room = intent.getStringExtra("room");
-            int mediaType = intent.getIntExtra("mediaType", 0);
+            boolean audioOnly = intent.getBooleanExtra("audioOnly", true);
             String inviteId = intent.getStringExtra("inviteId");
+            String userList = intent.getStringExtra("userList");
+            String[] list = userList.split(",");
             AVEngineKit.init(new VoipEvent());
-            boolean b = AVEngineKit.Instance().startCall(context, room, 2, inviteId, mediaType == 0, true);
+            boolean b = AVEngineKit.Instance().startCall(App.getInstance(), room, 2, inviteId, audioOnly, true);
             if (b) {
-                SingleCallActivity.openActivity(context, inviteId, false, mediaType == 0);
+                if (list.length == 1) {
+                    SingleCallActivity.openActivity(context, inviteId, false, audioOnly);
+                } else {
+                    // 群聊
+
+                }
+
             }
 
 
