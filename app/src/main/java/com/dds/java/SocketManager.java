@@ -243,7 +243,10 @@ public class SocketManager implements IEvent {
     @Override
     public void onReject(String userId, int type) {
         handler.post(() -> {
-
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onRefuse(userId);
+            }
         });
 
     }

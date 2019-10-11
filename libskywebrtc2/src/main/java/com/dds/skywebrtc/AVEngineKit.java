@@ -84,9 +84,7 @@ public class AVEngineKit {
         currentCallSession = new CallSession(avEngineKit);
         currentCallSession.setIsAudioOnly(audioOnly);
         currentCallSession.setRoom(room);
-        if (!isComing) {
-            currentCallSession.setTargetId(targetId);
-        }
+        currentCallSession.setTargetId(targetId);
         currentCallSession.setContext(context);
         currentCallSession.setIsComing(isComing);
         currentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);

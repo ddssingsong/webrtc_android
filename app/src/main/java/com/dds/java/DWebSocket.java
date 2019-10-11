@@ -118,9 +118,9 @@ public class DWebSocket extends WebSocketClient {
         map.put("eventName", "__reject");
 
         Map<String, Object> childMap = new HashMap<>();
-        childMap.put("inviteID", inviteID);
+        childMap.put("toID", inviteID);
         childMap.put("fromID", myId);
-        childMap.put("refuseType", refuseType);
+        childMap.put("refuseType", String.valueOf(refuseType));
 
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
@@ -148,13 +148,11 @@ public class DWebSocket extends WebSocketClient {
     // send offer
     public void sendOffer(String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
-        map.put("eventName", "__offer");
-
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
         childMap.put("userID", userId);
-
         map.put("data", childMap);
+        map.put("eventName", "__offer");
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
@@ -164,13 +162,13 @@ public class DWebSocket extends WebSocketClient {
     // send answer
     public void sendAnswer(String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
-        map.put("eventName", "__answer");
+
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
         childMap.put("userID", userId);
-
         map.put("data", childMap);
+        map.put("eventName", "__answer");
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
@@ -306,9 +304,8 @@ public class DWebSocket extends WebSocketClient {
     private void handleReject(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String inviteID = (String) data.get("inviteID");
             String fromID = (String) data.get("fromID");
-            int rejectType = (int) data.get("rejectType");
+            int rejectType = Integer.parseInt(String.valueOf(data.get("refuseType")));
             this.iEvent.onReject(fromID, rejectType);
         }
     }

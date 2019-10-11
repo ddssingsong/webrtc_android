@@ -2,6 +2,7 @@ package com.dds.skywebrtc;
 
 import android.app.Application;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceView;
 
@@ -105,6 +106,11 @@ public class CallSession {
         if (avEngineKit._iSocketEvent != null) {
             avEngineKit._iSocketEvent.sendLeave(_room, _myId);
         }
+        exitRoom();
+
+    }
+
+    public void exitRoom() {
         avEngineKit.executor.execute(() -> {
             // 释放资源
             ArrayList myCopy;
@@ -164,7 +170,7 @@ public class CallSession {
     public void onJoinHome(String myId, String users) {
         avEngineKit.executor.execute(() -> {
             _myId = myId;
-            if (users != null) {
+            if (!TextUtils.isEmpty(users)) {
                 String[] split = users.split(",");
                 List<String> strings = Arrays.asList(split);
                 _connectionIdArray.addAll(strings);
@@ -201,6 +207,10 @@ public class CallSession {
                 avEngineKit._iSocketEvent.shouldStopRing();
             }
         });
+    }
+
+    public void onRefuse(String userId) {
+        exitRoom();
     }
 
     // 对方已响铃
@@ -329,7 +339,7 @@ public class CallSession {
         //-------------SdpObserver--------------------
         @Override
         public void onCreateSuccess(SessionDescription origSdp) {
-            Log.v(TAG, "sdp创建成功       " + origSdp.type);
+            Log.d(TAG, "sdp创建成功       " + origSdp.type);
             String sdpDescription = origSdp.description;
             final SessionDescription sdp = new SessionDescription(origSdp.type, sdpDescription);
 
@@ -386,6 +396,7 @@ public class CallSession {
     //------------------------------------各种初始化---------------------------------------------
     private void createPeerConnections() {
         for (Object str : _connectionIdArray) {
+            Log.d("dds_test", "创建Peer:" + (String) str);
             Peer peer = new Peer((String) str);
             _connectionPeerDic.put((String) str, peer);
         }
@@ -575,8 +586,7 @@ public class CallSession {
         this.sessionCallback = sessionCallback;
     }
 
-    public interface CallSessionCallback
-    {
+    public interface CallSessionCallback {
         void didCallEndWithReason(EnumType.CallEndReason var1);
 
         void didChangeState(EnumType.CallState var1);
