@@ -130,12 +130,13 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 离开房间
-    public void sendLeave(String room, String userId) {
+    public void sendLeave(String myId, String room, String userId) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__leave");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("room", room);
+        childMap.put("fromID", myId);
         childMap.put("userID", userId);
 
         map.put("data", childMap);
@@ -146,11 +147,12 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // send offer
-    public void sendOffer(String userId, String sdp) {
+    public void sendOffer(String myId, String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
         childMap.put("userID", userId);
+        childMap.put("fromID", myId);
         map.put("data", childMap);
         map.put("eventName", "__offer");
         JSONObject object = new JSONObject(map);
@@ -160,10 +162,11 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // send answer
-    public void sendAnswer(String userId, String sdp) {
+    public void sendAnswer(String myId, String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
+        childMap.put("fromID", myId);
         childMap.put("userID", userId);
         map.put("data", childMap);
         map.put("eventName", "__answer");
@@ -285,7 +288,7 @@ public class DWebSocket extends WebSocketClient {
         Map data = (Map) map.get("data");
         if (data != null) {
             String sdp = (String) data.get("sdp");
-            String userID = (String) data.get("userID");
+            String userID = (String) data.get("fromID");
             this.iEvent.onAnswer(userID, sdp);
         }
     }
@@ -294,7 +297,7 @@ public class DWebSocket extends WebSocketClient {
         Map data = (Map) map.get("data");
         if (data != null) {
             String sdp = (String) data.get("sdp");
-            String userID = (String) data.get("userID");
+            String userID = (String) data.get("fromID");
             this.iEvent.onOffer(userID, sdp);
         }
     }

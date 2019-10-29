@@ -31,6 +31,7 @@ import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ import java.util.Map;
  */
 public class CallSession {
     public final static String TAG = "dds_CallSession";
-    private CallSessionCallback sessionCallback;
+    private WeakReference<CallSessionCallback> sessionCallback;
     private AVEngineKit avEngineKit;
 
     public ArrayList<String> _connectionIdArray;
@@ -150,8 +151,8 @@ public class CallSession {
                 _factory = null;
             }
             _callState = EnumType.CallState.Idle;
-            if (sessionCallback != null) {
-                sessionCallback.didCallEndWithReason(null);
+            if (sessionCallback.get() != null) {
+                sessionCallback.get().didCallEndWithReason(null);
             }
         });
     }
@@ -198,8 +199,8 @@ public class CallSession {
 
                 // 更换界面
                 _callState = EnumType.CallState.Connected;
-                if (sessionCallback != null) {
-                    sessionCallback.didChangeState(EnumType.CallState.Connected);
+                if (sessionCallback.get() != null) {
+                    sessionCallback.get().didChangeState(EnumType.CallState.Connected);
                 }
             }
 
@@ -212,19 +213,22 @@ public class CallSession {
             if (_localStream == null) {
                 createLocalStream();
             }
-            Peer mPeer = new Peer(userId);
-            mPeer.pc.addStream(_localStream);
-            _connectionIdArray.add(userId);
-            _connectionPeerDic.put(userId, mPeer);
-
+            try {
+                Peer mPeer = new Peer(userId);
+                mPeer.pc.addStream(_localStream);
+                _connectionIdArray.add(userId);
+                _connectionPeerDic.put(userId, mPeer);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
             // 关闭响铃
             if (avEngineKit._iSocketEvent != null) {
                 avEngineKit._iSocketEvent.shouldStopRing();
             }
             // 切换界面
             _callState = EnumType.CallState.Connected;
-            if (sessionCallback != null) {
-                sessionCallback.didChangeState(EnumType.CallState.Connected);
+            if (sessionCallback.get() != null) {
+                sessionCallback.get().didChangeState(EnumType.CallState.Connected);
             }
 
         });
@@ -242,11 +246,13 @@ public class CallSession {
     }
 
     public void onReceiveOffer(String socketId, String description) {
+        Log.e("dds_test", "onReceiveOffer:" + socketId);
         avEngineKit.executor.execute(() -> {
             isOffer = true;
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
             if (mPeer != null) {
+                Log.e("dds_test", "onReceiveOffer setRemoteDescription");
                 mPeer.pc.setRemoteDescription(mPeer, sdp);
             }
 
@@ -255,11 +261,13 @@ public class CallSession {
     }
 
     public void onReceiverAnswer(String socketId, String sdp) {
+        Log.e("dds_test", "onReceiverAnswer:" + socketId);
         avEngineKit.executor.execute(() -> {
             isOffer = false;
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
             if (mPeer != null) {
+                Log.e("dds_test", "onReceiverAnswer setRemoteDescription");
                 mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
             }
         });
@@ -332,7 +340,9 @@ public class CallSession {
         @Override
         public void onAddStream(MediaStream stream) {
             Log.i(TAG, "onAddStream:");
-
+            if (stream != null) {
+                stream.videoTracks.get(0).setEnabled(true);
+            }
 
         }
 
@@ -370,14 +380,18 @@ public class CallSession {
 
         @Override
         public void onSetSuccess() {
-            if (isOffer) {
+            Log.v(TAG, "sdp连接成功        " + pc.signalingState().toString());
+            if (!isOffer) {
                 if (pc.getRemoteDescription() == null) {
+                    Log.d("dds_test", "send offer");
                     avEngineKit._iSocketEvent.sendOffer(userId, pc.getLocalDescription().description);
                 } else {
+                    Log.d("dds_test", "create answer");
                     pc.createAnswer(Peer.this, offerOrAnswerConstraint());
                 }
             } else {
                 if (pc.getLocalDescription() != null) {
+                    Log.d("dds_test", "send answer");
                     avEngineKit._iSocketEvent.sendAnswer(userId, pc.getLocalDescription().description);
                 } else {
                     Log.d(TAG, "nothing");
@@ -439,6 +453,7 @@ public class CallSession {
             if (mPeer.pc == null) {
                 break;
             }
+            Log.d("dds_test", "create answer");
             mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
         }
 
@@ -604,7 +619,7 @@ public class CallSession {
     }
 
     public void setSessionCallback(CallSessionCallback sessionCallback) {
-        this.sessionCallback = sessionCallback;
+        this.sessionCallback = new WeakReference<>(sessionCallback);
     }
 
     public interface CallSessionCallback {

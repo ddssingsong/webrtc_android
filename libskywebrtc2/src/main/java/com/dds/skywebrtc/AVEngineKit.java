@@ -50,10 +50,40 @@ public class AVEngineKit {
                     .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
                     .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
                     .createIceServer();
+
             avEngineKit.iceServers.add(var1);
             avEngineKit.iceServers.add(var4);
             avEngineKit.iceServers.add(var2);
             avEngineKit.iceServers.add(var3);
+
+            PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:118.25.25.147:3478?transport=udp")
+                    .createIceServer();
+            PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:118.25.25.147:3478?transport=udp")
+                    .setUsername("ddssingsong")
+                    .setPassword("123456")
+                    .createIceServer();
+            PeerConnection.IceServer var13 = PeerConnection.IceServer.builder("turn:118.25.25.147:3478?transport=tcp")
+                    .setUsername("ddssingsong")
+                    .setPassword("123456")
+                    .createIceServer();
+            avEngineKit.iceServers.add(var11);
+            avEngineKit.iceServers.add(var12);
+            avEngineKit.iceServers.add(var13);
+
+
+            PeerConnection.IceServer var21 = PeerConnection.IceServer.builder("stun:157.255.51.168:3478?transport=udp")
+                    .createIceServer();
+            PeerConnection.IceServer var22 = PeerConnection.IceServer.builder("turn:157.255.51.168:3478?transport=udp")
+                    .setUsername("ddssingsong")
+                    .setPassword("123456")
+                    .createIceServer();
+            PeerConnection.IceServer var23 = PeerConnection.IceServer.builder("turn:157.255.51.168:3478?transport=tcp")
+                    .setUsername("ddssingsong")
+                    .setPassword("123456")
+                    .createIceServer();
+            avEngineKit.iceServers.add(var21);
+            avEngineKit.iceServers.add(var22);
+            avEngineKit.iceServers.add(var23);
         }
     }
 

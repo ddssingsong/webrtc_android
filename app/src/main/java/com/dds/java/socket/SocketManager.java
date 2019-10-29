@@ -133,7 +133,7 @@ public class SocketManager implements IEvent {
 
     public void sendLeave(String room, String userId) {
         if (webSocket != null) {
-            webSocket.sendLeave(room, userId);
+            webSocket.sendLeave(myId, room, userId);
         }
     }
 
@@ -167,13 +167,13 @@ public class SocketManager implements IEvent {
 
     public void sendOffer(String userId, String sdp) {
         if (webSocket != null) {
-            webSocket.sendOffer(userId, sdp);
+            webSocket.sendOffer(myId, userId, sdp);
         }
     }
 
     public void sendAnswer(String userId, String sdp) {
         if (webSocket != null) {
-            webSocket.sendAnswer(userId, sdp);
+            webSocket.sendAnswer(myId, userId, sdp);
         }
     }
 
