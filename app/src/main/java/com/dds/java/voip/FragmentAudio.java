@@ -174,6 +174,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
             CallSession session = gEngineKit.getCurrentSession();
             if (session != null) {
                 AVEngineKit.Instance().endCall();
+                activity.finish();
             } else {
                 activity.finish();
             }

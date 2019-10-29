@@ -40,6 +40,8 @@ public class AVEngineKit {
 
             PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                     .createIceServer();
+            PeerConnection.IceServer var4 = PeerConnection.IceServer.builder("stun:global.stun.twilio.com:3478?transport=udp")
+                    .createIceServer();
             PeerConnection.IceServer var2 = PeerConnection.IceServer.builder("turn:global.turn.twilio.com:3478?transport=udp")
                     .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
                     .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
@@ -49,6 +51,7 @@ public class AVEngineKit {
                     .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
                     .createIceServer();
             avEngineKit.iceServers.add(var1);
+            avEngineKit.iceServers.add(var4);
             avEngineKit.iceServers.add(var2);
             avEngineKit.iceServers.add(var3);
         }
@@ -116,6 +119,11 @@ public class AVEngineKit {
 
     // 挂断会话
     public void endCall() {
+        // 停止响铃
+        if (avEngineKit._iSocketEvent != null) {
+            avEngineKit._iSocketEvent.shouldStopRing();
+        }
+        // 有人进入房间
         if (currentCallSession.isComing) {
             if (currentCallSession.getState() == EnumType.CallState.Incoming) {
                 // 接收到邀请，还没同意，发送拒绝
@@ -137,6 +145,7 @@ public class AVEngineKit {
                 currentCallSession.leave();
             }
         }
+        currentCallSession.setCallState(EnumType.CallState.Idle);
     }
 
     public CallSession getCurrentSession() {

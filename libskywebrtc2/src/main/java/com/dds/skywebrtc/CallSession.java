@@ -189,6 +189,18 @@ public class CallSession {
             // 如果是发起人，发送邀请
             if (!isComing) {
                 avEngineKit._iSocketEvent.sendInvite(_room, _targetIds, _isAudioOnly);
+            } else {
+
+                // 关闭响铃
+                if (avEngineKit._iSocketEvent != null) {
+                    avEngineKit._iSocketEvent.shouldStopRing();
+                }
+
+                // 更换界面
+                _callState = EnumType.CallState.Connected;
+                if (sessionCallback != null) {
+                    sessionCallback.didChangeState(EnumType.CallState.Connected);
+                }
             }
 
         });
@@ -197,15 +209,24 @@ public class CallSession {
     // 新成员进入
     public void newPeer(String userId) {
         avEngineKit.executor.execute(() -> {
+            if (_localStream == null) {
+                createLocalStream();
+            }
             Peer mPeer = new Peer(userId);
             mPeer.pc.addStream(_localStream);
             _connectionIdArray.add(userId);
             _connectionPeerDic.put(userId, mPeer);
 
-            // 有人进入房间
+            // 关闭响铃
             if (avEngineKit._iSocketEvent != null) {
                 avEngineKit._iSocketEvent.shouldStopRing();
             }
+            // 切换界面
+            _callState = EnumType.CallState.Connected;
+            if (sessionCallback != null) {
+                sessionCallback.didChangeState(EnumType.CallState.Connected);
+            }
+
         });
     }
 

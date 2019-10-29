@@ -162,8 +162,6 @@ public class DWebSocket extends WebSocketClient {
     // send answer
     public void sendAnswer(String userId, String sdp) {
         Map<String, Object> map = new HashMap<>();
-
-
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("sdp", sdp);
         childMap.put("userID", userId);
