@@ -1,4 +1,4 @@
-package com.dds.java;
+package com.dds.java.socket;
 
 import android.util.Log;
 

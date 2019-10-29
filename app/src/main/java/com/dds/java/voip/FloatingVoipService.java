@@ -1,4 +1,4 @@
-package com.dds.voip;
+package com.dds.java.voip;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -32,6 +32,9 @@ import com.dds.webrtc.BuildConfig;
 import com.dds.webrtc.R;
 
 
+/**
+ * 悬浮窗界面
+ */
 public class FloatingVoipService extends Service {
     private static boolean isStarted = false;
     private static final int NOTIFICATION_ID = 1;
@@ -62,11 +65,11 @@ public class FloatingVoipService extends Service {
         if (session == null || EnumType.CallState.Idle == session.getState()) {
             stopSelf();
         }
-        resumeActivityIntent = new Intent(this, SingleCallActivity.class);
-        resumeActivityIntent.putExtra(SingleCallActivity.EXTRA_FROM_FLOATING_VIEW, true);
-        resumeActivityIntent.putExtra(SingleCallActivity.EXTRA_MO, intent.getBooleanExtra(SingleCallActivity.EXTRA_MO, false));
-        resumeActivityIntent.putExtra(SingleCallActivity.EXTRA_AUDIO_ONLY, intent.getBooleanExtra(SingleCallActivity.EXTRA_AUDIO_ONLY, false));
-        resumeActivityIntent.putExtra(SingleCallActivity.EXTRA_TARGET, intent.getStringExtra(SingleCallActivity.EXTRA_TARGET));
+        resumeActivityIntent = new Intent(this, CallSingleActivity.class);
+        resumeActivityIntent.putExtra(CallSingleActivity.EXTRA_FROM_FLOATING_VIEW, true);
+        resumeActivityIntent.putExtra(CallSingleActivity.EXTRA_MO, intent.getBooleanExtra(CallSingleActivity.EXTRA_MO, false));
+        resumeActivityIntent.putExtra(CallSingleActivity.EXTRA_AUDIO_ONLY, intent.getBooleanExtra(CallSingleActivity.EXTRA_AUDIO_ONLY, false));
+        resumeActivityIntent.putExtra(CallSingleActivity.EXTRA_TARGET, intent.getStringExtra(CallSingleActivity.EXTRA_TARGET));
         resumeActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, resumeActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);

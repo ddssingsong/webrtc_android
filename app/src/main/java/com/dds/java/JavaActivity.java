@@ -11,9 +11,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.dds.java.socket.IUserState;
+import com.dds.java.socket.SocketManager;
 import com.dds.skywebrtc.AVEngineKit;
-import com.dds.voip.SingleCallActivity;
-import com.dds.voip.VoipEvent;
+import com.dds.java.voip.CallSingleActivity;
+import com.dds.java.voip.VoipEvent;
 import com.dds.webrtc.R;
 
 public class JavaActivity extends AppCompatActivity implements IUserState {
@@ -21,8 +23,9 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     private EditText wss;
     private EditText et_name;
     private TextView user_state;
-    private RadioGroup deviceRadioGroup;
-    private int device; // 0 phone 1 pc
+
+    // 0 phone 1 pc
+    private int device;
 
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -31,7 +34,6 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_java);
         initView();
-
         initData();
 
     }
@@ -41,7 +43,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
         wss = findViewById(R.id.et_wss);
         et_name = findViewById(R.id.et_name);
         user_state = findViewById(R.id.user_state);
-        deviceRadioGroup = findViewById(R.id.device);
+        RadioGroup deviceRadioGroup = findViewById(R.id.device);
         deviceRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.phone) {
                 device = 0;
@@ -66,9 +68,13 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     }
 
 
+    //--------------------------------------------------------------------------------
     // 登录
     public void connect(View view) {
-        SocketManager.getInstance().connect(wss.getText().toString().trim(), et_name.getText().toString().trim(), device);
+        SocketManager.getInstance().connect(
+                wss.getText().toString().trim(),
+                et_name.getText().toString().trim(),
+                device);
 
     }
 
@@ -77,12 +83,11 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
         SocketManager.getInstance().unConnect();
     }
 
-
     // 拨打电话
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
         AVEngineKit.init(new VoipEvent());
-        SingleCallActivity.openActivity(this, phone, true, true);
+        CallSingleActivity.openActivity(this, phone, true, true);
 
     }
 
@@ -97,6 +102,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
         handler.post(this::logoutState);
     }
 
+    //--------------------------------------------------------------------------------------
 
     public void loginState() {
         user_state.setText("用户登录状态：已登录");

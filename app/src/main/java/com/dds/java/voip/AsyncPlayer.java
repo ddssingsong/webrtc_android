@@ -1,4 +1,4 @@
-package com.dds.voip;
+package com.dds.java.voip;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -10,6 +10,9 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.LinkedList;
 
+/**
+ * 响铃相关类
+ */
 public class AsyncPlayer {
     private static final int PLAY = 1;
     private static final int STOP = 2;

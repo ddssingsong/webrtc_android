@@ -1,10 +1,10 @@
-package com.dds.voip;
+package com.dds.java.voip;
 
 import android.media.AudioManager;
 import android.net.Uri;
 
 import com.dds.App;
-import com.dds.java.SocketManager;
+import com.dds.java.socket.SocketManager;
 import com.dds.skywebrtc.IBusinessEvent;
 import com.dds.webrtc.R;
 

@@ -1,4 +1,4 @@
-package com.dds.voip;
+package com.dds.java.voip;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,10 +26,9 @@ public class VoipReceiver extends BroadcastReceiver {
             boolean b = AVEngineKit.Instance().startCall(App.getInstance(), room, 2, inviteId, audioOnly, true);
             if (b) {
                 if (list.length == 1) {
-                    SingleCallActivity.openActivity(context, inviteId, false, audioOnly);
+                    CallSingleActivity.openActivity(context, inviteId, false, audioOnly);
                 } else {
                     // 群聊
-
                 }
 
             }

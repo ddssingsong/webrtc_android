@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.dds.voip.MultiCallActivity"></activity>
+        <activity android:name="com.dds.java.voip.CallMultiActivity"></activity>
         <activity
             android:name="com.dds.LauncherActivity"
             android:label="@string/app_name"
@@ -30,7 +30,7 @@
             android:name="com.dds.java.JavaActivity"
             android:theme="@style/AppTheme.NoActionBar" /> <!-- java -->
         <activity
-            android:name="com.dds.voip.SingleCallActivity"
+            android:name="com.dds.java.voip.CallSingleActivity"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             tools:ignore="UnusedAttribute">
@@ -40,14 +40,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity> <!-- 单聊界面 -->
-        <receiver android:name="com.dds.voip.VoipReceiver">
+        <receiver android:name="com.dds.java.voip.VoipReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name="com.dds.voip.FloatingVoipService"
+            android:name="com.dds.java.voip.FloatingVoipService"
             android:enabled="true"
             android:exported="true" />
     </application>

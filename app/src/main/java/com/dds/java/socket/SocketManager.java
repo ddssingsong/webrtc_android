@@ -1,4 +1,4 @@
-package com.dds.java;
+package com.dds.java.socket;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -7,10 +7,10 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.dds.App;
+import com.dds.java.voip.Utils;
+import com.dds.java.voip.VoipReceiver;
 import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
-import com.dds.voip.Utils;
-import com.dds.voip.VoipReceiver;
 import com.dds.webrtclib.ws.JavaWebSocket;
 
 import java.io.IOException;
