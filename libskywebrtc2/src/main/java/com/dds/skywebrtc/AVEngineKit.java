@@ -7,8 +7,6 @@ import org.webrtc.PeerConnection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by dds on 2019/8/19.
@@ -16,28 +14,18 @@ import java.util.concurrent.Executors;
  */
 public class AVEngineKit {
     private final static String TAG = "dds_AVEngineKit";
-    final ExecutorService executor = Executors.newSingleThreadExecutor();
     private static AVEngineKit avEngineKit;
-    private CallSession currentCallSession;
-    public IBusinessEvent _iSocketEvent;
+    private CallSession mCurrentCallSession;
+    public IBusinessEvent mEvent;
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
-    public static AVEngineKit Instance() {
-        AVEngineKit var0;
-        if ((var0 = avEngineKit) != null) {
-            return var0;
-        } else {
-            throw new NotInitializedExecption();
-        }
-    }
-
-
+    // 初始化
     public static void init(IBusinessEvent iSocketEvent) {
         if (avEngineKit == null) {
             avEngineKit = new AVEngineKit();
-            avEngineKit._iSocketEvent = iSocketEvent;
+            avEngineKit.mEvent = iSocketEvent;
 
-
+            // 初始化一些stun和turn的地址
             PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                     .createIceServer();
             PeerConnection.IceServer var4 = PeerConnection.IceServer.builder("stun:global.stun.twilio.com:3478?transport=udp")
@@ -88,6 +76,16 @@ public class AVEngineKit {
     }
 
 
+    public static AVEngineKit Instance() {
+        AVEngineKit var;
+        if ((var = avEngineKit) != null) {
+            return var;
+        } else {
+            throw new NotInitializedExecption();
+        }
+    }
+
+
     // 发起会话
     public boolean startCall(Context context,
                              final String room, final int roomSize,
@@ -98,49 +96,36 @@ public class AVEngineKit {
             Log.e(TAG, "receiveCall error,init is not set");
             return false;
         }
-        if (currentCallSession != null &&
-                currentCallSession.getState() != EnumType.CallState.Idle) {
+        // 忙线中
+        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
             if (isComing) {
-                // 来电忙线中
-                if (_iSocketEvent != null) {
+                if (mEvent != null) {
                     // 发送->忙线中...
-                    Log.e(TAG, "startCall error,currentCallSession is exist," +
+                    Log.e(TAG, "startCall error,mCurrentCallSession is exist," +
                             "start sendRefuse!");
-                    _iSocketEvent.sendRefuse(targetId, EnumType.RefuseType.Busy.ordinal());
+                    mEvent.sendRefuse(targetId, EnumType.RefuseType.Busy.ordinal());
                 }
             } else {
-                Log.e(TAG, "startCall error,currentCallSession is exist");
+                Log.e(TAG, "startCall error,mCurrentCallSession is exist");
             }
             return false;
         }
-        // new Session
-        currentCallSession = new CallSession(avEngineKit);
-        currentCallSession.setIsAudioOnly(audioOnly);
-        currentCallSession.setRoom(room);
-        currentCallSession.setTargetId(targetId);
-        currentCallSession.setContext(context);
-        currentCallSession.setIsComing(isComing);
-        currentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
+        // 初始化会话
+        mCurrentCallSession = new CallSession(avEngineKit);
+        mCurrentCallSession.setIsAudioOnly(audioOnly);
+        mCurrentCallSession.setRoom(room);
+        mCurrentCallSession.setTargetId(targetId);
+        mCurrentCallSession.setContext(context);
+        mCurrentCallSession.setIsComing(isComing);
+        mCurrentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
+        // 响铃并回复
         if (isComing) {
-            // 开始响铃
-            if (_iSocketEvent != null) {
-                _iSocketEvent.shouldStartRing(true);
-            }
-            // 发送响铃回复
-            executor.execute(() -> {
-                if (_iSocketEvent != null) {
-                    _iSocketEvent.sendRingBack(targetId);
-                }
-
-            });
-        } else {
-            executor.execute(() -> {
-                if (_iSocketEvent != null) {
-                    // 创建房间
-                    _iSocketEvent.createRoom(room, roomSize);
-                }
-            });
-
+            mCurrentCallSession.shouldStartRing();
+            mCurrentCallSession.sendRingBack(targetId);
+        }
+        // 创建房间
+        else {
+            mCurrentCallSession.createHome(room, roomSize);
         }
         return true;
 
@@ -149,37 +134,33 @@ public class AVEngineKit {
 
     // 挂断会话
     public void endCall() {
-        // 停止响铃
-        if (avEngineKit._iSocketEvent != null) {
-            avEngineKit._iSocketEvent.shouldStopRing();
-        }
-        // 有人进入房间
-        if (currentCallSession.isComing) {
-            if (currentCallSession.getState() == EnumType.CallState.Incoming) {
-                // 接收到邀请，还没同意，发送拒绝
-                if (_iSocketEvent != null) {
-                    _iSocketEvent.sendRefuse(currentCallSession._targetIds, EnumType.RefuseType.Hangup.ordinal());
+        if (mCurrentCallSession != null) {
+            // 停止响铃
+            mCurrentCallSession.shouldStopRing();
+            // 有人进入房间
+            if (mCurrentCallSession.isComing) {
+                if (mCurrentCallSession.getState() == EnumType.CallState.Incoming) {
+                    // 接收到邀请，还没同意，发送拒绝
+                    mCurrentCallSession.sendRefuse();
+                } else {
+                    // 已经接通，挂断电话
+                    mCurrentCallSession.leave();
                 }
             } else {
-                // 已经接通，挂断电话
-                currentCallSession.leave();
-            }
-        } else {
-            if (currentCallSession.getState() == EnumType.CallState.Outgoing) {
-                if (_iSocketEvent != null) {
-                    // 取消拨出
-                    _iSocketEvent.sendCancel(currentCallSession._targetIds);
+                if (mCurrentCallSession.getState() == EnumType.CallState.Outgoing) {
+                    mCurrentCallSession.sendCancel();
+                } else {
+                    // 已经接通，挂断电话
+                    mCurrentCallSession.leave();
                 }
-            } else {
-                // 已经接通，挂断电话
-                currentCallSession.leave();
             }
+            mCurrentCallSession.setCallState(EnumType.CallState.Idle);
         }
-        currentCallSession.setCallState(EnumType.CallState.Idle);
+
     }
 
     public CallSession getCurrentSession() {
-        return this.currentCallSession;
+        return this.mCurrentCallSession;
     }
 
 

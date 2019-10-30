@@ -203,7 +203,6 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
             speakerImageView.setSelected(isSpeakerOn);
             audioManager.setSpeakerphoneOn(isSpeakerOn);
         }
-
         // 小窗
         if (id == R.id.minimizeImageView) {
             activity.showFloatingView();

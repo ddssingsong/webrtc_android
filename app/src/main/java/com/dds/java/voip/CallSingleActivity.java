@@ -89,12 +89,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
             isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
             isAudioOnly = intent.getBooleanExtra(EXTRA_AUDIO_ONLY, false);
             // 权限检测
-            String[] per;
-            if (isAudioOnly) {
-                per = new String[]{Manifest.permission.RECORD_AUDIO};
-            } else {
-                per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
-            }
+            String[] per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
             Permissions.request(this, per, integer -> {
                 if (integer == 0) {
                     // 权限同意
@@ -126,7 +121,11 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
             // 创建会话
             String room = UUID.randomUUID().toString();
             int roomSize = 2;
-            gEngineKit.startCall(this, room, roomSize, targetId, audioOnly, false);
+            boolean b = gEngineKit.startCall(getApplicationContext(), room, roomSize, targetId, audioOnly, false);
+            if (!b) {
+                finish();
+                return;
+            }
             CallSession session = gEngineKit.getCurrentSession();
             if (session == null) {
                 finish();
@@ -166,7 +165,6 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     }
 
     // ======================================界面回调================================
-
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason var1) {
         finish();
