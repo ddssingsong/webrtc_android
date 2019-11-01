@@ -75,8 +75,10 @@ public class CallSession {
     public String _myId;
     public boolean isComing;
 
-    private boolean isOffer;
 
+    enum Role {Caller, Receiver,}
+
+    private Role _role;
 
     public EnumType.CallState _callState = EnumType.CallState.Idle;
 
@@ -85,7 +87,6 @@ public class CallSession {
         _connectionIdArray = new ArrayList<>();
         this._connectionPeerDic = new HashMap<>();
         _rootEglBase = EglBase.create();
-        isOffer = false;
         executor = Executors.newSingleThreadExecutor();
     }
 
@@ -308,7 +309,7 @@ public class CallSession {
     public void onReceiveOffer(String socketId, String description) {
         Log.e("dds_test", "onReceiveOffer:" + socketId);
         executor.execute(() -> {
-            isOffer = true;
+            _role = Role.Receiver;
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
             if (mPeer != null) {
@@ -323,7 +324,6 @@ public class CallSession {
     public void onReceiverAnswer(String socketId, String sdp) {
         Log.e("dds_test", "onReceiverAnswer:" + socketId);
         executor.execute(() -> {
-            isOffer = false;
             Peer mPeer = _connectionPeerDic.get(socketId);
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
             if (mPeer != null) {
@@ -443,41 +443,22 @@ public class CallSession {
         @Override
         public void onSetSuccess() {
             Log.d(TAG, "sdp连接成功        " + pc.signalingState().toString());
-//            if (isOffer) {
-//                if (pc.getRemoteDescription() == null) {
-//                    Log.d("dds_test", "send offer");
-//                    avEngineKit.mEvent.sendAnswer(userId, pc.getLocalDescription().description);
-//                } else {
-//                    Log.d("dds_test", "create answer");
-//                    pc.createAnswer(Peer.this, offerOrAnswerConstraint());
-//
-//                }
-//            } else {
-//                if (pc.getLocalDescription() != null) {
-//                    Log.d("dds_test", "send answer");
-//                    avEngineKit.mEvent.sendOffer(userId, pc.getLocalDescription().description);
-//                } else {
-//                    Log.d(TAG, "nothing");
-//                }
-//            }
-
-
             if (pc.signalingState() == PeerConnection.SignalingState.HAVE_REMOTE_OFFER) {
                 pc.createAnswer(Peer.this, offerOrAnswerConstraint());
             } else if (pc.signalingState() == PeerConnection.SignalingState.HAVE_LOCAL_OFFER) {
                 //判断连接状态为本地发送offer
-                if (isOffer) {
+                if (_role == Role.Receiver) {
                     //接收者，发送Answer
                     avEngineKit.mEvent.sendAnswer(userId, pc.getLocalDescription().description);
 
-                } else {
+                } else if (_role == Role.Caller) {
                     //发送者,发送自己的offer
                     avEngineKit.mEvent.sendOffer(userId, pc.getLocalDescription().description);
                 }
 
             } else if (pc.signalingState() == PeerConnection.SignalingState.STABLE) {
                 // Stable 稳定的
-                if (isOffer) {
+                if (_role == Role.Receiver) {
                     avEngineKit.mEvent.sendAnswer(userId, pc.getLocalDescription().description);
 
                 }
@@ -508,10 +489,13 @@ public class CallSession {
         return null;
     }
 
-    public void setupRemoteVideo(SurfaceView surfaceView, int i) {
+    public void setupRemoteVideo(SurfaceView surfaceView) {
 
     }
 
+    public void setupLocalVideo(SurfaceView surfaceView) {
+
+    }
 
     //------------------------------------各种初始化---------------------------------------------
     private void createPeerConnections() {
@@ -534,11 +518,11 @@ public class CallSession {
     // 为所有连接创建offer
     private void createOffers() {
         for (Map.Entry<String, Peer> entry : _connectionPeerDic.entrySet()) {
+            _role = Role.Caller;
             Peer mPeer = entry.getValue();
             if (mPeer.pc == null) {
                 break;
             }
-            Log.d("dds_test", "create offer");
             mPeer.pc.createOffer(mPeer, offerOrAnswerConstraint());
         }
 

@@ -37,6 +37,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     private View outgoingActionContainer;
     private View incomingActionContainer;
 
+
     private boolean micEnabled = true;  // 静音
     private boolean isSpeakerOn = false;// 扬声器
     private CallSingleActivity activity;

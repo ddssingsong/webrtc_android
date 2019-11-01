@@ -17,8 +17,7 @@
         android:layout_width="100dp"
         android:layout_height="140dp"
         android:layout_gravity="top|end"
-        android:layout_margin="10dp"
-        android:visibility="gone" />
+        android:layout_margin="10dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"

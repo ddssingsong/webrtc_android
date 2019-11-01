@@ -3,6 +3,7 @@ package com.dds.java.voip;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -23,8 +24,8 @@ import com.dds.webrtc.R;
  */
 public class FragmentVideo extends Fragment implements CallSession.CallSessionCallback {
 
-    private FrameLayout fullscreenVideoView;
-    private FrameLayout pipVideoView;
+    private FrameLayout fullscreenRenderer;
+    private FrameLayout pipRenderer;
     private LinearLayout inviteeInfoContainer;
     private ImageView portraitImageView;
     private TextView nameTextView;
@@ -52,12 +53,8 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     private AVEngineKit gEngineKit;
     private boolean isOutgoing;
     private String targetId;
-
-    public FragmentVideo() {
-        // Required empty public constructor
-    }
-
-
+    private SurfaceView localSurfaceView;
+    private SurfaceView remoteSurfaceView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,8 +71,8 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
 
     private void initView(View view) {
-        fullscreenVideoView = view.findViewById(R.id.fullscreen_video_view);
-        pipVideoView = view.findViewById(R.id.pip_video_view);
+        fullscreenRenderer = view.findViewById(R.id.fullscreen_video_view);
+        pipRenderer = view.findViewById(R.id.pip_video_view);
         inviteeInfoContainer = view.findViewById(R.id.inviteeInfoContainer);
         portraitImageView = view.findViewById(R.id.portraitImageView);
         nameTextView = view.findViewById(R.id.nameTextView);
@@ -133,6 +130,10 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     public void onAttach(Context context) {
         super.onAttach(context);
         activity = (CallSingleActivity) getActivity();
+        if (activity != null) {
+            isOutgoing = activity.isOutgoing();
+        }
+
     }
 
     @Override
@@ -147,8 +148,20 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
-    public void didChangeState(EnumType.CallState var1) {
-
+    public void didChangeState(EnumType.CallState state) {
+        runOnUiThread(() -> {
+            if (state == EnumType.CallState.Connected) {
+                incomingActionContainer.setVisibility(View.GONE);
+                outgoingActionContainer.setVisibility(View.GONE);
+                connectedActionContainer.setVisibility(View.VISIBLE);
+                inviteeInfoContainer.setVisibility(View.GONE);
+                descTextView.setVisibility(View.GONE);
+                minimizeImageView.setVisibility(View.VISIBLE);
+                durationTextView.setVisibility(View.VISIBLE);
+            } else {
+                // do nothing now
+            }
+        });
     }
 
     @Override
@@ -158,17 +171,47 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
     @Override
     public void didCreateLocalVideoTrack() {
-
+        SurfaceView surfaceView = gEngineKit.getCurrentSession().createRendererView();
+        if (surfaceView != null) {
+            surfaceView.setZOrderMediaOverlay(true);
+            localSurfaceView = surfaceView;
+            if (isOutgoing && remoteSurfaceView == null) {
+                fullscreenRenderer.addView(surfaceView);
+            } else {
+                pipRenderer.addView(surfaceView);
+            }
+            gEngineKit.getCurrentSession().setupLocalVideo(surfaceView);
+        }
     }
 
     @Override
     public void didReceiveRemoteVideoTrack() {
+        pipRenderer.setVisibility(View.VISIBLE);
+        if (isOutgoing && localSurfaceView != null) {
+            ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
+            pipRenderer.addView(localSurfaceView);
+            gEngineKit.getCurrentSession().setupLocalVideo(localSurfaceView);
+        }
 
+        SurfaceView surfaceView = gEngineKit.getCurrentSession().createRendererView();
+        if (surfaceView != null) {
+            remoteSurfaceView = surfaceView;
+            fullscreenRenderer.removeAllViews();
+            fullscreenRenderer.addView(surfaceView);
+            gEngineKit.getCurrentSession().setupRemoteVideo(surfaceView);
+        }
     }
 
     @Override
     public void didError(String error) {
 
     }
+
+    private void runOnUiThread(Runnable runnable) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(runnable);
+        }
+    }
+
 
 }

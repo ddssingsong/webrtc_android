@@ -192,7 +192,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     @Override
     public void didError(String var1) {
-
+        finish();
     }
 
 

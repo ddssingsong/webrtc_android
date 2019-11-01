@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="切换到语音通话"
+            android:text="切换到语音"
             android:textColor="@android:color/white"
             android:textSize="10sp" />
 
