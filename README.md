@@ -1,4 +1,4 @@
-![logo](https://github.com/ddssingsong/webrtc_android/tree/master/art/logo1.png)
+![logo](art/logo1.png)
 
 # Sky p2p metting (p2p视频会议)
 
