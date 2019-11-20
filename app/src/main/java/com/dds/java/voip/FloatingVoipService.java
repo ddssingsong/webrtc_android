@@ -219,7 +219,7 @@ public class FloatingVoipService extends Service {
     private void showAudioInfo() {
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         if (remoteVideoFrameLayout.getVisibility() == View.VISIBLE) {
-            session.setupRemoteVideo(null, 1);
+            session.setupRemoteVideo(null);
             remoteVideoFrameLayout.setVisibility(View.GONE);
             wm.removeView(view);
             wm.addView(view, params);
@@ -254,7 +254,7 @@ public class FloatingVoipService extends Service {
         SurfaceView surfaceView = session.createRendererView();
         if (surfaceView != null) {
             remoteVideoFrameLayout.addView(surfaceView);
-            session.setupRemoteVideo(surfaceView, 1);
+            session.setupRemoteVideo(surfaceView);
         }
     }
 
