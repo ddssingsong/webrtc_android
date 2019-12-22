@@ -23,7 +23,7 @@ public class VoipReceiver extends BroadcastReceiver {
             String userList = intent.getStringExtra("userList");
             String[] list = userList.split(",");
             AVEngineKit.init(new VoipEvent());
-            boolean b = AVEngineKit.Instance().startCall(App.getInstance(), room, 2, inviteId, audioOnly, true);
+            boolean b = AVEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
             if (b) {
                 if (list.length == 1) {
                     CallSingleActivity.openActivity(context, inviteId, false, audioOnly);

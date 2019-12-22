@@ -13,12 +13,9 @@ import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.webrtclib.ws.JavaWebSocket;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.net.ssl.SSLContext;
@@ -77,11 +74,7 @@ public class SocketManager implements IEvent {
                     if (factory != null) {
                         webSocket.setSocket(factory.createSocket());
                     }
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (KeyManagementException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -283,6 +276,16 @@ public class SocketManager implements IEvent {
             }
         });
 
+    }
+
+    @Override
+    public void onLeave(String userId) {
+        handler.post(() -> {
+            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onLeave(userId);
+            }
+        });
     }
 
     //===========================================================================================

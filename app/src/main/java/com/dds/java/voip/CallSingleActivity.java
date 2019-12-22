@@ -120,8 +120,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         if (outgoing) {
             // 创建会话
             String room = UUID.randomUUID().toString();
-            int roomSize = 2;
-            boolean b = gEngineKit.startCall(getApplicationContext(), room, roomSize, targetId, audioOnly, false);
+            boolean b = gEngineKit.startOutCall(getApplicationContext(), room, targetId, audioOnly);
             if (!b) {
                 finish();
                 return;

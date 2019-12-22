@@ -259,6 +259,11 @@ public class DWebSocket extends WebSocketClient {
         if (eventName.equals("__ice_candidate")) {
             handleIceCandidate(map);
         }
+        // 离开房间
+        if (eventName.equals("__leave")) {
+            handleLeave(map);
+
+        }
     }
 
 
@@ -355,6 +360,16 @@ public class DWebSocket extends WebSocketClient {
             this.iEvent.onInvite(room, audioOnly, inviteID, userList);
         }
     }
+
+
+    private void handleLeave(Map map) {
+        Map data = (Map) map.get("data");
+        if (data != null) {
+            String fromID = (String) data.get("fromID");
+            this.iEvent.onLeave(fromID);
+        }
+    }
+
 
     @Override
     public void onClose(int code, String reason, boolean remote) {

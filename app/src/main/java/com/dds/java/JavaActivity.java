@@ -55,7 +55,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     }
 
     private void initData() {
-        wss.setText("ws://192.168.1.138:3000/ws");
+        wss.setText("ws://192.168.1.11:3000/ws");
         SocketManager.getInstance().addUserStateCallback(this);
         int userState = SocketManager.getInstance().getUserState();
         if (userState == 1) {
@@ -68,7 +68,6 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     }
 
 
-    //--------------------------------------------------------------------------------
     // 登录
     public void connect(View view) {
         SocketManager.getInstance().connect(
@@ -87,7 +86,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
         AVEngineKit.init(new VoipEvent());
-        CallSingleActivity.openActivity(this, phone, true, false);
+        CallSingleActivity.openActivity(this, phone, true, true);
 
     }
 

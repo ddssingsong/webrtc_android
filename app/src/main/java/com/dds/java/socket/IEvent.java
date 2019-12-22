@@ -28,7 +28,6 @@ public interface IEvent {
 
 
     // onOffer
-
     void onOffer(String userId, String sdp);
 
     // onAnswer
@@ -36,6 +35,8 @@ public interface IEvent {
 
     // ice-candidate
     void onIceCandidate(String userId, String id, int label, String candidate);
+
+    void onLeave(String userId);
 
 
     void logout(String str);

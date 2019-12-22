@@ -38,7 +38,7 @@ public class AVEngineKit {
                     .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
                     .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
                     .createIceServer();
-
+//
             avEngineKit.iceServers.add(var1);
             avEngineKit.iceServers.add(var4);
             avEngineKit.iceServers.add(var2);
@@ -86,27 +86,49 @@ public class AVEngineKit {
     }
 
 
-    // 发起会话
-    public boolean startCall(Context context,
-                             final String room, final int roomSize,
-                             final String targetId,
-                             final boolean audioOnly,
-                             boolean isComing) {
+    // 拨打电话
+    public boolean startOutCall(Context context,
+                                final String room,
+                                final String targetId,
+                                final boolean audioOnly) {
+        // 未初始化
         if (avEngineKit == null) {
-            Log.e(TAG, "receiveCall error,init is not set");
+            Log.e(TAG, "startOutCall error,please init first");
             return false;
         }
         // 忙线中
         if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
-            if (isComing) {
-                if (mEvent != null) {
-                    // 发送->忙线中...
-                    Log.e(TAG, "startCall error,mCurrentCallSession is exist," +
-                            "start sendRefuse!");
-                    mEvent.sendRefuse(targetId, EnumType.RefuseType.Busy.ordinal());
-                }
-            } else {
-                Log.e(TAG, "startCall error,mCurrentCallSession is exist");
+            Log.i(TAG, "startCall error,currentCallSession is exist");
+            return false;
+        }
+        // 初始化会话
+        mCurrentCallSession = new CallSession(avEngineKit);
+        mCurrentCallSession.setContext(context);
+        mCurrentCallSession.setIsAudioOnly(audioOnly);
+        mCurrentCallSession.setRoom(room);
+        mCurrentCallSession.setTargetId(targetId);
+        mCurrentCallSession.setIsComing(false);
+        mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
+        // 创建房间
+        mCurrentCallSession.createHome(room, 2);
+        return true;
+    }
+
+    // 接听电话
+    public boolean startInCall(Context context,
+                               final String room,
+                               final String targetId,
+                               final boolean audioOnly) {
+        if (avEngineKit == null) {
+            Log.e(TAG, "startInCall error,init is not set");
+            return false;
+        }
+        // 忙线中
+        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
+            if (mEvent != null) {
+                // 发送->忙线中...
+                Log.i(TAG, "startInCall busy,currentCallSession is exist,start sendRefuse!");
+                mEvent.sendRefuse(targetId, EnumType.RefuseType.Busy.ordinal());
             }
             return false;
         }
@@ -116,19 +138,15 @@ public class AVEngineKit {
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);
         mCurrentCallSession.setContext(context);
-        mCurrentCallSession.setIsComing(isComing);
-        mCurrentCallSession.setCallState(isComing ? EnumType.CallState.Incoming : EnumType.CallState.Outgoing);
-        // 响铃并回复
-        if (isComing) {
-            mCurrentCallSession.shouldStartRing();
-            mCurrentCallSession.sendRingBack(targetId);
-        }
-        // 创建房间
-        else {
-            mCurrentCallSession.createHome(room, roomSize);
-        }
-        return true;
+        mCurrentCallSession.setIsComing(true);
+        mCurrentCallSession.setCallState(EnumType.CallState.Incoming);
 
+        // 开始响铃并回复
+        mCurrentCallSession.shouldStartRing();
+        mCurrentCallSession.sendRingBack(targetId);
+
+
+        return true;
     }
 
 
@@ -137,8 +155,8 @@ public class AVEngineKit {
         if (mCurrentCallSession != null) {
             // 停止响铃
             mCurrentCallSession.shouldStopRing();
-            // 有人进入房间
-            if (mCurrentCallSession.isComing) {
+
+            if (mCurrentCallSession.mIsComing) {
                 if (mCurrentCallSession.getState() == EnumType.CallState.Incoming) {
                     // 接收到邀请，还没同意，发送拒绝
                     mCurrentCallSession.sendRefuse();
