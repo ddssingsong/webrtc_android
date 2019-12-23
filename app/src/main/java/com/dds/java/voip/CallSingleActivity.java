@@ -23,7 +23,7 @@ import androidx.fragment.app.FragmentManager;
 import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
-import com.dds.skywebrtc.NotInitializedExecption;
+import com.dds.skywebrtc.NotInitializedException;
 import com.dds.skywebrtc.permission.Permissions;
 import com.dds.webrtc.R;
 
@@ -75,7 +75,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
         try {
             gEngineKit = AVEngineKit.Instance();
-        } catch (NotInitializedExecption e) {
+        } catch (NotInitializedException e) {
             finish();
         }
         final Intent intent = getIntent();

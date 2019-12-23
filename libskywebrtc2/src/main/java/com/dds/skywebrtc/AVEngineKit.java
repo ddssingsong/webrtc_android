@@ -81,7 +81,7 @@ public class AVEngineKit {
         if ((var = avEngineKit) != null) {
             return var;
         } else {
-            throw new NotInitializedExecption();
+            throw new NotInitializedException();
         }
     }
 

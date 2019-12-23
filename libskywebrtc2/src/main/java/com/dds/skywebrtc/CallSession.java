@@ -74,8 +74,8 @@ public class CallSession {
     public boolean mIsComing;
     public EnumType.CallState _callState = EnumType.CallState.Idle;
 
-    private enum Role {Caller, Receiver,}
 
+    private enum Role {Caller, Receiver,}
     private Role _role;
 
     public CallSession(AVEngineKit avEngineKit) {
