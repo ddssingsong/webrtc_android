@@ -3,7 +3,6 @@ package com.dds.java.voip;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -17,6 +16,8 @@ import com.dds.skywebrtc.AVEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
+
+import org.webrtc.SurfaceViewRenderer;
 
 
 /**
@@ -52,9 +53,9 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     private CallSingleActivity activity;
     private AVEngineKit gEngineKit;
     private boolean isOutgoing;
-    private String targetId;
-    private SurfaceView localSurfaceView;
-    private SurfaceView remoteSurfaceView;
+    private SurfaceViewRenderer localSurfaceView;
+    private SurfaceViewRenderer remoteSurfaceView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,7 +172,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
     @Override
     public void didCreateLocalVideoTrack() {
-        SurfaceView surfaceView = gEngineKit.getCurrentSession().createRendererView();
+        SurfaceViewRenderer surfaceView = gEngineKit.getCurrentSession().createRendererView();
         if (surfaceView != null) {
             surfaceView.setZOrderMediaOverlay(true);
             localSurfaceView = surfaceView;
@@ -193,7 +194,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             gEngineKit.getCurrentSession().setupLocalVideo(localSurfaceView);
         }
 
-        SurfaceView surfaceView = gEngineKit.getCurrentSession().createRendererView();
+        SurfaceViewRenderer surfaceView = gEngineKit.getCurrentSession().createRendererView();
         if (surfaceView != null) {
             remoteSurfaceView = surfaceView;
             fullscreenRenderer.removeAllViews();

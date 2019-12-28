@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.SurfaceView;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -20,10 +19,12 @@ import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RendererCommon;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
+import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
@@ -40,7 +41,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by dds on 2019/8/19.
- * android_shuai@163.com
+ * 会话层
  */
 public class CallSession {
     public final static String TAG = "dds_CallSession";
@@ -76,6 +77,7 @@ public class CallSession {
 
 
     private enum Role {Caller, Receiver,}
+
     private Role _role;
 
     public CallSession(AVEngineKit avEngineKit) {
@@ -256,6 +258,15 @@ public class CallSession {
                 avEngineKit.mEvent.sendInvite(mRoom, mTargetId, mIsAudioOnly);
             }
 
+            // 开始显示本地画面
+            if (!isAudioOnly()) {
+                if (sessionCallback.get() != null) {
+                    sessionCallback.get().didCreateLocalVideoTrack();
+                }
+
+            }
+
+
         });
     }
 
@@ -338,6 +349,8 @@ public class CallSession {
     }
 
 
+    private MediaStream _remoteStream;
+
     // 每一个Session 可包含多个PeerConnection
     private class Peer implements SdpObserver, PeerConnection.Observer {
         private PeerConnection pc;
@@ -400,10 +413,14 @@ public class CallSession {
 
         @Override
         public void onAddStream(MediaStream stream) {
+            _remoteStream = stream;
             Log.i(TAG, "onAddStream:");
             if (stream.audioTracks.size() > 0) {
                 Log.e("dds_test", "onAddStream audioTracks ");
                 stream.audioTracks.get(0).setEnabled(true);
+            }
+            if (sessionCallback.get() != null) {
+                sessionCallback.get().didReceiveRemoteVideoTrack();
             }
 
 
@@ -489,16 +506,31 @@ public class CallSession {
         return 0;
     }
 
-    public SurfaceView createRendererView() {
-        return null;
+    public SurfaceViewRenderer createRendererView() {
+        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
+        renderer.init(mRootEglBase.getEglBaseContext(), null);
+        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        renderer.setMirror(true);
+        return renderer;
     }
 
-    public void setupRemoteVideo(SurfaceView surfaceView) {
+    public void setupRemoteVideo(SurfaceViewRenderer surfaceView) {
+        ProxyVideoSink sink = new ProxyVideoSink();
+        sink.setTarget(surfaceView);
+        if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
+            _remoteStream.videoTracks.get(0).addSink(sink);
+
+        }
+
 
     }
 
-    public void setupLocalVideo(SurfaceView surfaceView) {
-
+    public void setupLocalVideo(SurfaceViewRenderer SurfaceViewRenderer) {
+        ProxyVideoSink sink = new ProxyVideoSink();
+        sink.setTarget(SurfaceViewRenderer);
+        if (_localStream.videoTracks.size() > 0) {
+            _localStream.videoTracks.get(0).addSink(sink);
+        }
     }
 
     //------------------------------------各种初始化---------------------------------------------

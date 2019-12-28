@@ -15,7 +15,6 @@ import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -30,6 +29,8 @@ import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.BuildConfig;
 import com.dds.webrtc.R;
+
+import org.webrtc.SurfaceViewRenderer;
 
 
 /**
@@ -251,7 +252,7 @@ public class FloatingVoipService extends Service {
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         remoteVideoFrameLayout.setVisibility(View.VISIBLE);
-        SurfaceView surfaceView = session.createRendererView();
+        SurfaceViewRenderer surfaceView = session.createRendererView();
         if (surfaceView != null) {
             remoteVideoFrameLayout.addView(surfaceView);
             session.setupRemoteVideo(surfaceView);
