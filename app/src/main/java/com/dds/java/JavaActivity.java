@@ -86,10 +86,15 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
         AVEngineKit.init(new VoipEvent());
-        CallSingleActivity.openActivity(this, phone, true, false);
+        CallSingleActivity.openActivity(this, phone, true, true);
 
     }
 
+    public void callVideo(View view) {
+        String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
+        AVEngineKit.init(new VoipEvent());
+        CallSingleActivity.openActivity(this, phone, true, false);
+    }
 
     @Override
     public void userLogin() {
