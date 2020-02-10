@@ -9,7 +9,7 @@ import android.util.Log;
 import com.dds.App;
 import com.dds.java.voip.Utils;
 import com.dds.java.voip.VoipReceiver;
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.webrtclib.ws.JavaWebSocket;
 
@@ -31,6 +31,7 @@ public class SocketManager implements IEvent {
     private DWebSocket webSocket;
     private int userState;
     private String myId;
+
 
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -200,7 +201,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onRing(String fromId) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onRingBack(fromId);
             }
@@ -213,7 +214,7 @@ public class SocketManager implements IEvent {
     public void onPeers(String myId, String userId) {
         handler.post(() -> {
             //自己进入了房间，然后开始发送offer
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onJoinHome(myId, userId);
             }
@@ -224,7 +225,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onNewPeer(String userId) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.newPeer(userId);
             }
@@ -236,7 +237,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onReject(String userId, int type) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onRefuse(userId);
             }
@@ -247,7 +248,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onOffer(String userId, String sdp) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onReceiveOffer(userId, sdp);
             }
@@ -259,7 +260,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onAnswer(String userId, String sdp) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onReceiverAnswer(userId, sdp);
             }
@@ -270,7 +271,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onIceCandidate(String userId, String id, int label, String candidate) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onRemoteIceCandidate(userId, id, label, candidate);
             }
@@ -281,7 +282,7 @@ public class SocketManager implements IEvent {
     @Override
     public void onLeave(String userId) {
         handler.post(() -> {
-            CallSession currentSession = AVEngineKit.Instance().getCurrentSession();
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
                 currentSession.onLeave(userId);
             }

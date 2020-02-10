@@ -5,6 +5,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.dds.skywebrtc.render.ProxyVideoSink;
+
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.Camera1Enumerator;
@@ -46,7 +48,7 @@ import java.util.concurrent.Executors;
 public class CallSession {
     public final static String TAG = "dds_CallSession";
     private WeakReference<CallSessionCallback> sessionCallback;
-    private AVEngineKit avEngineKit;
+    private SkyEngineKit avEngineKit;
     public ExecutorService executor;
 
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
@@ -80,7 +82,7 @@ public class CallSession {
 
     private Role _role;
 
-    public CallSession(AVEngineKit avEngineKit) {
+    public CallSession(SkyEngineKit avEngineKit) {
         this.avEngineKit = avEngineKit;
         mRootEglBase = EglBase.create();
         executor = Executors.newSingleThreadExecutor();
@@ -107,11 +109,6 @@ public class CallSession {
             }
         });
 
-    }
-
-    // 设置静音
-    public boolean muteAudio(boolean b) {
-        return false;
     }
 
     //开始响铃
@@ -169,6 +166,12 @@ public class CallSession {
         release();
 
     }
+
+    // 设置静音
+    public boolean muteAudio(boolean b) {
+        return false;
+    }
+
 
     private void release() {
         executor.execute(() -> {

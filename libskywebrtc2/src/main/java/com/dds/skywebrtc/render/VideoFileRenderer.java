@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package com.dds.skywebrtc;
+package com.dds.skywebrtc.render;
 
 import android.os.Handler;
 import android.os.HandlerThread;

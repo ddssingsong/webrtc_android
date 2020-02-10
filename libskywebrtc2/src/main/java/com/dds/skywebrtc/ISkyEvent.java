@@ -4,7 +4,7 @@ package com.dds.skywebrtc;
  * Created by dds on 2019/8/21.
  * android_shuai@163.com
  */
-public interface IBusinessEvent {
+public interface ISkyEvent {
 
     // 创建房间
     void createRoom(String room, int roomSize);

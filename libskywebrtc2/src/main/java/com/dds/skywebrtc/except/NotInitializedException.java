@@ -1,4 +1,4 @@
-package com.dds.skywebrtc;
+package com.dds.skywebrtc.except;
 
 /**
  * Created by dds on 17/02/2018.

@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
@@ -51,7 +51,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
 
     private CallSingleActivity activity;
-    private AVEngineKit gEngineKit;
+    private SkyEngineKit gEngineKit;
     private boolean isOutgoing;
     private SurfaceViewRenderer localSurfaceView;
     private SurfaceViewRenderer remoteSurfaceView;

@@ -5,14 +5,14 @@ import android.net.Uri;
 
 import com.dds.App;
 import com.dds.java.socket.SocketManager;
-import com.dds.skywebrtc.IBusinessEvent;
+import com.dds.skywebrtc.ISkyEvent;
 import com.dds.webrtc.R;
 
 /**
  * Created by dds on 2019/8/25.
  * android_shuai@163.com
  */
-public class VoipEvent implements IBusinessEvent {
+public class VoipEvent implements ISkyEvent {
     private AsyncPlayer ringPlayer;
 
     public VoipEvent() {

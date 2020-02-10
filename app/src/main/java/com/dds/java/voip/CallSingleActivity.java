@@ -20,10 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
-import com.dds.skywebrtc.NotInitializedException;
+import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.skywebrtc.permission.Permissions;
 import com.dds.webrtc.R;
 
@@ -42,7 +42,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     private boolean isAudioOnly;
     private boolean isFromFloatingView;
 
-    private AVEngineKit gEngineKit;
+    private SkyEngineKit gEngineKit;
 
     private CallSession.CallSessionCallback currentFragment;
 
@@ -74,7 +74,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         setContentView(R.layout.activity_single_call);
 
         try {
-            gEngineKit = AVEngineKit.Instance();
+            gEngineKit = SkyEngineKit.Instance();
         } catch (NotInitializedException e) {
             finish();
         }
@@ -119,7 +119,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
                 .commit();
         if (outgoing) {
             // 创建会话
-            String room = UUID.randomUUID().toString();
+            String room = UUID.randomUUID().toString() + System.currentTimeMillis();
             boolean b = gEngineKit.startOutCall(getApplicationContext(), room, targetId, audioOnly);
             if (!b) {
                 finish();
@@ -142,7 +142,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     }
 
-    public AVEngineKit getEngineKit() {
+    public SkyEngineKit getEngineKit() {
         return gEngineKit;
     }
 

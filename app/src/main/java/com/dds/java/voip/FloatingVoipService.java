@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 import androidx.core.app.NotificationCompat;
 
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.BuildConfig;
@@ -62,7 +62,7 @@ public class FloatingVoipService extends Service {
             return START_NOT_STICKY;
         }
         isStarted = true;
-        session = AVEngineKit.Instance().getCurrentSession();
+        session = SkyEngineKit.Instance().getCurrentSession();
         if (session == null || EnumType.CallState.Idle == session.getState()) {
             stopSelf();
         }
@@ -234,7 +234,7 @@ public class FloatingVoipService extends Service {
     }
 
     private void refreshCallDurationInfo(TextView timeView) {
-        CallSession session = AVEngineKit.Instance().getCurrentSession();
+        CallSession session = SkyEngineKit.Instance().getCurrentSession();
         if (session == null || !session.isAudioOnly()) {
             return;
         }

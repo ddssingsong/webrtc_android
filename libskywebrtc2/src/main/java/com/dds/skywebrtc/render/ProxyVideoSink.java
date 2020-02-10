@@ -1,4 +1,4 @@
-package com.dds.skywebrtc;
+package com.dds.skywebrtc.render;
 
 import org.webrtc.Logging;
 import org.webrtc.VideoFrame;

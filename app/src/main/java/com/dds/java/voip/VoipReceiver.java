@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.dds.App;
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 
 /**
  * Created by dds on 2019/8/25.
@@ -22,8 +22,8 @@ public class VoipReceiver extends BroadcastReceiver {
             String inviteId = intent.getStringExtra("inviteId");
             String userList = intent.getStringExtra("userList");
             String[] list = userList.split(",");
-            AVEngineKit.init(new VoipEvent());
-            boolean b = AVEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
+            SkyEngineKit.init(new VoipEvent());
+            boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
             if (b) {
                 if (list.length == 1) {
                     CallSingleActivity.openActivity(context, inviteId, false, audioOnly);

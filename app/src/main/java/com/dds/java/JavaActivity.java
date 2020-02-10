@@ -13,11 +13,14 @@ import androidx.core.content.ContextCompat;
 
 import com.dds.java.socket.IUserState;
 import com.dds.java.socket.SocketManager;
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.java.voip.CallSingleActivity;
 import com.dds.java.voip.VoipEvent;
 import com.dds.webrtc.R;
 
+/**
+ * 拨打电话界面
+ */
 public class JavaActivity extends AppCompatActivity implements IUserState {
 
     private EditText wss;
@@ -85,14 +88,14 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     // 拨打电话
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
-        AVEngineKit.init(new VoipEvent());
+        SkyEngineKit.init(new VoipEvent());
         CallSingleActivity.openActivity(this, phone, true, true);
 
     }
 
     public void callVideo(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
-        AVEngineKit.init(new VoipEvent());
+        SkyEngineKit.init(new VoipEvent());
         CallSingleActivity.openActivity(this, phone, true, false);
     }
 

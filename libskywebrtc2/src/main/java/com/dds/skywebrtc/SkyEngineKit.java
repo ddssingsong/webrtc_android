@@ -3,6 +3,8 @@ package com.dds.skywebrtc;
 import android.content.Context;
 import android.util.Log;
 
+import com.dds.skywebrtc.except.NotInitializedException;
+
 import org.webrtc.PeerConnection;
 
 import java.util.ArrayList;
@@ -10,19 +12,27 @@ import java.util.List;
 
 /**
  * Created by dds on 2019/8/19.
- * android_shuai@163.com
  */
-public class AVEngineKit {
+public class SkyEngineKit {
     private final static String TAG = "dds_AVEngineKit";
-    private static AVEngineKit avEngineKit;
+    private static SkyEngineKit avEngineKit;
     private CallSession mCurrentCallSession;
-    public IBusinessEvent mEvent;
+    public ISkyEvent mEvent;
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
+    public static SkyEngineKit Instance() {
+        SkyEngineKit var;
+        if ((var = avEngineKit) != null) {
+            return var;
+        } else {
+            throw new NotInitializedException();
+        }
+    }
+
     // 初始化
-    public static void init(IBusinessEvent iSocketEvent) {
+    public static void init(ISkyEvent iSocketEvent) {
         if (avEngineKit == null) {
-            avEngineKit = new AVEngineKit();
+            avEngineKit = new SkyEngineKit();
             avEngineKit.mEvent = iSocketEvent;
 
             // 初始化一些stun和turn的地址
@@ -72,16 +82,6 @@ public class AVEngineKit {
             avEngineKit.iceServers.add(var21);
             avEngineKit.iceServers.add(var22);
             avEngineKit.iceServers.add(var23);
-        }
-    }
-
-
-    public static AVEngineKit Instance() {
-        AVEngineKit var;
-        if ((var = avEngineKit) != null) {
-            return var;
-        } else {
-            throw new NotInitializedException();
         }
     }
 
@@ -149,7 +149,6 @@ public class AVEngineKit {
         return true;
     }
 
-
     // 挂断会话
     public void endCall() {
         if (mCurrentCallSession != null) {
@@ -177,15 +176,18 @@ public class AVEngineKit {
 
     }
 
+
+    // 获取对话实例
     public CallSession getCurrentSession() {
         return this.mCurrentCallSession;
     }
 
 
-    // -----------iceServers---------------------
+    // --------------------------------iceServers------------------------------------
 
+    // 添加turn和stun
     public void addIceServer(String host, String username, String pwd) {
-        AVEngineKit var = this;
+        SkyEngineKit var = this;
         PeerConnection.IceServer var4 = PeerConnection.IceServer.builder(host)
                 .setUsername(username)
                 .setPassword(pwd)

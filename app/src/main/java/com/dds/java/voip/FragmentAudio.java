@@ -12,7 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.dds.skywebrtc.AVEngineKit;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.webrtc.R;
@@ -32,7 +32,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     private ImageView speakerImageView;
     private ImageView incomingHangupImageView;
     private ImageView acceptImageView;
-    private AVEngineKit gEngineKit;
+    private SkyEngineKit gEngineKit;
 
     private View outgoingActionContainer;
     private View incomingActionContainer;
@@ -174,7 +174,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         if (id == R.id.incomingHangupImageView || id == R.id.outgoingHangupImageView) {
             CallSession session = gEngineKit.getCurrentSession();
             if (session != null) {
-                AVEngineKit.Instance().endCall();
+                SkyEngineKit.Instance().endCall();
                 activity.finish();
             } else {
                 activity.finish();
