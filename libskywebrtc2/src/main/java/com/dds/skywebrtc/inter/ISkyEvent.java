@@ -1,4 +1,4 @@
-package com.dds.skywebrtc;
+package com.dds.skywebrtc.inter;
 
 /**
  * Created by dds on 2019/8/21.

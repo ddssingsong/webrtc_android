@@ -13,7 +13,7 @@ public class EnumType {
         Connecting,
         Connected;
 
-        private CallState() {
+        CallState() {
         }
     }
 
@@ -27,7 +27,7 @@ public class EnumType {
         Timeout,
         AcceptByOtherClient;
 
-        private CallEndReason() {
+        CallEndReason() {
         }
     }
 

@@ -2,6 +2,7 @@ package com.dds.skywebrtc;
 
 import android.app.Application;
 import android.content.Context;
+import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -67,6 +68,7 @@ public class CallSession {
     public VideoCapturer captureAndroid;
     public EglBase mRootEglBase;
     private Context mContext;
+    private AudioManager audioManager;
 
     private Peer mPeer;
     // session参数
@@ -86,6 +88,7 @@ public class CallSession {
         this.avEngineKit = avEngineKit;
         mRootEglBase = EglBase.create();
         executor = Executors.newSingleThreadExecutor();
+        audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
 
@@ -167,11 +170,24 @@ public class CallSession {
 
     }
 
-    // 设置静音
-    public boolean muteAudio(boolean b) {
+    // 设置自己静音
+    public boolean muteAudio(boolean enable) {
+        if (_localAudioTrack != null) {
+            _localAudioTrack.setEnabled(enable);
+            return true;
+        }
         return false;
+
     }
 
+    // 设置扬声器
+    public boolean toggleSpeaker(boolean enable) {
+        if (audioManager != null) {
+            audioManager.setSpeakerphoneOn(enable);
+            return true;
+        }
+        return false;
+    }
 
     private void release() {
         executor.execute(() -> {
@@ -227,6 +243,7 @@ public class CallSession {
     public void onJoinHome(String myId, String users) {
         executor.execute(() -> {
             mMyId = myId;
+            // todo 多人会议
             if (!TextUtils.isEmpty(users)) {
                 String[] split = users.split(",");
                 List<String> strings = Arrays.asList(split);
@@ -276,7 +293,6 @@ public class CallSession {
     // 新成员进入
     public void newPeer(String userId) {
         executor.execute(() -> {
-            Log.e("dds_test", "newPeer");
             if (_localStream == null) {
                 createLocalStream();
             }
@@ -290,6 +306,7 @@ public class CallSession {
             if (avEngineKit.mEvent != null) {
                 avEngineKit.mEvent.shouldStopRing();
             }
+
             // 切换界面
             _callState = EnumType.CallState.Connected;
             if (sessionCallback.get() != null) {

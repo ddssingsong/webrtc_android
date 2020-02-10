@@ -1,7 +1,6 @@
 package com.dds.java.voip;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
 /**
@@ -192,17 +191,14 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         }
         // 扬声器
         if (id == R.id.speakerImageView) {
-            AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
-            if (isSpeakerOn) {
-                isSpeakerOn = false;
-                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-            } else {
-                isSpeakerOn = true;
-                audioManager.setMode(AudioManager.MODE_NORMAL);
-
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null && session.getState() != EnumType.CallState.Idle) {
+                if (session.toggleSpeaker(!isSpeakerOn)) {
+                    isSpeakerOn = !isSpeakerOn;
+                }
+                speakerImageView.setSelected(!isSpeakerOn);
             }
-            speakerImageView.setSelected(isSpeakerOn);
-            audioManager.setSpeakerphoneOn(isSpeakerOn);
+
         }
         // 小窗
         if (id == R.id.minimizeImageView) {

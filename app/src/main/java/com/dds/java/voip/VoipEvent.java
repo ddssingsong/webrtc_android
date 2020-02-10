@@ -5,7 +5,7 @@ import android.net.Uri;
 
 import com.dds.App;
 import com.dds.java.socket.SocketManager;
-import com.dds.skywebrtc.ISkyEvent;
+import com.dds.skywebrtc.inter.ISkyEvent;
 import com.dds.webrtc.R;
 
 /**
