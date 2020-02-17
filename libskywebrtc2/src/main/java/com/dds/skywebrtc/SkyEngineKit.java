@@ -39,29 +39,16 @@ public class SkyEngineKit {
             // 初始化一些stun和turn的地址
             PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                     .createIceServer();
-            PeerConnection.IceServer var4 = PeerConnection.IceServer.builder("stun:global.stun.twilio.com:3478?transport=udp")
-                    .createIceServer();
-            PeerConnection.IceServer var2 = PeerConnection.IceServer.builder("turn:global.turn.twilio.com:3478?transport=udp")
-                    .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
-                    .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
-                    .createIceServer();
-            PeerConnection.IceServer var3 = PeerConnection.IceServer.builder("turn:global.turn.twilio.com:3478?transport=tcp")
-                    .setUsername("79fdd6b3c57147c5cc44944344c69d85624b63ec30624b8674ddc67b145e3f3c")
-                    .setPassword("xjfTOLkVmDtvFDrDKvpacXU7YofAwPg6P6TXKiztVGw")
-                    .createIceServer();
-//
             avEngineKit.iceServers.add(var1);
-            avEngineKit.iceServers.add(var4);
-            avEngineKit.iceServers.add(var2);
-            avEngineKit.iceServers.add(var3);
 
-            PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:118.25.25.147:3478?transport=udp")
+
+            PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:47.93.186.97:3478?transport=udp")
                     .createIceServer();
-            PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:118.25.25.147:3478?transport=udp")
+            PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:47.93.186.97:3478?transport=udp")
                     .setUsername("ddssingsong")
                     .setPassword("123456")
                     .createIceServer();
-            PeerConnection.IceServer var13 = PeerConnection.IceServer.builder("turn:118.25.25.147:3478?transport=tcp")
+            PeerConnection.IceServer var13 = PeerConnection.IceServer.builder("turn:47.93.186.97:3478?transport=tcp")
                     .setUsername("ddssingsong")
                     .setPassword("123456")
                     .createIceServer();
@@ -69,20 +56,6 @@ public class SkyEngineKit {
             avEngineKit.iceServers.add(var12);
             avEngineKit.iceServers.add(var13);
 
-
-            PeerConnection.IceServer var21 = PeerConnection.IceServer.builder("stun:157.255.51.168:3478?transport=udp")
-                    .createIceServer();
-            PeerConnection.IceServer var22 = PeerConnection.IceServer.builder("turn:157.255.51.168:3478?transport=udp")
-                    .setUsername("ddssingsong")
-                    .setPassword("123456")
-                    .createIceServer();
-            PeerConnection.IceServer var23 = PeerConnection.IceServer.builder("turn:157.255.51.168:3478?transport=tcp")
-                    .setUsername("ddssingsong")
-                    .setPassword("123456")
-                    .createIceServer();
-            avEngineKit.iceServers.add(var21);
-            avEngineKit.iceServers.add(var22);
-            avEngineKit.iceServers.add(var23);
         }
     }
 
@@ -91,7 +64,7 @@ public class SkyEngineKit {
     public boolean startOutCall(Context context,
                                 final String room,
                                 final String targetId,
-                                final boolean audioOnly)  {
+                                final boolean audioOnly) {
         // 未初始化
         if (avEngineKit == null) {
             Log.e(TAG, "startOutCall error,please init first");
@@ -103,7 +76,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit);
+        mCurrentCallSession = new CallSession(avEngineKit, context);
         mCurrentCallSession.setContext(context);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
@@ -134,7 +107,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit);
+        mCurrentCallSession = new CallSession(avEngineKit, context);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);

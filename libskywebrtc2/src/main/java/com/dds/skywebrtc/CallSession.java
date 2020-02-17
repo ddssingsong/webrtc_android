@@ -84,11 +84,13 @@ public class CallSession {
 
     private Role _role;
 
-    public CallSession(SkyEngineKit avEngineKit) {
+    public CallSession(SkyEngineKit avEngineKit, Context context) {
         this.avEngineKit = avEngineKit;
         mRootEglBase = EglBase.create();
         executor = Executors.newSingleThreadExecutor();
-        audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mContext = context;
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
     }
 
 
@@ -436,7 +438,7 @@ public class CallSession {
             _remoteStream = stream;
             Log.i(TAG, "onAddStream:");
             if (stream.audioTracks.size() > 0) {
-                Log.e("dds_test", "onAddStream audioTracks ");
+                Log.e("dds_test", "onAddStream audioTracks " + stream.audioTracks.size());
                 stream.audioTracks.get(0).setEnabled(true);
             }
             if (sessionCallback.get() != null) {
