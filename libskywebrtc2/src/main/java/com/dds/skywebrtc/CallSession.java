@@ -185,7 +185,18 @@ public class CallSession {
     // 设置扬声器
     public boolean toggleSpeaker(boolean enable) {
         if (audioManager != null) {
-            audioManager.setSpeakerphoneOn(enable);
+            if (enable) {
+                audioManager.setMode(AudioManager.MODE_IN_CALL);
+                audioManager.setSpeakerphoneOn(true);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                        AudioManager.STREAM_VOICE_CALL);
+            } else {
+                audioManager.setSpeakerphoneOn(false);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), AudioManager.STREAM_VOICE_CALL);
+            }
+
             return true;
         }
         return false;
@@ -193,6 +204,10 @@ public class CallSession {
 
     private void release() {
         executor.execute(() -> {
+
+            if (audioManager != null) {
+                audioManager.setMode(AudioManager.MODE_NORMAL);
+            }
             // audio释放
             if (audioSource != null) {
                 audioSource.dispose();
