@@ -37,7 +37,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     private View incomingActionContainer;
 
 
-    private boolean micEnabled = true;  // 静音
+    private boolean micEnabled = false;  // 静音
     private boolean isSpeakerOn = false;// 扬声器
     private CallSingleActivity activity;
 
@@ -186,7 +186,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
                 if (session.muteAudio(!micEnabled)) {
                     micEnabled = !micEnabled;
                 }
-                muteImageView.setSelected(!micEnabled);
+                muteImageView.setSelected(micEnabled);
             }
         }
         // 扬声器
@@ -196,7 +196,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
                 if (session.toggleSpeaker(!isSpeakerOn)) {
                     isSpeakerOn = !isSpeakerOn;
                 }
-                speakerImageView.setSelected(!isSpeakerOn);
+                speakerImageView.setSelected(isSpeakerOn);
             }
 
         }
