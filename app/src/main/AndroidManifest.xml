@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />  <!--悬浮窗显示-->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name="com.dds.App"
@@ -38,27 +41,34 @@
         </activity>
         <activity
             android:name="com.dds.nodejs.NodejsActivity"
-            android:theme="@style/AppTheme.NoActionBar" /> <!-- nodejs -->
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- ====================nodejs====================== -->
         <activity
             android:name="com.dds.java.JavaActivity"
-            android:theme="@style/AppTheme.NoActionBar" /> <!-- java -->
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- ======================java====================== -->
         <activity
             android:name="com.dds.java.voip.CallSingleActivity"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
+            android:theme="@style/AppTheme.NoActionBar"
             tools:ignore="UnusedAttribute">
             <intent-filter>
                 <action android:name="${applicationId}.kit.voip.single" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity> <!-- 单聊界面 -->
+        </activity>
+
         <receiver android:name="com.dds.java.voip.VoipReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
             </intent-filter>
         </receiver>
 
+        <!--悬浮窗-->
         <service
             android:name="com.dds.java.voip.FloatingVoipService"
             android:enabled="true"

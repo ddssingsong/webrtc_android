@@ -5,13 +5,10 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -20,17 +17,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.skywebrtc.permission.Permissions;
 import com.dds.webrtc.R;
 
-import java.util.List;
 import java.util.UUID;
 
 public class CallSingleActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
+
     public static final String EXTRA_TARGET = "targetId";
     public static final String EXTRA_MO = "isOutGoing";
     public static final String EXTRA_AUDIO_ONLY = "audioOnly";
@@ -81,15 +78,21 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         final Intent intent = getIntent();
         targetId = intent.getStringExtra(EXTRA_TARGET);
         isFromFloatingView = intent.getBooleanExtra(EXTRA_FROM_FLOATING_VIEW, false);
-
+        isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
+        isAudioOnly = intent.getBooleanExtra(EXTRA_AUDIO_ONLY, false);
+        Log.e("dds_test", "isFromFloatingView:" + isFromFloatingView);
         if (isFromFloatingView) {
             Intent serviceIntent = new Intent(this, FloatingVoipService.class);
             stopService(serviceIntent);
+            init(targetId, false, isAudioOnly);
         } else {
-            isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
-            isAudioOnly = intent.getBooleanExtra(EXTRA_AUDIO_ONLY, false);
             // 权限检测
-            String[] per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
+            String[] per;
+            if (isAudioOnly) {
+                per = new String[]{Manifest.permission.RECORD_AUDIO};
+            } else {
+                per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
+            }
             Permissions.request(this, per, integer -> {
                 if (integer == 0) {
                     // 权限同意
@@ -199,14 +202,10 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     private boolean checkOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
+            SettingsCompat.setDrawOverlays(this, true);
+            if (!SettingsCompat.canDrawOverlays(this)) {
                 Toast.makeText(this, "需要悬浮窗权限", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                List<ResolveInfo> infos = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-                if (infos == null || infos.isEmpty()) {
-                    return true;
-                }
-                startActivity(intent);
+                SettingsCompat.manageDrawOverlays(this);
                 return false;
             }
         }

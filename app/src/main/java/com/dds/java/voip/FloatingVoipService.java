@@ -104,7 +104,11 @@ public class FloatingVoipService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        wm.removeView(view);
+        try {
+            wm.removeView(view);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         isStarted = false;
     }
 
@@ -204,7 +208,6 @@ public class FloatingVoipService extends Service {
                 int newOffsetY = params.y;
                 if (Math.abs(oldOffsetX - newOffsetX) <= 20 && Math.abs(oldOffsetY - newOffsetY) <= 20) {
                     clickToResume();
-                    hideFloatBox();
                 } else {
                     tag = 0;
                 }

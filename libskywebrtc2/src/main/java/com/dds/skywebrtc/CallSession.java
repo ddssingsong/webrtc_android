@@ -78,6 +78,7 @@ public class CallSession {
     public String mMyId;
     public boolean mIsComing;
     public EnumType.CallState _callState = EnumType.CallState.Idle;
+    private long startTime;
 
 
     private enum Role {Caller, Receiver,}
@@ -258,6 +259,7 @@ public class CallSession {
 
     // 加入房间成功
     public void onJoinHome(String myId, String users) {
+        startTime = 0;
         executor.execute(() -> {
             mMyId = myId;
             // todo 多人会议
@@ -290,6 +292,7 @@ public class CallSession {
 
                 if (sessionCallback.get() != null) {
                     sessionCallback.get().didChangeState(_callState);
+                    startTime = System.currentTimeMillis();
                 }
             } else {
                 avEngineKit.mEvent.sendInvite(mRoom, mTargetId, mIsAudioOnly);
@@ -328,6 +331,7 @@ public class CallSession {
             _callState = EnumType.CallState.Connected;
             if (sessionCallback.get() != null) {
                 sessionCallback.get().didChangeState(EnumType.CallState.Connected);
+                startTime = System.currentTimeMillis();
             }
 
         });
@@ -540,7 +544,7 @@ public class CallSession {
     // --------------------------------界面显示相关-------------------------------------------------
 
     public long getStartTime() {
-        return 0;
+        return startTime;
     }
 
     public SurfaceViewRenderer createRendererView() {
