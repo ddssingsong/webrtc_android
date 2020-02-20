@@ -58,7 +58,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     }
 
     private void initData() {
-        wss.setText("ws://192.168.1.138:5000/ws");
+        wss.setText("ws://47.93.186.97:5000/ws");
         SocketManager.getInstance().addUserStateCallback(this);
         int userState = SocketManager.getInstance().getUserState();
         if (userState == 1) {
@@ -69,7 +69,6 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
 
 
     }
-
 
     // 登录
     public void connect(View view) {
@@ -85,7 +84,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
         SocketManager.getInstance().unConnect();
     }
 
-    // 拨打电话
+    // 拨打语音
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
         SkyEngineKit.init(new VoipEvent());
@@ -93,6 +92,7 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
 
     }
 
+    // 拨打视频
     public void callVideo(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
         SkyEngineKit.init(new VoipEvent());
