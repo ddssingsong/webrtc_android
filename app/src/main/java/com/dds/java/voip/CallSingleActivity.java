@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -80,7 +79,6 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         isFromFloatingView = intent.getBooleanExtra(EXTRA_FROM_FLOATING_VIEW, false);
         isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
         isAudioOnly = intent.getBooleanExtra(EXTRA_AUDIO_ONLY, false);
-        Log.e("dds_test", "isFromFloatingView:" + isFromFloatingView);
         if (isFromFloatingView) {
             Intent serviceIntent = new Intent(this, FloatingVoipService.class);
             stopService(serviceIntent);
@@ -179,17 +177,17 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     @Override
     public void didChangeMode(boolean var1) {
-
+        handler.post(() -> currentFragment.didChangeMode(var1));
     }
 
     @Override
     public void didCreateLocalVideoTrack() {
-
+        handler.post(() -> currentFragment.didCreateLocalVideoTrack());
     }
 
     @Override
     public void didReceiveRemoteVideoTrack() {
-
+        handler.post(() -> currentFragment.didReceiveRemoteVideoTrack());
     }
 
     @Override

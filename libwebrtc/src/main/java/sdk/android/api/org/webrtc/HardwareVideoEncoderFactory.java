@@ -109,7 +109,6 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
 
         String codecName = info.getName();
         String mime = type.mimeType();
-        // Log.e("dds_test", "createEncoder codecName：" + codecName + ",mimeType" + mime);
 
         Integer surfaceColorFormat = MediaCodecUtils.selectColorFormat(
                 MediaCodecUtils.TEXTURE_COLOR_FORMATS, info.getCapabilitiesForType(mime));
@@ -123,11 +122,9 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
                     input.params, MediaCodecUtils.getCodecProperties(type, /* highProfile= */ false));
 
             if (!isHighProfile && !isBaselineProfile) {
-                Log.e("dds_test", "createEncoder 不支持1");
                 return null;
             }
             if (isHighProfile && !isH264HighProfileSupported(info)) {
-                Log.e("dds_test", "createEncoder 不支持2  ");
                 return null;
             }
         }

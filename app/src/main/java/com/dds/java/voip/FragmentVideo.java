@@ -12,9 +12,9 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
 import org.webrtc.SurfaceViewRenderer;
@@ -23,7 +23,7 @@ import org.webrtc.SurfaceViewRenderer;
 /**
  * 视频通话控制界面
  */
-public class FragmentVideo extends Fragment implements CallSession.CallSessionCallback {
+public class FragmentVideo extends Fragment implements CallSession.CallSessionCallback, View.OnClickListener {
 
     private FrameLayout fullscreenRenderer;
     private FrameLayout pipRenderer;
@@ -95,6 +95,18 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         incomingActionContainer = view.findViewById(R.id.incomingActionContainer);
         outgoingActionContainer = view.findViewById(R.id.outgoingActionContainer);
         connectedActionContainer = view.findViewById(R.id.connectedActionContainer);
+
+        outgoingHangupImageView.setOnClickListener(this);
+        incomingHangupImageView.setOnClickListener(this);
+        connectedHangupImageView.setOnClickListener(this);
+        acceptImageView.setOnClickListener(this);
+        switchCameraImageView.setOnClickListener(this);
+
+        outgoingAudioOnlyImageView.setOnClickListener(this);
+        incomingAudioOnlyImageView.setOnClickListener(this);
+        connectedAudioOnlyImageView.setOnClickListener(this);
+
+        minimizeImageView.setOnClickListener(this);
 
     }
 
@@ -215,4 +227,44 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     }
 
 
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        // 接听
+        if (id == R.id.acceptImageView) {
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null && session.getState() == EnumType.CallState.Incoming) {
+                session.joinHome();
+            } else {
+                activity.finish();
+            }
+        }
+        // 挂断电话
+        if (id == R.id.incomingHangupImageView || id == R.id.outgoingHangupImageView ||
+                id == R.id.connectedHangupImageView) {
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null) {
+                SkyEngineKit.Instance().endCall();
+                activity.finish();
+            } else {
+                activity.finish();
+            }
+        }
+
+        // 切换摄像头
+        if (id == R.id.switchCameraImageView) {
+
+        }
+
+        // 切换到语音拨打
+        if (id == R.id.outgoingAudioOnlyImageView || id == R.id.outgoingAudioOnlyImageView
+                || id == R.id.outgoingAudioOnlyImageView) {
+
+        }
+
+        // 小窗
+        if (id == R.id.minimizeImageView) {
+            activity.showFloatingView();
+        }
+    }
 }

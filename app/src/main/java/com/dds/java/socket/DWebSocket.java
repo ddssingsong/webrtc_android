@@ -17,7 +17,7 @@ import java.util.Map;
  * android_shuai@163.com
  */
 public class DWebSocket extends WebSocketClient {
-    private final static String TAG = "dds_TestWebSocket";
+    private final static String TAG = "dds_WebSocket";
     private IEvent iEvent;
 
     public DWebSocket(URI serverUri, IEvent event) {
@@ -198,7 +198,7 @@ public class DWebSocket extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        Log.e("dds_test", "onOpen");
+        Log.e("dds_info", "onOpen");
         this.iEvent.onOpen();
     }
 
@@ -375,14 +375,14 @@ public class DWebSocket extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        Log.e("dds_test", "onClose:" + reason + "remote:" + remote);
+        Log.e("dds_error", "onClose:" + reason + "remote:" + remote);
         this.iEvent.logout("onClose");
 
     }
 
     @Override
     public void onError(Exception ex) {
-        Log.e("dds_test", "onError:" + ex.toString());
+        Log.e("dds_error", "onError:" + ex.toString());
         this.iEvent.logout("onError");
 
     }

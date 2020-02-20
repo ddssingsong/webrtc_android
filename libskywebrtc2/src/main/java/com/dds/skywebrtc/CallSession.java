@@ -85,11 +85,12 @@ public class CallSession {
 
     private Role _role;
 
-    public CallSession(SkyEngineKit avEngineKit, Context context) {
+    public CallSession(SkyEngineKit avEngineKit, Context context, boolean audioOnly) {
         this.avEngineKit = avEngineKit;
         mRootEglBase = EglBase.create();
         executor = Executors.newSingleThreadExecutor();
         mContext = context;
+        this.mIsAudioOnly = audioOnly;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
     }
@@ -187,7 +188,6 @@ public class CallSession {
     public boolean toggleSpeaker(boolean enable) {
         if (audioManager != null) {
             if (enable) {
-                audioManager.setMode(AudioManager.MODE_IN_CALL);
                 audioManager.setSpeakerphoneOn(true);
                 audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
                         audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
@@ -205,7 +205,6 @@ public class CallSession {
 
     private void release() {
         executor.execute(() -> {
-
             if (audioManager != null) {
                 audioManager.setMode(AudioManager.MODE_NORMAL);
             }
@@ -260,6 +259,7 @@ public class CallSession {
     // 加入房间成功
     public void onJoinHome(String myId, String users) {
         startTime = 0;
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         executor.execute(() -> {
             mMyId = myId;
             // todo 多人会议
@@ -349,12 +349,10 @@ public class CallSession {
     }
 
     public void onReceiveOffer(String socketId, String description) {
-        Log.e("dds_test", "onReceiveOffer:" + socketId);
         executor.execute(() -> {
             _role = Role.Receiver;
             SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
             if (mPeer != null) {
-                Log.e("dds_test", "onReceiveOffer setRemoteDescription");
                 mPeer.pc.setRemoteDescription(mPeer, sdp);
             }
 
@@ -367,7 +365,6 @@ public class CallSession {
         executor.execute(() -> {
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
             if (mPeer != null && mPeer.pc != null) {
-                Log.e("dds_test", "onReceiverAnswer setRemoteDescription");
                 mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
             }
         });
@@ -457,7 +454,6 @@ public class CallSession {
             _remoteStream = stream;
             Log.i(TAG, "onAddStream:");
             if (stream.audioTracks.size() > 0) {
-                Log.e("dds_test", "onAddStream audioTracks " + stream.audioTracks.size());
                 stream.audioTracks.get(0).setEnabled(true);
             }
             if (sessionCallback.get() != null) {

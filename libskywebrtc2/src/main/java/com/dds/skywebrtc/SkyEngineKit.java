@@ -76,7 +76,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit, context);
+        mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
         mCurrentCallSession.setContext(context);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
@@ -107,7 +107,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit, context);
+        mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);

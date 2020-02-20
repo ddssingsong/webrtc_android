@@ -44,9 +44,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- ====================nodejs====================== -->
-        <activity
-            android:name="com.dds.java.JavaActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name="com.dds.java.JavaActivity" />
 
         <!-- ======================java====================== -->
         <activity
