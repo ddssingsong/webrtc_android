@@ -31,10 +31,11 @@ java      https://github.com/ddssingsong/webrtc_server_java
   2. Support for many-to-many voice and video conferencing
   3. Flexible configuration of signaling server and stun/turn forwarding penetration server
   4. Dynamic permission application
+  5. Encapsulating core code into SDK
+  6. The whole process of calling, ringing and dialing
 
 - In progress
-  1. Encapsulating core code into SDK
-  2. The whole process of calling, ringing and dialing
+  1. Various optimization
 
 
 
