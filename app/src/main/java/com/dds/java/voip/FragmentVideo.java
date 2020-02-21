@@ -21,6 +21,8 @@ import org.webrtc.SurfaceViewRenderer;
 
 
 /**
+ * Created by dds on 2018/7/26.
+ * android_shuai@163.com
  * 视频通话控制界面
  */
 public class FragmentVideo extends Fragment implements CallSession.CallSessionCallback, View.OnClickListener {
@@ -53,6 +55,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     private CallSingleActivity activity;
     private SkyEngineKit gEngineKit;
     private boolean isOutgoing;
+    private boolean isFromFloatingView;
     private SurfaceViewRenderer localSurfaceView;
     private SurfaceViewRenderer remoteSurfaceView;
 
@@ -135,9 +138,13 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             }
         }
 
+        if (isFromFloatingView) {
+            didCreateLocalVideoTrack();
+            didReceiveRemoteVideoTrack();
+        }
+
 
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -145,6 +152,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         activity = (CallSingleActivity) getActivity();
         if (activity != null) {
             isOutgoing = activity.isOutgoing();
+            isFromFloatingView = activity.isFromFloatingView();
         }
 
     }

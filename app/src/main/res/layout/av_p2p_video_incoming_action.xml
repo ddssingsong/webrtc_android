@@ -21,7 +21,7 @@
             android:id="@+id/incomingAudioOnlyImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/av_phone" />
+            android:src="@drawable/av_trans_audio" />
 
         <TextView
             android:layout_width="wrap_content"

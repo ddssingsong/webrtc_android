@@ -16,7 +16,7 @@
             android:id="@+id/outgoingAudioOnlyImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/av_phone" />
+            android:background="@drawable/av_trans_audio" />
 
         <TextView
             android:layout_width="wrap_content"

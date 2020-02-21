@@ -25,6 +25,12 @@ import com.dds.webrtc.R;
 
 import java.util.UUID;
 
+
+/**
+ * Created by dds on 2018/7/26.
+ * android_shuai@163.com
+ * 单聊界面
+ */
 public class CallSingleActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
 
     public static final String EXTRA_TARGET = "targetId";
@@ -149,6 +155,11 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     public boolean isOutgoing() {
         return isOutgoing;
+    }
+
+
+    public boolean isFromFloatingView() {
+        return isFromFloatingView;
     }
 
     // 显示小窗

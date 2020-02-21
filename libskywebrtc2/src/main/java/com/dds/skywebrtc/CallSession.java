@@ -300,6 +300,9 @@ public class CallSession {
 
             // 开始显示本地画面
             if (!isAudioOnly()) {
+                // todo 测试视频，关闭语音以防杂音
+                muteAudio(false);
+
                 if (sessionCallback.get() != null) {
                     sessionCallback.get().didCreateLocalVideoTrack();
                 }

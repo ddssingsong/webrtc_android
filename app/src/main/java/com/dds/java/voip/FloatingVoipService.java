@@ -34,6 +34,8 @@ import org.webrtc.SurfaceViewRenderer;
 
 
 /**
+ * Created by dds on 2018/7/26.
+ * android_shuai@163.com
  * 悬浮窗界面
  */
 public class FloatingVoipService extends Service {
