@@ -2,9 +2,11 @@ package com.dds.java.voip;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,7 +44,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     private ImageView incomingHangupImageView;
     private LinearLayout acceptLinearLayout;
     private ImageView acceptImageView;
-    private TextView durationTextView;
+    private Chronometer durationTextView;
     private ImageView connectedAudioOnlyImageView;
     private ImageView connectedHangupImageView;
     private ImageView switchCameraImageView;
@@ -178,7 +180,8 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
                 inviteeInfoContainer.setVisibility(View.GONE);
                 descTextView.setVisibility(View.GONE);
                 minimizeImageView.setVisibility(View.VISIBLE);
-                durationTextView.setVisibility(View.VISIBLE);
+                // 开启计时器
+                startRefreshTime();
             } else {
                 // do nothing now
             }
@@ -234,6 +237,22 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (localSurfaceView != null) {
+            localSurfaceView.release();
+        }
+        if (remoteSurfaceView != null) {
+            remoteSurfaceView.release();
+        }
+        fullscreenRenderer.removeAllViews();
+        pipRenderer.removeAllViews();
+
+        if (durationTextView != null) {
+            durationTextView.stop();
+        }
+    }
 
     @Override
     public void onClick(View v) {
@@ -275,4 +294,17 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             activity.showFloatingView();
         }
     }
+
+    private void startRefreshTime() {
+        CallSession session = SkyEngineKit.Instance().getCurrentSession();
+        if (session == null) {
+            return;
+        }
+        if (durationTextView != null) {
+            durationTextView.setVisibility(View.VISIBLE);
+            durationTextView.setBase(SystemClock.elapsedRealtime());
+            durationTextView.start();
+        }
+    }
+
 }

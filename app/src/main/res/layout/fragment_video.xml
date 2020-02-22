@@ -72,6 +72,7 @@
             android:src="@drawable/av_minimize"
             android:visibility="gone" />
 
+        <!--拨出控制-->
         <include
             android:id="@+id/outgoingActionContainer"
             layout="@layout/av_p2p_video_outgoing_action"
@@ -81,6 +82,7 @@
             android:layout_centerHorizontal="true"
             android:visibility="visible" />
 
+        <!--来电控制-->
         <include
             android:id="@+id/incomingActionContainer"
             layout="@layout/av_p2p_video_incoming_action"
@@ -89,6 +91,7 @@
             android:layout_alignParentBottom="true"
             android:visibility="gone" />
 
+        <!--接通控制-->
         <include
             android:id="@+id/connectedActionContainer"
             layout="@layout/av_p2p_video_connected_action"

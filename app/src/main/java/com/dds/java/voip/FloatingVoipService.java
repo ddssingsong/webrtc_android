@@ -49,6 +49,8 @@ public class FloatingVoipService extends Service {
     private View view;
     private WindowManager.LayoutParams params;
 
+    private SurfaceViewRenderer surfaceView;
+
     public FloatingVoipService() {
     }
 
@@ -112,6 +114,9 @@ public class FloatingVoipService extends Service {
             e.printStackTrace();
         }
         isStarted = false;
+        if (surfaceView != null) {
+            surfaceView.release();
+        }
     }
 
     private void showFloatingWindow() {
@@ -257,7 +262,7 @@ public class FloatingVoipService extends Service {
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         remoteVideoFrameLayout.setVisibility(View.VISIBLE);
-        SurfaceViewRenderer surfaceView = session.createRendererView();
+        surfaceView = session.createRendererView();
         if (surfaceView != null) {
             remoteVideoFrameLayout.addView(surfaceView);
             session.setupRemoteVideo(surfaceView);

@@ -61,6 +61,7 @@ public class CallSession {
 
     public PeerConnectionFactory _factory;
     public MediaStream _localStream;
+    private MediaStream _remoteStream;
     public VideoTrack _localVideoTrack;
     public AudioTrack _localAudioTrack;
     public VideoSource videoSource;
@@ -229,6 +230,8 @@ public class CallSession {
                 captureAndroid = null;
             }
 
+            _localStream.dispose();
+            _remoteStream.dispose();
             // 关闭peer
             if (mPeer != null && mPeer.pc != null) {
                 mPeer.pc.close();
@@ -300,9 +303,10 @@ public class CallSession {
 
             // 开始显示本地画面
             if (!isAudioOnly()) {
-                // todo 测试视频，关闭语音以防杂音
-                muteAudio(false);
-
+                // 测试视频，关闭语音以防杂音
+//                if (BuildConfig.DEBUG) {
+//                    muteAudio(false);
+//                }
                 if (sessionCallback.get() != null) {
                     sessionCallback.get().didCreateLocalVideoTrack();
                 }
@@ -389,8 +393,6 @@ public class CallSession {
         release();
     }
 
-
-    private MediaStream _remoteStream;
 
     // 每一个Session 可包含多个PeerConnection
     private class Peer implements SdpObserver, PeerConnection.Observer {
@@ -559,7 +561,6 @@ public class CallSession {
         sink.setTarget(surfaceView);
         if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
             _remoteStream.videoTracks.get(0).addSink(sink);
-
         }
 
 

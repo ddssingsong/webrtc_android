@@ -2,9 +2,11 @@ package com.dds.java.voip;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,13 +28,15 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     private ImageView portraitImageView;  // 用户头像
     private TextView nameTextView;        // 用户昵称
     private TextView descTextView;        // 状态提示用语
-    private TextView durationTextView;    // 通话时长
+    private Chronometer durationTextView;    // 通话时长
 
     private ImageView muteImageView;
     private ImageView outgoingHangupImageView;
     private ImageView speakerImageView;
     private ImageView incomingHangupImageView;
     private ImageView acceptImageView;
+
+
     private SkyEngineKit gEngineKit;
 
     private View outgoingActionContainer;
@@ -82,6 +86,8 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         muteImageView.setOnClickListener(this);
         speakerImageView.setOnClickListener(this);
         minimizeImageView.setOnClickListener(this);
+
+        durationTextView.setVisibility(View.GONE);
     }
 
     private void init() {
@@ -125,7 +131,8 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
                 incomingActionContainer.setVisibility(View.GONE);
                 outgoingActionContainer.setVisibility(View.VISIBLE);
                 descTextView.setVisibility(View.GONE);
-                durationTextView.setVisibility(View.VISIBLE);
+
+                startRefreshTime();
             } else {
                 // do nothing now
             }
@@ -207,5 +214,17 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
             activity.showFloatingView();
         }
 
+    }
+
+    private void startRefreshTime() {
+        CallSession session = SkyEngineKit.Instance().getCurrentSession();
+        if (session == null) {
+            return;
+        }
+        if (durationTextView != null) {
+            durationTextView.setVisibility(View.VISIBLE);
+            durationTextView.setBase(SystemClock.elapsedRealtime());
+            durationTextView.start();
+        }
     }
 }

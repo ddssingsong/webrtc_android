@@ -57,7 +57,7 @@ public class VoipEvent implements ISkyEvent {
 
     @Override
     public void sendLeave(String room, String userId) {
-        SocketManager.getInstance().sendLeave(room,userId);
+        SocketManager.getInstance().sendLeave(room, userId);
     }
 
 
@@ -85,7 +85,7 @@ public class VoipEvent implements ISkyEvent {
             Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.incoming_call_ring);
             ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
         } else {
-            Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.outgoing_call_ring);
+            Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.wr_ringback);
             ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
         }
     }
