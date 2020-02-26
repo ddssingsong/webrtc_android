@@ -280,7 +280,10 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
         // 切换摄像头
         if (id == R.id.switchCameraImageView) {
-
+            CallSession session = gEngineKit.getCurrentSession();
+            if (session != null) {
+                session.switchCamera();
+            }
         }
 
         // 切换到语音拨打

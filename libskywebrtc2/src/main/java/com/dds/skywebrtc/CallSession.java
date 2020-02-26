@@ -13,6 +13,7 @@ import org.webrtc.AudioTrack;
 import org.webrtc.Camera1Enumerator;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
+import org.webrtc.CameraVideoCapturer;
 import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
@@ -81,6 +82,7 @@ public class CallSession {
     public EnumType.CallState _callState = EnumType.CallState.Idle;
     private long startTime;
 
+    private boolean isSwitch = false; // 是否正在切换摄像头
 
     private enum Role {Caller, Receiver,}
 
@@ -202,6 +204,35 @@ public class CallSession {
             return true;
         }
         return false;
+    }
+
+
+    // 调整摄像头前置后置
+    public void switchCamera() {
+        if (isSwitch) return;
+        isSwitch = true;
+        if (captureAndroid == null) return;
+        if (captureAndroid instanceof CameraVideoCapturer) {
+            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
+            try {
+                cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
+                    @Override
+                    public void onCameraSwitchDone(boolean isFrontCamera) {
+                        isSwitch = false;
+                    }
+
+                    @Override
+                    public void onCameraSwitchError(String errorDescription) {
+                        isSwitch = false;
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
+        }
+
     }
 
     private void release() {
