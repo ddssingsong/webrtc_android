@@ -38,7 +38,8 @@ public interface IEvent {
 
     void onLeave(String userId);
 
-
     void logout(String str);
+
+    void reConnect();
 
 }

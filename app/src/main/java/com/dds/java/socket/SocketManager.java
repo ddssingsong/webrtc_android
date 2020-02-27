@@ -88,6 +88,7 @@ public class SocketManager implements IEvent {
 
     public void unConnect() {
         if (webSocket != null) {
+            webSocket.setConnectFlag(false);
             webSocket.close();
             webSocket = null;
         }
@@ -289,8 +290,6 @@ public class SocketManager implements IEvent {
         });
     }
 
-    //===========================================================================================
-
     @Override
     public void logout(String str) {
         Log.i(TAG, "logout:" + str);
@@ -299,6 +298,15 @@ public class SocketManager implements IEvent {
             iUserState.get().userLogout();
         }
     }
+
+    @Override
+    public void reConnect() {
+        handler.post(() -> {
+            webSocket.reconnect();
+        });
+    }
+    //===========================================================================================
+
 
     public int getUserState() {
         return userState;
