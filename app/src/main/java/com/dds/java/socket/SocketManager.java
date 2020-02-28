@@ -234,7 +234,6 @@ public class SocketManager implements IEvent {
 
     }
 
-
     @Override
     public void onReject(String userId, int type) {
         handler.post(() -> {

@@ -33,10 +33,8 @@ dependencies {
 
 
     // java
-    implementation project(path: ':libskywebrtc2')
+    implementation project(path: ':module_p2pchat')
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     implementation 'com.alibaba:fastjson:1.1.64.android'
 
-    // nodejs
-    implementation project(':libskywebrtc')
 }

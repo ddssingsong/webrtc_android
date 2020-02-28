@@ -1,2 +1,1 @@
-include ':app', ':libskywebrtc', ':libwebrtc', ':libskywebrtc2'//, ':enginekit'
-//project(':libwebrtc').projectDir = new File('D:/github/apprtc1/libwebrtc')
+include ':app', ':libwebrtc', ':module_p2pchat'

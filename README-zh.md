@@ -15,10 +15,10 @@
 
 ## 服务器搭建
 
-java： https://github.com/ddssingsong/webrtc_server_java
 
-nodejs：https://github.com/ddssingsong/webrtc_server_node
+nodejs：https://github.com/ddssingsong/webrtc_server_node    for barnch:branch_nodejs
 
+java： https://github.com/ddssingsong/webrtc_server_java     for branch:master
 
 
 如果需要详细的部署流程可参考博客

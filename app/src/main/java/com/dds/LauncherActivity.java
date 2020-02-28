@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.dds.java.JavaActivity;
-import com.dds.nodejs.NodejsActivity;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends AppCompatActivity {
@@ -19,10 +18,6 @@ public class LauncherActivity extends AppCompatActivity {
         setContentView(R.layout.activity_launcher);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-    }
-
-    public void nodejs(View view) {
-        startActivity(new Intent(this, NodejsActivity.class));
     }
 
     public void java(View view) {

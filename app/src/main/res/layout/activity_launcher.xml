@@ -28,18 +28,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="The server side is written using nodejs to complete basic video calls and videoconferencing" />
-
-        <Button
-            android:id="@+id/button7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="nodejs"
-            android:text="NodeJs(开发完成)"
-            android:textAllCaps="false" />
 
         <TextView
             android:layout_width="match_parent"
@@ -51,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="java"
-            android:text="Java(正在开发中)"
+            android:text="ENTER"
             android:textAllCaps="false" />
     </LinearLayout>
 

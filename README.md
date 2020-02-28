@@ -18,9 +18,9 @@ Through this project, you can get a clearer understanding of the whole call proc
 
 You can find the server-side code from here. 
 
-NodeJs    https://github.com/ddssingsong/webrtc_server_node
+NodeJs    https://github.com/ddssingsong/webrtc_server_node   for barnch:branch_nodejs
 
-java      https://github.com/ddssingsong/webrtc_server_java
+java      https://github.com/ddssingsong/webrtc_server_java         for branch:master
 
 
 

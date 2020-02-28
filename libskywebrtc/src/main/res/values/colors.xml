@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="webrtc_colorPrimary">#242424</color>
-    <color name="webrtc_colorPrimaryDark">#242424</color>
-    <color name="webrtc_colorAccent">#242424</color>
-
-    <color name="wr_background">#242424</color>
-</resources>
