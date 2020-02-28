@@ -41,18 +41,6 @@
             android:text="NodeJs(开发完成)"
             android:textAllCaps="false" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="The server side is written using Spring boot, which is in progress" />
-
-        <Button
-            android:id="@+id/button8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="java"
-            android:text="Java(正在开发中)"
-            android:textAllCaps="false" />
     </LinearLayout>
 
 </LinearLayout>

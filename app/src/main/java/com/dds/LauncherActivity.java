@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.dds.java.JavaActivity;
 import com.dds.nodejs.NodejsActivity;
 import com.dds.webrtc.R;
 
@@ -25,7 +24,4 @@ public class LauncherActivity extends AppCompatActivity {
         startActivity(new Intent(this, NodejsActivity.class));
     }
 
-    public void java(View view) {
-        startActivity(new Intent(this, JavaActivity.class));
-    }
 }
