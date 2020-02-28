@@ -48,13 +48,6 @@ public class NodejsActivity extends AppCompatActivity {
                 true);
     }
 
-    public void JoinRoomSingleAudio(View view) {
-        WebrtcUtil.callSingle(this,
-                et_signal.getText().toString(),
-                et_room.getText().toString().trim(),
-                false);
-    }
-
     public void JoinRoom(View view) {
         WebrtcUtil.call(this, et_signal.getText().toString(), et_room.getText().toString().trim());
 
