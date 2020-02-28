@@ -21,6 +21,8 @@ import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
+import org.webrtc.NetworkMonitor;
+import org.webrtc.NetworkMonitorAutoDetect;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RendererCommon;
@@ -47,7 +49,7 @@ import java.util.concurrent.Executors;
  * Created by dds on 2019/8/19.
  * 会话层
  */
-public class CallSession {
+public class CallSession implements NetworkMonitor.NetworkObserver {
     public final static String TAG = "dds_CallSession";
     private WeakReference<CallSessionCallback> sessionCallback;
     private SkyEngineKit avEngineKit;
@@ -71,7 +73,7 @@ public class CallSession {
     public EglBase mRootEglBase;
     private Context mContext;
     private AudioManager audioManager;
-
+    private NetworkMonitor networkMonitor;
     private Peer mPeer;
     // session参数
     public boolean mIsAudioOnly;
@@ -84,6 +86,7 @@ public class CallSession {
 
     private boolean isSwitch = false; // 是否正在切换摄像头
 
+
     private enum Role {Caller, Receiver,}
 
     private Role _role;
@@ -95,7 +98,7 @@ public class CallSession {
         mContext = context;
         this.mIsAudioOnly = audioOnly;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
+        networkMonitor = NetworkMonitor.getInstance();
     }
 
 
@@ -236,6 +239,7 @@ public class CallSession {
     }
 
     private void release() {
+        networkMonitor.removeObserver(this);
         executor.execute(() -> {
             if (audioManager != null) {
                 audioManager.setMode(AudioManager.MODE_NORMAL);
@@ -294,6 +298,7 @@ public class CallSession {
     public void onJoinHome(String myId, String users) {
         startTime = 0;
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        networkMonitor.addObserver(this);
         executor.execute(() -> {
             mMyId = myId;
             // todo 多人会议
@@ -413,7 +418,9 @@ public class CallSession {
         executor.execute(() -> {
             if (mPeer != null && mPeer.pc != null) {
                 IceCandidate iceCandidate = new IceCandidate(id, label, candidate);
+                mPeer.queuedRemoteCandidates.add(iceCandidate);
                 mPeer.pc.addIceCandidate(iceCandidate);
+
             }
         });
 
@@ -429,10 +436,13 @@ public class CallSession {
     private class Peer implements SdpObserver, PeerConnection.Observer {
         private PeerConnection pc;
         private String userId;
+        private List<IceCandidate> queuedRemoteCandidates;
 
         public Peer(String userId) {
             this.pc = createPeerConnection();
             this.userId = userId;
+            queuedRemoteCandidates = new ArrayList<>();
+
 
         }
 
@@ -440,6 +450,24 @@ public class CallSession {
             // 管道连接抽象类实现方法
             PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(avEngineKit.getIceServers());
             return _factory.createPeerConnection(rtcConfig, this);
+        }
+
+        public void resetCandidates() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            IceCandidate[] candidates = new IceCandidate[queuedRemoteCandidates.size()];
+            for (int i = 0; i < queuedRemoteCandidates.size(); i++) {
+                candidates[i] = queuedRemoteCandidates.get(i);
+            }
+            pc.removeIceCandidates(candidates);
+
+            for (int i = 0; i < queuedRemoteCandidates.size(); i++) {
+                IceCandidate iceCandidate = queuedRemoteCandidates.get(i);
+                pc.addIceCandidate(iceCandidate);
+            }
         }
 
         //-------------Observer--------------------
@@ -483,6 +511,7 @@ public class CallSession {
         @Override
         public void onIceCandidatesRemoved(IceCandidate[] candidates) {
             Log.i(TAG, "onIceCandidatesRemoved:");
+
         }
 
         @Override
@@ -572,7 +601,18 @@ public class CallSession {
         }
     }
 
+    @Override
+    public void onConnectionTypeChanged(NetworkMonitorAutoDetect.ConnectionType connectionType) {
+        Log.e(TAG, "onConnectionTypeChanged" + connectionType.toString());
+//        if (!connectionType.equals(NetworkMonitorAutoDetect.ConnectionType.CONNECTION_NONE)) {
+//            // 重置iceCandidates
+//            if (mPeer != null) {
+//                mPeer.resetCandidates();
+//            }
+//        }
 
+
+    }
     // --------------------------------界面显示相关-------------------------------------------------
 
     public long getStartTime() {

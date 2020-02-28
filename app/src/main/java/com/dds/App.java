@@ -19,6 +19,8 @@ public class App extends Application {
             return;
         }
         LeakCanary.install(this);
+
+
     }
 
     public static App getInstance() {
