@@ -9,9 +9,8 @@ import android.util.Log;
 import com.dds.App;
 import com.dds.java.voip.Utils;
 import com.dds.java.voip.VoipReceiver;
-import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
-import com.dds.webrtclib.ws.JavaWebSocket;
+import com.dds.skywebrtc.SkyEngineKit;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -64,7 +63,7 @@ public class SocketManager implements IEvent {
                 try {
                     SSLContext sslContext = SSLContext.getInstance("TLS");
                     if (sslContext != null) {
-                        sslContext.init(null, new TrustManager[]{new JavaWebSocket.TrustManagerTest()}, new SecureRandom());
+                        sslContext.init(null, new TrustManager[]{new DWebSocket.TrustManagerTest()}, new SecureRandom());
                     }
 
                     SSLSocketFactory factory = null;

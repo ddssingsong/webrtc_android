@@ -1,5 +1,6 @@
 package com.dds.java.socket;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -9,8 +10,12 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by dds on 2019/7/26.
@@ -406,5 +411,28 @@ public class DWebSocket extends WebSocketClient {
         send(jsonString);
     }
 
+
+
+
+    // 忽略证书
+    public static class TrustManagerTest implements X509TrustManager {
+
+        @SuppressLint("TrustAllX509TrustManager")
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+        }
+
+        @SuppressLint("TrustAllX509TrustManager")
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    }
 
 }
