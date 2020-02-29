@@ -437,6 +437,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         private PeerConnection pc;
         private String userId;
         private List<IceCandidate> queuedRemoteCandidates;
+        private SessionDescription sdpDescription = null;
 
         public Peer(String userId) {
             this.pc = createPeerConnection();
@@ -453,11 +454,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         }
 
         public void resetCandidates() {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             IceCandidate[] candidates = new IceCandidate[queuedRemoteCandidates.size()];
             for (int i = 0; i < queuedRemoteCandidates.size(); i++) {
                 candidates[i] = queuedRemoteCandidates.get(i);
@@ -470,6 +466,15 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
             }
         }
 
+        public void resetLocalDescription() {
+            if (sdpDescription != null) {
+                String sdpString = sdpDescription.description;
+                final SessionDescription sdp = new SessionDescription(sdpDescription.type, sdpString);
+                executor.execute(() -> pc.setLocalDescription(Peer.this, sdp));
+            }
+
+        }
+
         //-------------Observer--------------------
         @Override
         public void onSignalingChange(PeerConnection.SignalingState signalingState) {
@@ -479,7 +484,10 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         @Override
         public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
             Log.i(TAG, "onIceConnectionChange: " + newState.toString());
-
+            if (_callState != EnumType.CallState.Connected) return;
+            if (newState == PeerConnection.IceConnectionState.DISCONNECTED) {
+                resetCandidates();
+            }
         }
 
         @Override
@@ -553,8 +561,9 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         @Override
         public void onCreateSuccess(SessionDescription origSdp) {
             Log.d(TAG, "sdp创建成功       " + origSdp.type);
-            String sdpDescription = origSdp.description;
-            final SessionDescription sdp = new SessionDescription(origSdp.type, sdpDescription);
+            sdpDescription = origSdp;
+            String sdpString = origSdp.description;
+            final SessionDescription sdp = new SessionDescription(origSdp.type, sdpString);
             executor.execute(() -> pc.setLocalDescription(Peer.this, sdp));
 
 
@@ -597,19 +606,22 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
         @Override
         public void onSetFailure(String error) {
-            Log.i(TAG, "SdpObserver onSetFailure:");
+            Log.i(TAG, "SdpObserver onSetFailure:" + error);
         }
     }
+
+    private NetworkMonitorAutoDetect.ConnectionType currentConnectionType;
 
     @Override
     public void onConnectionTypeChanged(NetworkMonitorAutoDetect.ConnectionType connectionType) {
         Log.e(TAG, "onConnectionTypeChanged" + connectionType.toString());
-//        if (!connectionType.equals(NetworkMonitorAutoDetect.ConnectionType.CONNECTION_NONE)) {
-//            // 重置iceCandidates
-//            if (mPeer != null) {
-//                mPeer.resetCandidates();
-//            }
-//        }
+        if (_callState != EnumType.CallState.Connected) return;
+        currentConnectionType = NetworkMonitorAutoDetect.ConnectionType.CONNECTION_NONE;
+        if (!connectionType.equals(NetworkMonitorAutoDetect.ConnectionType.CONNECTION_NONE)) {
+            if (mPeer != null) {
+
+            }
+        }
 
 
     }
