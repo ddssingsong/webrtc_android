@@ -408,10 +408,10 @@ public class DWebSocket extends WebSocketClient {
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();
         Log.d(TAG, "send-->" + jsonString);
-        send(jsonString);
+        if (isOpen()) {
+            send(jsonString);
+        }
     }
-
-
 
 
     // 忽略证书

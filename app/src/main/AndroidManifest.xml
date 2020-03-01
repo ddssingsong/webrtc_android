@@ -40,16 +40,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.dds.nodejs.NodejsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
 
-        <!-- ====================nodejs====================== -->
         <activity android:name="com.dds.java.JavaActivity" />
 
         <!-- ======================java====================== -->
         <activity
             android:name="com.dds.java.voip.CallSingleActivity"
+            android:screenOrientation="portrait"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:theme="@style/AppTheme.NoActionBar"
