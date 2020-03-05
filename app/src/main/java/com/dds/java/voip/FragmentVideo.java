@@ -64,6 +64,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override

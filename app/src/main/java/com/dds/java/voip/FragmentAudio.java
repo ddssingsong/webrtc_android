@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.dds.skywebrtc.CallSession;
@@ -46,6 +47,12 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     private boolean micEnabled = false;  // 静音
     private boolean isSpeakerOn = false;// 扬声器
     private CallSingleActivity activity;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
