@@ -57,7 +57,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     public static final String VIDEO_CODEC_H264 = "H264";
     public static final int VIDEO_RESOLUTION_WIDTH = 320;
     public static final int VIDEO_RESOLUTION_HEIGHT = 240;
-    public static final int FPS = 10;
+    public static final int FPS = 15;
 
     public PeerConnectionFactory _factory;
     public MediaStream _localStream;
