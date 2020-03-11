@@ -228,10 +228,14 @@ public class FloatingVoipService extends Service {
     }
 
     private void showAudioInfo() {
+
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         if (remoteVideoFrameLayout.getVisibility() == View.VISIBLE) {
             session.setupRemoteVideo(null);
             remoteVideoFrameLayout.setVisibility(View.GONE);
+            if (surfaceView != null) {
+                surfaceView.release();
+            }
             wm.removeView(view);
             wm.addView(view, params);
         }
