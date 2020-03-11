@@ -88,7 +88,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         if (isFromFloatingView) {
             Intent serviceIntent = new Intent(this, FloatingVoipService.class);
             stopService(serviceIntent);
-            init(targetId, false, isAudioOnly);
+            init(targetId, false, isAudioOnly, false);
         } else {
             // 权限检测
             String[] per;
@@ -100,7 +100,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
             Permissions.request(this, per, integer -> {
                 if (integer == 0) {
                     // 权限同意
-                    init(targetId, isOutgoing, isAudioOnly);
+                    init(targetId, isOutgoing, isAudioOnly, false);
                 } else {
                     // 权限拒绝
                     CallSingleActivity.this.finish();
@@ -111,7 +111,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     }
 
-    private void init(String targetId, boolean outgoing, boolean audioOnly) {
+    private void init(String targetId, boolean outgoing, boolean audioOnly, boolean isReplace) {
         Fragment fragment;
         if (audioOnly) {
             fragment = new FragmentAudio();
@@ -121,9 +121,15 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
         currentFragment = (CallSession.CallSessionCallback) fragment;
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .add(android.R.id.content, fragment)
-                .commit();
+        if (isReplace) {
+            fragmentManager.beginTransaction()
+                    .replace(android.R.id.content, fragment)
+                    .commit();
+        } else {
+            fragmentManager.beginTransaction()
+                    .add(android.R.id.content, fragment)
+                    .commit();
+        }
         if (outgoing) {
             // 创建会话
             String room = UUID.randomUUID().toString() + System.currentTimeMillis();
@@ -175,6 +181,11 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         finish();
     }
 
+    // 切换到语音通话
+    public void switchAudio() {
+        init(targetId, isOutgoing, true, true);
+    }
+
     // ======================================界面回调================================
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason var1) {
@@ -183,6 +194,9 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     @Override
     public void didChangeState(EnumType.CallState callState) {
+        if (callState == EnumType.CallState.Connected) {
+            isOutgoing = false;
+        }
         handler.post(() -> currentFragment.didChangeState(callState));
     }
 

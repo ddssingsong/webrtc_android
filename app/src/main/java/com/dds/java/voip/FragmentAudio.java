@@ -104,6 +104,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
             descTextView.setVisibility(View.GONE); // 提示语
             outgoingActionContainer.setVisibility(View.VISIBLE);
             durationTextView.setVisibility(View.VISIBLE);
+            startRefreshTime();
         } else {
             // 如果未接通
             if (activity.isOutgoing()) {
@@ -230,7 +231,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         }
         if (durationTextView != null) {
             durationTextView.setVisibility(View.VISIBLE);
-            durationTextView.setBase(SystemClock.elapsedRealtime());
+            durationTextView.setBase(SystemClock.elapsedRealtime() - (System.currentTimeMillis() - session.getStartTime()));
             durationTextView.start();
         }
     }

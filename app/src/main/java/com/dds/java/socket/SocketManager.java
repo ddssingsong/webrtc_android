@@ -177,6 +177,18 @@ public class SocketManager implements IEvent {
         }
     }
 
+    public void sendTransAudio(String userId) {
+        if (webSocket != null) {
+            webSocket.sendTransAudio(myId, userId);
+        }
+    }
+
+    public void sendDisconnect(String userId) {
+        if (webSocket != null) {
+            webSocket.sendDisconnect(myId, userId);
+        }
+    }
+
 
     // ========================================================================================
     @Override
@@ -295,6 +307,26 @@ public class SocketManager implements IEvent {
         if (iUserState != null && iUserState.get() != null) {
             iUserState.get().userLogout();
         }
+    }
+
+    @Override
+    public void onTransAudio(String userId) {
+        handler.post(() -> {
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onTransAudio(userId);
+            }
+        });
+    }
+
+    @Override
+    public void onDisConnect(String userId) {
+        handler.post(() -> {
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onDisConnect(userId);
+            }
+        });
     }
 
     @Override

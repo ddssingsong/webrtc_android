@@ -41,6 +41,16 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
+    public void sendTransAudio(String toId) {
+        SocketManager.getInstance().sendTransAudio(toId);
+    }
+
+    @Override
+    public void sendDisConnect(String toId) {
+        SocketManager.getInstance().sendDisconnect(toId);
+    }
+
+    @Override
     public void sendCancel(String toId) {
         SocketManager.getInstance().sendCancel(toId);
     }

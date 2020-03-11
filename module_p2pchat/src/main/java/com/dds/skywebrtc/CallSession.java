@@ -14,7 +14,6 @@ import org.webrtc.Camera1Enumerator;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
-import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
@@ -23,11 +22,8 @@ import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.NetworkMonitor;
 import org.webrtc.NetworkMonitorAutoDetect;
-import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RendererCommon;
-import org.webrtc.RtpReceiver;
-import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.SurfaceViewRenderer;
@@ -51,9 +47,9 @@ import java.util.concurrent.Executors;
  * 会话层
  */
 public class CallSession implements NetworkMonitor.NetworkObserver {
-    public final static String TAG = "dds_CallSession";
-    private WeakReference<CallSessionCallback> sessionCallback;
-    private SkyEngineKit avEngineKit;
+    private final static String TAG = "dds_CallSession";
+    public WeakReference<CallSessionCallback> sessionCallback;
+    public SkyEngineKit avEngineKit;
     public ExecutorService executor;
 
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
@@ -65,7 +61,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
     public PeerConnectionFactory _factory;
     public MediaStream _localStream;
-    private MediaStream _remoteStream;
+    public MediaStream _remoteStream;
     public VideoTrack _localVideoTrack;
     public AudioTrack _localAudioTrack;
     public VideoSource videoSource;
@@ -88,10 +84,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     private AudioDeviceModule audioDeviceModule;
     private boolean isSwitch = false; // 是否正在切换摄像头
 
-
-    private enum Role {Caller, Receiver,}
-
-    private Role _role;
 
     public CallSession(SkyEngineKit avEngineKit, Context context, boolean audioOnly) {
         this.avEngineKit = avEngineKit;
@@ -182,6 +174,15 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
     }
 
+    public void sendTransAudio() {
+        executor.execute(() -> {
+            if (avEngineKit.mEvent != null) {
+                // 发送到对面，切换到语音
+                avEngineKit.mEvent.sendTransAudio(mTargetId);
+            }
+        });
+    }
+
     // 设置静音
     public boolean muteAudio(boolean enable) {
 //        if (_localAudioTrack != null) {
@@ -221,6 +222,17 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         return false;
     }
 
+    // 切换到语音通话
+    public void switchToAudio() {
+        mIsAudioOnly = true;
+        // 告诉远端
+        sendTransAudio();
+        // 本地切换
+        if (sessionCallback.get() != null) {
+            sessionCallback.get().didChangeMode(true);
+        }
+
+    }
 
     // 调整摄像头前置后置
     public void switchCamera() {
@@ -280,9 +292,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
             _localStream.dispose();
             _remoteStream.dispose();
             // 关闭peer
-            if (mPeer != null && mPeer.pc != null) {
-                mPeer.pc.close();
-            }
+            mPeer.close();
 
             // 释放画布
             if (surfaceTextureHelper != null) {
@@ -326,12 +336,12 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
                 createLocalStream();
             }
             if (mIsComing) {
-                // 接电话一方
-                _role = Role.Caller;
                 // 创建Peer
-                mPeer = new Peer(mTargetId);
+                mPeer = new Peer(CallSession.this, mTargetId);
+                // 接电话一方
+                mPeer.setOffer(true);
                 // 添加本地流
-                mPeer.pc.addStream(_localStream);
+                mPeer.addLocalStream(_localStream);
                 // 创建offer
                 mPeer.createOffer();
 
@@ -343,8 +353,9 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
                 _callState = EnumType.CallState.Connected;
 
                 if (sessionCallback.get() != null) {
-                    sessionCallback.get().didChangeState(_callState);
                     startTime = System.currentTimeMillis();
+                    sessionCallback.get().didChangeState(_callState);
+
                 }
             } else {
                 avEngineKit.mEvent.sendInvite(mRoom, mTargetId, mIsAudioOnly);
@@ -353,9 +364,9 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
             // 开始显示本地画面
             if (!isAudioOnly()) {
                 // 测试视频，关闭语音以防杂音
-//                if (BuildConfig.DEBUG) {
-//                    muteAudio(false);
-//                }
+                if (BuildConfig.DEBUG) {
+                    muteAudio(false);
+                }
                 if (sessionCallback.get() != null) {
                     sessionCallback.get().didCreateLocalVideoTrack();
                 }
@@ -373,8 +384,8 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
                 createLocalStream();
             }
             try {
-                mPeer = new Peer(userId);
-                mPeer.pc.addStream(_localStream);
+                mPeer = new Peer(CallSession.this, userId);
+                mPeer.addLocalStream(_localStream);
             } catch (Exception e) {
                 Log.e(TAG, e.toString());
             }
@@ -386,8 +397,9 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
             // 切换界面
             _callState = EnumType.CallState.Connected;
             if (sessionCallback.get() != null) {
-                sessionCallback.get().didChangeState(EnumType.CallState.Connected);
                 startTime = System.currentTimeMillis();
+                sessionCallback.get().didChangeState(EnumType.CallState.Connected);
+
             }
 
         });
@@ -405,15 +417,27 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         }
     }
 
+    // 切换到语音
+    public void onTransAudio(String userId) {
+        mIsAudioOnly = true;
+        // 本地切换
+        if (sessionCallback.get() != null) {
+            sessionCallback.get().didChangeMode(true);
+        }
+    }
+
+    // 切换到语音
+    public void onDisConnect(String userId) {
+
+    }
+
     public void onReceiveOffer(String userId, String description) {
         executor.execute(() -> {
-            _role = Role.Receiver;
             SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
             if (mPeer != null) {
-                mPeer.pc.setRemoteDescription(mPeer, sdp);
-                if (_role == Role.Receiver) {
-                    mPeer.createAnswer();
-                }
+                mPeer.setOffer(false);
+                mPeer.setRemoteDescription(sdp);
+                mPeer.createAnswer();
             }
 
 
@@ -425,8 +449,8 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         Log.e("dds_test", "onReceiverAnswer:" + userId);
         executor.execute(() -> {
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
-            if (mPeer != null && mPeer.pc != null) {
-                mPeer.pc.setRemoteDescription(mPeer, sessionDescription);
+            if (mPeer != null) {
+                mPeer.setRemoteDescription(sessionDescription);
             }
         });
 
@@ -434,7 +458,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
     public void onRemoteIceCandidate(String userId, String id, int label, String candidate) {
         executor.execute(() -> {
-            if (mPeer != null && mPeer.pc != null) {
+            if (mPeer != null) {
                 IceCandidate iceCandidate = new IceCandidate(id, label, candidate);
                 mPeer.addRemoteIceCandidate(iceCandidate);
 
@@ -448,218 +472,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         release();
     }
 
-
-    // 每一个Session 可包含多个PeerConnection
-    private class Peer implements SdpObserver, PeerConnection.Observer {
-        private PeerConnection pc;
-        private String userId;
-        private List<IceCandidate> queuedRemoteCandidates;
-        private SessionDescription localSdp;
-
-        public Peer(String userId) {
-            this.pc = createPeerConnection();
-            this.userId = userId;
-            queuedRemoteCandidates = new ArrayList<>();
-
-
-        }
-
-        private PeerConnection createPeerConnection() {
-            // 管道连接抽象类实现方法
-            PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(avEngineKit.getIceServers());
-            return _factory.createPeerConnection(rtcConfig, this);
-        }
-
-        // 创建offer
-        private void createOffer() {
-            if (pc == null) return;
-            pc.createOffer(this, offerOrAnswerConstraint());
-        }
-
-        // 创建answer
-        private void createAnswer() {
-            if (pc == null) return;
-            pc.createAnswer(this, offerOrAnswerConstraint());
-
-        }
-
-
-        private void addRemoteIceCandidate(final IceCandidate candidate) {
-            if (pc != null) {
-                if (queuedRemoteCandidates != null) {
-                    queuedRemoteCandidates.add(candidate);
-                } else {
-                    pc.addIceCandidate(candidate);
-                }
-            }
-        }
-
-        public void removeRemoteIceCandidates(final IceCandidate[] candidates) {
-            if (pc == null) {
-                return;
-            }
-            drainCandidates();
-            pc.removeIceCandidates(candidates);
-        }
-
-
-        private void drainCandidates() {
-            if (queuedRemoteCandidates != null) {
-                Log.d(TAG, "Add " + queuedRemoteCandidates.size() + " remote candidates");
-                for (IceCandidate candidate : queuedRemoteCandidates) {
-                    pc.addIceCandidate(candidate);
-                }
-                queuedRemoteCandidates = null;
-            }
-        }
-
-        //-------------Observer--------------------
-        @Override
-        public void onSignalingChange(PeerConnection.SignalingState signalingState) {
-            Log.i(TAG, "onSignalingChange: " + signalingState);
-        }
-
-        @Override
-        public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
-            Log.i(TAG, "onIceConnectionChange: " + newState.toString());
-            if (_callState != EnumType.CallState.Connected) return;
-            if (newState == PeerConnection.IceConnectionState.DISCONNECTED) {
-//                createOffer();
-            }
-        }
-
-        @Override
-        public void onIceConnectionReceivingChange(boolean receiving) {
-            Log.i(TAG, "onIceConnectionReceivingChange:" + receiving);
-        }
-
-        @Override
-        public void onIceGatheringChange(PeerConnection.IceGatheringState newState) {
-            Log.i(TAG, "onIceGatheringChange:" + newState.toString());
-        }
-
-
-        @Override
-        public void onIceCandidate(IceCandidate candidate) {
-            Log.i(TAG, "onIceCandidate:");
-            // 发送IceCandidate
-            executor.execute(() -> {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                avEngineKit.mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
-            });
-
-
-        }
-
-        @Override
-        public void onIceCandidatesRemoved(IceCandidate[] candidates) {
-            Log.i(TAG, "onIceCandidatesRemoved:");
-        }
-
-        @Override
-        public void onAddStream(MediaStream stream) {
-            _remoteStream = stream;
-            Log.i(TAG, "onAddStream:");
-            if (stream.audioTracks.size() > 0) {
-                stream.audioTracks.get(0).setEnabled(true);
-            }
-            if (sessionCallback.get() != null) {
-                sessionCallback.get().didReceiveRemoteVideoTrack();
-            }
-
-
-        }
-
-        @Override
-        public void onRemoveStream(MediaStream stream) {
-            Log.i(TAG, "onRemoveStream:");
-        }
-
-        @Override
-        public void onDataChannel(DataChannel dataChannel) {
-            Log.i(TAG, "onDataChannel:");
-        }
-
-        @Override
-        public void onRenegotiationNeeded() {
-            Log.i(TAG, "onRenegotiationNeeded:");
-        }
-
-        @Override
-        public void onAddTrack(RtpReceiver receiver, MediaStream[] mediaStreams) {
-            Log.i(TAG, "onAddTrack:");
-        }
-
-
-        //-------------SdpObserver--------------------
-        @Override
-        public void onCreateSuccess(SessionDescription origSdp) {
-            Log.d(TAG, "sdp创建成功       " + origSdp.type);
-            String sdpString = origSdp.description;
-            final SessionDescription sdp = new SessionDescription(origSdp.type, sdpString);
-            localSdp = sdp;
-            executor.execute(() -> pc.setLocalDescription(Peer.this, sdp));
-        }
-
-        @Override
-        public void onSetSuccess() {
-            executor.execute(() -> {
-                Log.d(TAG, "sdp连接成功   " + pc.signalingState().toString());
-                if (pc == null) return;
-
-                // 发送者
-                if (_role == Role.Caller) {
-                    if (pc.getRemoteDescription() == null) {
-                        Log.d(TAG, "Local SDP set succesfully");
-                        if (_role == Role.Receiver) {
-                            //接收者，发送Answer
-                            avEngineKit.mEvent.sendAnswer(userId, localSdp.description);
-                        } else if (_role == Role.Caller) {
-                            //发送者,发送自己的offer
-                            avEngineKit.mEvent.sendOffer(userId, localSdp.description);
-                        }
-                    } else {
-                        Log.d(TAG, "Remote SDP set succesfully");
-
-                        drainCandidates();
-                    }
-
-                } else {
-                    if (pc.getLocalDescription() != null) {
-                        Log.d(TAG, "Local SDP set succesfully");
-                        if (_role == Role.Receiver) {
-                            //接收者，发送Answer
-                            avEngineKit.mEvent.sendAnswer(userId, localSdp.description);
-                        } else if (_role == Role.Caller) {
-                            //发送者,发送自己的offer
-                            avEngineKit.mEvent.sendOffer(userId, localSdp.description);
-                        }
-
-                        drainCandidates();
-                    } else {
-                        Log.d(TAG, "Remote SDP set succesfully");
-                    }
-                }
-            });
-
-
-        }
-
-        @Override
-        public void onCreateFailure(String error) {
-            Log.i(TAG, " SdpObserver onCreateFailure:" + error);
-        }
-
-        @Override
-        public void onSetFailure(String error) {
-            Log.i(TAG, "SdpObserver onSetFailure:" + error);
-        }
-    }
 
     @Override
     public void onConnectionTypeChanged(NetworkMonitorAutoDetect.ConnectionType connectionType) {
@@ -863,7 +675,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
         void didChangeState(EnumType.CallState var1);
 
-        void didChangeMode(boolean isAudio);
+        void didChangeMode(boolean isAudioOnly);
 
         void didCreateLocalVideoTrack();
 

@@ -127,6 +127,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             connectedActionContainer.setVisibility(View.VISIBLE);
             inviteeInfoContainer.setVisibility(View.GONE);
             minimizeImageView.setVisibility(View.VISIBLE);
+            startRefreshTime();
         } else {
             if (isOutgoing) {
                 incomingActionContainer.setVisibility(View.GONE);
@@ -191,6 +192,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
     @Override
     public void didChangeMode(boolean isAudio) {
+        runOnUiThread(() -> activity.switchAudio());
 
     }
 
@@ -259,8 +261,8 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     public void onClick(View v) {
         int id = v.getId();
         // 接听
+        CallSession session = gEngineKit.getCurrentSession();
         if (id == R.id.acceptImageView) {
-            CallSession session = gEngineKit.getCurrentSession();
             if (session != null && session.getState() == EnumType.CallState.Incoming) {
                 session.joinHome();
             } else {
@@ -270,7 +272,6 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         // 挂断电话
         if (id == R.id.incomingHangupImageView || id == R.id.outgoingHangupImageView ||
                 id == R.id.connectedHangupImageView) {
-            CallSession session = gEngineKit.getCurrentSession();
             if (session != null) {
                 SkyEngineKit.Instance().endCall();
                 activity.finish();
@@ -281,15 +282,17 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
         // 切换摄像头
         if (id == R.id.switchCameraImageView) {
-            CallSession session = gEngineKit.getCurrentSession();
             if (session != null) {
                 session.switchCamera();
             }
         }
 
         // 切换到语音拨打
-        if (id == R.id.outgoingAudioOnlyImageView || id == R.id.outgoingAudioOnlyImageView
-                || id == R.id.outgoingAudioOnlyImageView) {
+        if (id == R.id.outgoingAudioOnlyImageView || id == R.id.incomingAudioOnlyImageView ||
+                id == R.id.connectedAudioOnlyImageView) {
+            if (session != null) {
+                session.switchToAudio();
+            }
 
         }
 
@@ -306,7 +309,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         }
         if (durationTextView != null) {
             durationTextView.setVisibility(View.VISIBLE);
-            durationTextView.setBase(SystemClock.elapsedRealtime());
+            durationTextView.setBase(SystemClock.elapsedRealtime() - (System.currentTimeMillis() - session.getStartTime()));
             durationTextView.start();
         }
     }

@@ -17,6 +17,10 @@ public interface ISkyEvent {
 
     void sendRefuse(String inviteId, int refuseType);
 
+    void sendTransAudio(String toId);
+
+    void sendDisConnect(String toId);
+
     void sendCancel(String toId);
 
     void sendJoin(String room);

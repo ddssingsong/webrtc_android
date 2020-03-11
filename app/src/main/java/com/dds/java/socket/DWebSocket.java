@@ -132,7 +132,32 @@ public class DWebSocket extends WebSocketClient {
         // 离开房间
         if (eventName.equals("__leave")) {
             handleLeave(map);
+        }
+        // 切换到语音
+        if (eventName.equals("__audio")) {
+            handleTransAudio(map);
+        }
+        // 意外断开
+        if (eventName.equals("__disconnect")) {
+            handleDisConnect(map);
+        }
 
+
+    }
+
+    private void handleDisConnect(Map map) {
+        Map data = (Map) map.get("data");
+        if (data != null) {
+            String fromId = (String) data.get("fromID");
+            this.iEvent.onDisConnect(fromId);
+        }
+    }
+
+    private void handleTransAudio(Map map) {
+        Map data = (Map) map.get("data");
+        if (data != null) {
+            String fromId = (String) data.get("fromID");
+            this.iEvent.onTransAudio(fromId);
         }
     }
 
@@ -413,6 +438,33 @@ public class DWebSocket extends WebSocketClient {
         }
     }
 
+    // 切换到语音
+    public void sendTransAudio(String myId, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("fromID", myId);
+        childMap.put("userID", userId);
+        map.put("data", childMap);
+        map.put("eventName", "__audio");
+        JSONObject object = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
+        send(jsonString);
+    }
+
+    // 断开重连
+    public void sendDisconnect(String myId, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> childMap = new HashMap<>();
+        childMap.put("fromID", myId);
+        childMap.put("userID", userId);
+        map.put("data", childMap);
+        map.put("eventName", "__disconnect");
+        JSONObject object = new JSONObject(map);
+        final String jsonString = object.toString();
+        Log.d(TAG, "send-->" + jsonString);
+        send(jsonString);
+    }
 
     // 忽略证书
     public static class TrustManagerTest implements X509TrustManager {

@@ -23,9 +23,7 @@ public interface IEvent {
 
     void onNewPeer(String myId);
 
-
     void onReject(String userId, int type);
-
 
     // onOffer
     void onOffer(String userId, String sdp);
@@ -39,6 +37,10 @@ public interface IEvent {
     void onLeave(String userId);
 
     void logout(String str);
+
+    void onTransAudio(String userId);
+
+    void onDisConnect(String userId);
 
     void reConnect();
 
