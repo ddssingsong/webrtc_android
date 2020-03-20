@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />  <!--悬浮窗显示-->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> <!-- 悬浮窗显示 -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -28,6 +28,9 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name="com.dds.java.MainActivity"
+            android:label="@string/title_activity_main"></activity>
         <activity android:name="com.dds.java.voip.CallMultiActivity" />
         <activity
             android:name="com.dds.LauncherActivity"
@@ -40,10 +43,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.dds.java.JavaActivity" />
-
-        <!-- ======================java====================== -->
+        <activity android:name="com.dds.java.JavaActivity" /> <!-- ======================java====================== -->
         <activity
             android:name="com.dds.java.voip.CallSingleActivity"
             android:screenOrientation="portrait"
@@ -62,9 +62,7 @@
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
             </intent-filter>
-        </receiver>
-
-        <!--悬浮窗-->
+        </receiver> <!-- 悬浮窗 -->
         <service
             android:name="com.dds.java.voip.FloatingVoipService"
             android:enabled="true"

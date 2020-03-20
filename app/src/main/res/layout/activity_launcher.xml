@@ -28,6 +28,11 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <EditText
+            android:id="@+id/et_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="input user name " />
 
         <TextView
             android:layout_width="match_parent"

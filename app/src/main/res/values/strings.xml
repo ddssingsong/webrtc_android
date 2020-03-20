@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Webrtc</string>
+    <string name="app_name">p2pChat</string>
     <string name="action_settings">Settings</string>
 
 
@@ -9,5 +9,9 @@
     <string name="av_video_invite">邀请你进行视频通话</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_user">User</string>
+    <string name="title_room">Room</string>
+    <string name="title_setting">Setting</string>
 
 </resources>

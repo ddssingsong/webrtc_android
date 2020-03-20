@@ -9,7 +9,9 @@ import com.squareup.leakcanary.LeakCanary;
  * android_shuai@163.com
  */
 public class App extends Application {
+
     private static App app;
+    private String username;
 
     @Override
     public void onCreate() {
@@ -25,5 +27,13 @@ public class App extends Application {
 
     public static App getInstance() {
         return app;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
