@@ -29,15 +29,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
     api project(path: ':libwebrtc')
 }
 
 
-def siteUrl = 'https://github.com/ddssingsong/webrtc_android'    //Homepage URL of the library  重要，最好在github上也同步了工程
-def gitUrl = 'https://github.com/ddssingsong/webrtc_android.git'    //Git repository url重要
+def siteUrl = 'https://github.com/ddssingsong/webrtc_android'            //Homepage URL of the library  重要，最好在github上也同步了工程
+def gitUrl = 'https://github.com/ddssingsong/webrtc_android.git'         //Git repository url重要
 def issueUrl = 'https://github.com/ddssingsong/webrtc_android/issues'    //issue url of the library重要
-group = "com.github.p2pchat"    //这个gruop很重要，参考 compile 'groupId:artifactId:version'     groupId就是这个，artifactId就是包名，version就是顶部那个
+group = "com.github.p2pchat"                                             //这个gruop很重要，参考 compile 'groupId:artifactId:version'
+                                                                         // groupId就是这个，artifactId就是包名，version就是顶部那个
 
 install {
     repositories.mavenInstaller {

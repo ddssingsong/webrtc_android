@@ -1,4 +1,4 @@
-package com.dds.skywebrtc.permission;
+package com.dds.permission;
 
 /**
  * Represents an operation that accepts a single input argument and returns no
