@@ -16,11 +16,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.dds.permission.Permissions;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.except.NotInitializedException;
-import com.dds.skywebrtc.permission.Permissions;
 import com.dds.webrtc.R;
 
 import java.util.UUID;

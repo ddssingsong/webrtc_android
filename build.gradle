@@ -1,10 +1,5 @@
 buildscript {
     repositories {
-
-        maven {
-            url 'https://dl.bintray.com/ddssingsong/maven'
-        }
-        mavenCentral()
         jcenter()
         google()
         maven {
@@ -16,6 +11,9 @@ buildscript {
         maven { url "https://maven.aliyun.com/repository/central" }
         maven { url "https://maven.aliyun.com/repository/google" }
         maven { url "https://maven.aliyun.com/repository/jcenter" }
+        maven {
+            url 'https://dl.bintray.com/ddssingsong/maven'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
@@ -28,10 +26,6 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            url 'https://dl.bintray.com/ddssingsong/maven'
-        }
-        mavenCentral()
         jcenter()
         google()
         maven {
@@ -42,6 +36,11 @@ allprojects {
         maven { url "https://maven.aliyun.com/repository/central" }
         maven { url "https://maven.aliyun.com/repository/google" }
         maven { url "https://maven.aliyun.com/repository/jcenter" }
+
+
+        maven {
+            url 'https://dl.bintray.com/ddssingsong/maven'
+        }
     }
 }
 

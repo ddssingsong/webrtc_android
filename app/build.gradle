@@ -41,9 +41,9 @@ dependencies {
 
 
     // java
-//    implementation project(path: ':module_p2pchat')
+    implementation project(path: ':module_p2pchat')
 
-    implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
+//    implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
     api project(path: ':libwebrtc')
 
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'

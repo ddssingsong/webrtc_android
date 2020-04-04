@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
-import com.dds.skywebrtc.permission.Consumer;
 
 import java.util.ArrayList;
 import java.util.List;
