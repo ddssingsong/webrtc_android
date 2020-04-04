@@ -16,7 +16,7 @@
 ## 服务器搭建
 
 
-nodejs：https://github.com/ddssingsong/webrtc_server_node    for barnch:branch_nodejs
+nodejs：https://github.com/ddssingsong/webrtc_server_node    for branch:branch_meeting(会议)
 
 java： https://github.com/ddssingsong/webrtc_server_java     for branch:master
 
@@ -40,6 +40,7 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 - 正在开发的功能：
   1. 各种优化，使用体验啥的
+  2. 2.0.0_preview 正在开发中
   
      
 

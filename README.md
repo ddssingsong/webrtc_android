@@ -18,7 +18,7 @@ Through this project, you can get a clearer understanding of the whole call proc
 
 You can find the server-side code from here. 
 
-NodeJs    https://github.com/ddssingsong/webrtc_server_node   for barnch:branch_nodejs
+NodeJs    https://github.com/ddssingsong/webrtc_server_node   for branch:branch_meeting
 
 java      https://github.com/ddssingsong/webrtc_server_java         for branch:master
 
@@ -36,6 +36,7 @@ java      https://github.com/ddssingsong/webrtc_server_java         for branch:m
 
 - In progress
   1. Various optimization
+  2. 2.0.0_preview in dev
 
 
 
