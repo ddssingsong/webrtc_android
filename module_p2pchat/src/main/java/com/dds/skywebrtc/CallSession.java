@@ -6,6 +6,8 @@ import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.dds.skywebrtc.engine.IEngine;
+import com.dds.skywebrtc.engine.WebRTCEngine;
 import com.dds.skywebrtc.render.ProxyVideoSink;
 
 import org.webrtc.AudioSource;
@@ -84,6 +86,8 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     private AudioDeviceModule audioDeviceModule;
     private boolean isSwitch = false; // 是否正在切换摄像头
 
+    private AVEngine iEngine;
+
 
     public CallSession(SkyEngineKit avEngineKit, Context context, boolean audioOnly) {
         this.avEngineKit = avEngineKit;
@@ -93,6 +97,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         this.mIsAudioOnly = audioOnly;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         networkMonitor = NetworkMonitor.getInstance();
+        iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly,context));
     }
 
 

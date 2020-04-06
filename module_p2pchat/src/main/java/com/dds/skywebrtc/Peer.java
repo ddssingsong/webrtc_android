@@ -7,12 +7,15 @@ import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
+import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by dds on 2020/3/11.
@@ -21,33 +24,40 @@ import java.util.List;
 public class Peer implements SdpObserver, PeerConnection.Observer {
     private final static String TAG = "dds_Peer";
     private PeerConnection pc;
-    private String userId;
+    private String mUserId;
     private List<IceCandidate> queuedRemoteCandidates;
     private SessionDescription localSdp;
-    private CallSession mSession;
-
+    private PeerConnectionFactory mFactory;
+    private List<PeerConnection.IceServer> mIceLis;
+    public ExecutorService executor;
+    private IPeerEvent mEvent;
 
     private boolean isOffer;
 
-    public Peer(CallSession session, String userId) {
-        this.mSession = session;
-        this.pc = createPeerConnection();
-        this.userId = userId;
+    public Peer(PeerConnectionFactory factory, List<PeerConnection.IceServer> list,String userId,IPeerEvent event) {
+        mFactory = factory;
+        mIceLis = list;
+        mEvent = event;
+        mUserId = userId;
+
         queuedRemoteCandidates = new ArrayList<>();
+        executor = Executors.newSingleThreadExecutor();
+
+
+        this.pc = createPeerConnection();
 
 
     }
 
     public PeerConnection createPeerConnection() {
         // 管道连接抽象类实现方法
-        PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(mSession.avEngineKit.getIceServers());
-        return mSession._factory.createPeerConnection(rtcConfig, this);
+        PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(mIceLis);
+        return mFactory.createPeerConnection(rtcConfig, this);
     }
 
     public void setOffer(boolean isOffer) {
         this.isOffer = isOffer;
     }
-
 
     // 创建offer
     public void createOffer() {
@@ -106,11 +116,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
-        Log.i(TAG, "onIceConnectionChange: " + newState.toString());
-        if (mSession._callState != EnumType.CallState.Connected) return;
-        if (newState == PeerConnection.IceConnectionState.DISCONNECTED) {
 
-        }
     }
 
     @Override
@@ -128,16 +134,15 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     public void onIceCandidate(IceCandidate candidate) {
         Log.i(TAG, "onIceCandidate:");
         // 发送IceCandidate
-        mSession.executor.execute(() -> {
+        executor.execute(() -> {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            mSession.avEngineKit.mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
         });
-
+        mEvent.onSendIceCandidate(candidate);
 
     }
 
@@ -148,15 +153,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onAddStream(MediaStream stream) {
-        mSession._remoteStream = stream;
-        Log.i(TAG, "onAddStream:");
-        if (stream.audioTracks.size() > 0) {
-            stream.audioTracks.get(0).setEnabled(true);
-        }
-        if (mSession.sessionCallback.get() != null) {
-            mSession.sessionCallback.get().didReceiveRemoteVideoTrack();
-        }
-
+        mEvent.onRemoteStream(stream);
 
     }
 
@@ -188,12 +185,12 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         String sdpString = origSdp.description;
         final SessionDescription sdp = new SessionDescription(origSdp.type, sdpString);
         localSdp = sdp;
-        mSession.executor.execute(() -> pc.setLocalDescription(this, sdp));
+        executor.execute(() -> pc.setLocalDescription(this, sdp));
     }
 
     @Override
     public void onSetSuccess() {
-        mSession.executor.execute(() -> {
+        executor.execute(() -> {
             Log.d(TAG, "sdp连接成功   " + pc.signalingState().toString());
             if (pc == null) return;
             // 发送者
@@ -202,10 +199,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                     Log.d(TAG, "Local SDP set succesfully");
                     if (!isOffer) {
                         //接收者，发送Answer
-                        mSession.avEngineKit.mEvent.sendAnswer(userId, localSdp.description);
+                        mEvent.onSendAnswer(localSdp);
                     } else {
                         //发送者,发送自己的offer
-                        mSession.avEngineKit.mEvent.sendOffer(userId, localSdp.description);
+                       mEvent.onSendOffer(localSdp);
                     }
                 } else {
                     Log.d(TAG, "Remote SDP set succesfully");
@@ -218,10 +215,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                     Log.d(TAG, "Local SDP set succesfully");
                     if (!isOffer) {
                         //接收者，发送Answer
-                        mSession.avEngineKit.mEvent.sendAnswer(userId, localSdp.description);
+                       mEvent.onSendAnswer(localSdp);
                     } else {
                         //发送者,发送自己的offer
-                        mSession.avEngineKit.mEvent.sendOffer(userId, localSdp.description);
+                       mEvent.onSendOffer(localSdp);
                     }
 
                     drainCandidates();
@@ -262,6 +259,17 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
         mediaConstraints.mandatory.addAll(keyValuePairs);
         return mediaConstraints;
+    }
+
+    // ----------------------------回调-----------------------------------
+
+    public interface IPeerEvent{
+
+        void onSendIceCandidate(IceCandidate candidate);
+        void onSendOffer(SessionDescription description);
+        void onSendAnswer(SessionDescription description);
+        void onRemoteStream(MediaStream stream);
+
     }
 
 }

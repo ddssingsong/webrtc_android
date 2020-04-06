@@ -19,7 +19,7 @@ public class SkyEngineKit {
     private static SkyEngineKit avEngineKit;
     private CallSession mCurrentCallSession;
     public ISkyEvent mEvent;
-    private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
+
 
     public static SkyEngineKit Instance() {
         SkyEngineKit var;
@@ -35,26 +35,6 @@ public class SkyEngineKit {
         if (avEngineKit == null) {
             avEngineKit = new SkyEngineKit();
             avEngineKit.mEvent = iSocketEvent;
-
-            // 初始化一些stun和turn的地址
-            PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
-                    .createIceServer();
-            avEngineKit.iceServers.add(var1);
-
-
-            PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:47.93.186.97:3478?transport=udp")
-                    .createIceServer();
-            PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:47.93.186.97:3478?transport=udp")
-                    .setUsername("ddssingsong")
-                    .setPassword("123456")
-                    .createIceServer();
-            PeerConnection.IceServer var13 = PeerConnection.IceServer.builder("turn:47.93.186.97:3478?transport=tcp")
-                    .setUsername("ddssingsong")
-                    .setPassword("123456")
-                    .createIceServer();
-            avEngineKit.iceServers.add(var11);
-            avEngineKit.iceServers.add(var12);
-            avEngineKit.iceServers.add(var13);
 
         }
     }
@@ -156,22 +136,6 @@ public class SkyEngineKit {
         return this.mCurrentCallSession;
     }
 
-
-    // --------------------------------iceServers------------------------------------
-
-    // 添加turn和stun
-    public void addIceServer(String host, String username, String pwd) {
-        SkyEngineKit var = this;
-        PeerConnection.IceServer var4 = PeerConnection.IceServer.builder(host)
-                .setUsername(username)
-                .setPassword(pwd)
-                .createIceServer();
-        var.iceServers.add(var4);
-    }
-
-    public List<PeerConnection.IceServer> getIceServers() {
-        return iceServers;
-    }
 
 
 }
