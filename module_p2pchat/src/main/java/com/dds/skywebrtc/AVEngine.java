@@ -25,24 +25,32 @@ public class AVEngine implements IEngine {
 
 
     @Override
-    public void joinChannel() {
-        if(iEngine==null){
+    public void init() {
+        if (iEngine == null) {
             return;
         }
-        iEngine.joinChannel();
+        iEngine.init();
     }
 
     @Override
-    public void leaveChannel() {
-        if(iEngine==null){
+    public void joinRoom() {
+        if (iEngine == null) {
             return;
         }
-        iEngine.leaveChannel();
+        iEngine.joinRoom();
+    }
+
+    @Override
+    public void leaveRoom() {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.leaveRoom();
     }
 
     @Override
     public void startPreview() {
-        if(iEngine==null){
+        if (iEngine == null) {
             return;
         }
         iEngine.startPreview();
@@ -50,17 +58,42 @@ public class AVEngine implements IEngine {
 
     @Override
     public void stopPreview() {
-        if(iEngine==null){
+        if (iEngine == null) {
             return;
         }
         iEngine.stopPreview();
     }
 
     @Override
-    public void peerIn() {
-        if(iEngine==null){
+    public void startStream() {
+        if (iEngine == null) {
             return;
         }
-        iEngine.peerIn();
+        iEngine.startStream();
     }
+
+    @Override
+    public void stopStream() {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.stopStream();
+    }
+
+    @Override
+    public void setupRemoteVideo() {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.setupRemoteVideo();
+    }
+
+    @Override
+    public void stopRemoteVideo() {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.stopRemoteVideo();
+    }
+
 }

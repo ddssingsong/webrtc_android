@@ -48,7 +48,7 @@ import java.util.concurrent.Executors;
  * Created by dds on 2019/8/19.
  * 会话层
  */
-public class CallSession implements NetworkMonitor.NetworkObserver {
+public class CallSession {
     private final static String TAG = "dds_CallSession";
     public WeakReference<CallSessionCallback> sessionCallback;
     public SkyEngineKit avEngineKit;
@@ -97,7 +97,8 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         this.mIsAudioOnly = audioOnly;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         networkMonitor = NetworkMonitor.getInstance();
-        iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly,context));
+        iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
+        iEngine.init();
     }
 
 
@@ -268,7 +269,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     }
 
     private void release() {
-        networkMonitor.removeObserver(this);
         executor.execute(() -> {
             if (audioManager != null) {
                 audioManager.setMode(AudioManager.MODE_NORMAL);
@@ -325,15 +325,15 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     public void onJoinHome(String myId, String users) {
         startTime = 0;
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-        networkMonitor.addObserver(this);
         executor.execute(() -> {
             mMyId = myId;
-            // todo 多人会议
             if (!TextUtils.isEmpty(users)) {
                 String[] split = users.split(",");
                 List<String> strings = Arrays.asList(split);
                 mTargetId = strings.get(0);
             }
+
+
             if (_factory == null) {
                 _factory = createConnectionFactory();
             }
@@ -478,10 +478,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     }
 
 
-    @Override
-    public void onConnectionTypeChanged(NetworkMonitorAutoDetect.ConnectionType connectionType) {
-        Log.e(TAG, "onConnectionTypeChanged" + connectionType.toString());
-    }
     // --------------------------------界面显示相关-------------------------------------------------
 
     public long getStartTime() {

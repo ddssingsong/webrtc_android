@@ -70,12 +70,22 @@ public class WebRTCEngine implements IEngine {
     }
 
     @Override
-    public void joinChannel() {
+    public void init() {
+        if (_factory == null) {
+            _factory = createConnectionFactory();
+        }
+        if (_localStream == null) {
+            createLocalStream();
+        }
+    }
+
+    @Override
+    public void joinRoom() {
 
     }
 
     @Override
-    public void leaveChannel() {
+    public void leaveRoom() {
 
     }
 
@@ -90,7 +100,22 @@ public class WebRTCEngine implements IEngine {
     }
 
     @Override
-    public void peerIn() {
+    public void startStream() {
+
+    }
+
+    @Override
+    public void stopStream() {
+
+    }
+
+    @Override
+    public void setupRemoteVideo() {
+
+    }
+
+    @Override
+    public void stopRemoteVideo() {
 
     }
 

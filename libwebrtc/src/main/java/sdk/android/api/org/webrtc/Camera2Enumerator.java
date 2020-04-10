@@ -20,14 +20,15 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.os.SystemClock;
-
 import android.util.AndroidException;
 import android.util.Range;
+
+import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
 
 @TargetApi(21)
 public class Camera2Enumerator implements CameraEnumerator {
@@ -119,10 +120,7 @@ public class Camera2Enumerator implements CameraEnumerator {
           return false;
         }
       }
-      // On Android OS pre 4.4.2, a class will not load because of VerifyError if it contains a
-      // catch statement with an Exception from a newer API, even if the code is never executed.
-      // https://code.google.com/p/android/issues/detail?id=209129
-    } catch (/* CameraAccessException */ AndroidException e) {
+    } catch (AndroidException e) {
       Logging.e(TAG, "Camera access exception: " + e);
       return false;
     }
