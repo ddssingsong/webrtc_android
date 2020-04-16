@@ -14,11 +14,16 @@ android {
         }
         vectorDrawables.useSupportLibrary = true
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    dataBinding {
+        enabled = true
     }
 }
 
@@ -29,8 +34,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+    // navigation
     implementation 'androidx.navigation:navigation-fragment:2.2.1'
     implementation 'androidx.navigation:navigation-ui:2.2.1'
+
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
 
@@ -43,9 +50,10 @@ dependencies {
     // java
     implementation project(path: ':module_p2pchat')
 
-//    implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
+//  implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
     api project(path: ':libwebrtc')
 
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     implementation 'com.alibaba:fastjson:1.1.64.android'
 

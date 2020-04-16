@@ -12,10 +12,12 @@ import org.webrtc.CameraEnumerator;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
+import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
@@ -29,12 +31,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class WebRTCEngine implements IEngine {
-
-
+public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private PeerConnectionFactory _factory;
     private EglBase mRootEglBase;
-
     private MediaStream _localStream;
     private VideoSource videoSource;
     private AudioSource audioSource;
@@ -56,6 +55,7 @@ public class WebRTCEngine implements IEngine {
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
 
+    private EngineCallback mCallback;
 
     public boolean mIsAudioOnly;
     private Context mContext;
@@ -69,8 +69,10 @@ public class WebRTCEngine implements IEngine {
 
     }
 
+
     @Override
-    public void init() {
+    public void init(EngineCallback callback) {
+        mCallback = callback;
         if (_factory == null) {
             _factory = createConnectionFactory();
         }
@@ -80,8 +82,34 @@ public class WebRTCEngine implements IEngine {
     }
 
     @Override
-    public void joinRoom() {
+    public void joinRoom(List<String> userIds) {
+        for (String id : userIds) {
+            // create Peer
+            Peer peer = new Peer(_factory, iceServers, id, this);
+            peer.setOffer(true);
+            // add localStream
+            peer.addLocalStream(_localStream);
+            // 添加列表
+            peers.put(id, peer);
+        }
+        if (mCallback != null) {
+            mCallback.joinRoomSucc();
+        }
 
+
+    }
+
+    @Override
+    public void userIn(String userId) {
+        // create Peer
+        Peer peer = new Peer(_factory, iceServers, userId, this);
+        peer.setOffer(true);
+        // add localStream
+        peer.addLocalStream(_localStream);
+        // 添加列表
+        peers.put(userId, peer);
+        // createOffer
+        peer.createOffer();
     }
 
     @Override
@@ -119,10 +147,50 @@ public class WebRTCEngine implements IEngine {
 
     }
 
+    @Override
+    public void release() {
+        // audio释放
+        if (audioSource != null) {
+            audioSource.dispose();
+            audioSource = null;
+        }
+        // video释放
+        if (videoSource != null) {
+            videoSource.dispose();
+            videoSource = null;
+        }
+
+        // 释放摄像头
+        if (captureAndroid != null) {
+            try {
+                captureAndroid.stopCapture();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            captureAndroid.dispose();
+            captureAndroid = null;
+        }
+
+        // 本地流释放
+        _localStream.dispose();
+
+        // 释放画布
+        if (surfaceTextureHelper != null) {
+            surfaceTextureHelper.dispose();
+            surfaceTextureHelper = null;
+        }
+
+        // 释放factory
+        if (_factory != null) {
+            _factory.dispose();
+            _factory = null;
+        }
+    }
+
 
     // -----------------------------其他方法--------------------------------
 
-    private void initIceServer(){
+    private void initIceServer() {
         // 初始化一些stun和turn的地址
         PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                 .createIceServer();
@@ -146,7 +214,8 @@ public class WebRTCEngine implements IEngine {
 
     /**
      * 构造PeerConnectionFactory
-     * @return  PeerConnectionFactory
+     *
+     * @return PeerConnectionFactory
      */
     public PeerConnectionFactory createConnectionFactory() {
 
@@ -202,6 +271,7 @@ public class WebRTCEngine implements IEngine {
 
     /**
      * 创建媒体方式
+     *
      * @return VideoCapturer
      */
     private VideoCapturer createVideoCapture() {
@@ -216,6 +286,7 @@ public class WebRTCEngine implements IEngine {
 
     /**
      * 创建相机媒体流
+     *
      * @param enumerator
      * @return VideoCapturer
      */
@@ -248,7 +319,6 @@ public class WebRTCEngine implements IEngine {
     }
 
 
-
     //**************************************各种约束******************************************/
     private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
     private static final String AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl";
@@ -279,8 +349,26 @@ public class WebRTCEngine implements IEngine {
         return mediaConstraints;
     }
 
+
     //------------------------------------回调---------------------------------------------
+    @Override
+    public void onSendIceCandidate(IceCandidate candidate) {
 
+    }
 
+    @Override
+    public void onSendOffer(SessionDescription description) {
+
+    }
+
+    @Override
+    public void onSendAnswer(SessionDescription description) {
+
+    }
+
+    @Override
+    public void onRemoteStream(MediaStream stream) {
+
+    }
 
 }

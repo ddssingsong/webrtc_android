@@ -6,36 +6,26 @@ import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.dds.skywebrtc.engine.IEngine;
+import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.WebRTCEngine;
 import com.dds.skywebrtc.render.ProxyVideoSink;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
-import org.webrtc.Camera1Enumerator;
-import org.webrtc.Camera2Enumerator;
-import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
-import org.webrtc.DefaultVideoDecoderFactory;
-import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.NetworkMonitor;
-import org.webrtc.NetworkMonitorAutoDetect;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RendererCommon;
 import org.webrtc.SessionDescription;
-import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
-import org.webrtc.VideoDecoderFactory;
-import org.webrtc.VideoEncoderFactory;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 import org.webrtc.audio.AudioDeviceModule;
-import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -48,7 +38,7 @@ import java.util.concurrent.Executors;
  * Created by dds on 2019/8/19.
  * 会话层
  */
-public class CallSession {
+public class CallSession implements EngineCallback {
     private final static String TAG = "dds_CallSession";
     public WeakReference<CallSessionCallback> sessionCallback;
     public SkyEngineKit avEngineKit;
@@ -77,7 +67,7 @@ public class CallSession {
     // session参数
     public boolean mIsAudioOnly;
     public String mTargetId;
-    public String mRoom;
+    public String mRoomId;
     public String mMyId;
     public boolean mIsComing;
     public EnumType.CallState _callState = EnumType.CallState.Idle;
@@ -98,7 +88,7 @@ public class CallSession {
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         networkMonitor = NetworkMonitor.getInstance();
         iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
-        iEngine.init();
+        iEngine.init(this);
     }
 
 
@@ -118,7 +108,7 @@ public class CallSession {
         executor.execute(() -> {
             _callState = EnumType.CallState.Connecting;
             if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendJoin(mRoom);
+                avEngineKit.mEvent.sendJoin(mRoomId);
             }
         });
 
@@ -173,7 +163,7 @@ public class CallSession {
     public void leave() {
         executor.execute(() -> {
             if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendLeave(mRoom, mMyId);
+                avEngineKit.mEvent.sendLeave(mRoomId, mMyId);
             }
         });
         release();
@@ -273,42 +263,12 @@ public class CallSession {
             if (audioManager != null) {
                 audioManager.setMode(AudioManager.MODE_NORMAL);
             }
-            // audio释放
-            if (audioSource != null) {
-                audioSource.dispose();
-                audioSource = null;
-            }
-            // video释放
-            if (videoSource != null) {
-                videoSource.dispose();
-                videoSource = null;
-            }
-            // 释放摄像头
-            if (captureAndroid != null) {
-                try {
-                    captureAndroid.stopCapture();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                captureAndroid.dispose();
-                captureAndroid = null;
-            }
+            // 释放内容
+            iEngine.release();
 
-            _localStream.dispose();
-            _remoteStream.dispose();
             // 关闭peer
             mPeer.close();
 
-            // 释放画布
-            if (surfaceTextureHelper != null) {
-                surfaceTextureHelper.dispose();
-                surfaceTextureHelper = null;
-            }
-            // 释放factory
-            if (_factory != null) {
-                _factory.dispose();
-                _factory = null;
-            }
             // 状态设置为Idle
             _callState = EnumType.CallState.Idle;
 
@@ -327,51 +287,23 @@ public class CallSession {
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         executor.execute(() -> {
             mMyId = myId;
+            List<String> strings;
             if (!TextUtils.isEmpty(users)) {
                 String[] split = users.split(",");
-                List<String> strings = Arrays.asList(split);
+                strings = Arrays.asList(split);
                 mTargetId = strings.get(0);
             }
-
-
-            if (_factory == null) {
-                _factory = createConnectionFactory();
-            }
-            if (_localStream == null) {
-                createLocalStream();
-            }
-            if (mIsComing) {
-                // 创建Peer
-                mPeer = new Peer(CallSession.this, mTargetId);
-                // 接电话一方
-                mPeer.setOffer(true);
-                // 添加本地流
-                mPeer.addLocalStream(_localStream);
-                // 创建offer
-                mPeer.createOffer();
-
-                // 关闭响铃
-                if (avEngineKit.mEvent != null) {
-                    avEngineKit.mEvent.shouldStopRing();
-                }
-                // 更换界面
-                _callState = EnumType.CallState.Connected;
-
-                if (sessionCallback.get() != null) {
-                    startTime = System.currentTimeMillis();
-                    sessionCallback.get().didChangeState(_callState);
-
-                }
-            } else {
-                avEngineKit.mEvent.sendInvite(mRoom, mTargetId, mIsAudioOnly);
+            if (!mIsComing) {
+                // 发送邀请
+                avEngineKit.mEvent.sendInvite(mRoomId, mTargetId, mIsAudioOnly);
             }
 
-            // 开始显示本地画面
             if (!isAudioOnly()) {
-                // 测试视频，关闭语音以防杂音
+                // debug测试视频，关闭语音以防杂音
                 if (BuildConfig.DEBUG) {
                     muteAudio(false);
                 }
+                // 画面预览
                 if (sessionCallback.get() != null) {
                     sessionCallback.get().didCreateLocalVideoTrack();
                 }
@@ -385,28 +317,8 @@ public class CallSession {
     // 新成员进入
     public void newPeer(String userId) {
         executor.execute(() -> {
-            if (_localStream == null) {
-                createLocalStream();
-            }
-            try {
-                mPeer = new Peer(CallSession.this, userId);
-                mPeer.addLocalStream(_localStream);
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
-            // 关闭响铃
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.shouldStopRing();
-            }
-
-            // 切换界面
-            _callState = EnumType.CallState.Connected;
-            if (sessionCallback.get() != null) {
-                startTime = System.currentTimeMillis();
-                sessionCallback.get().didChangeState(EnumType.CallState.Connected);
-
-            }
-
+            // 其他人加入房间
+            iEngine.userIn(userId);
         });
     }
 
@@ -512,93 +424,6 @@ public class CallSession {
 
     //------------------------------------各种初始化---------------------------------------------
 
-    public void createLocalStream() {
-        _localStream = _factory.createLocalMediaStream("ARDAMS");
-        // 音频
-        audioSource = _factory.createAudioSource(createAudioConstraints());
-        _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
-        _localStream.addTrack(_localAudioTrack);
-
-        // 视频
-        if (!mIsAudioOnly) {
-            captureAndroid = createVideoCapture();
-            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", mRootEglBase.getEglBaseContext());
-            videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
-            captureAndroid.initialize(surfaceTextureHelper, mContext, videoSource.getCapturerObserver());
-            captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
-            _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
-            _localStream.addTrack(_localVideoTrack);
-        }
-
-    }
-
-    public PeerConnectionFactory createConnectionFactory() {
-        PeerConnectionFactory.initialize(PeerConnectionFactory
-                .InitializationOptions
-                .builder(mContext)
-                .createInitializationOptions());
-
-        final VideoEncoderFactory encoderFactory;
-        final VideoDecoderFactory decoderFactory;
-
-        encoderFactory = new DefaultVideoEncoderFactory(
-                mRootEglBase.getEglBaseContext(),
-                true,
-                true);
-        decoderFactory = new DefaultVideoDecoderFactory(mRootEglBase.getEglBaseContext());
-        audioDeviceModule = JavaAudioDeviceModule.builder(mContext).createAudioDeviceModule();
-        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-        return PeerConnectionFactory.builder()
-                .setOptions(options)
-                .setAudioDeviceModule(audioDeviceModule)
-                .setVideoEncoderFactory(encoderFactory)
-                .setVideoDecoderFactory(decoderFactory)
-                .createPeerConnectionFactory();
-    }
-
-    private SurfaceTextureHelper surfaceTextureHelper;
-
-    private VideoCapturer createVideoCapture() {
-        VideoCapturer videoCapturer;
-        if (useCamera2()) {
-            videoCapturer = createCameraCapture(new Camera2Enumerator(mContext));
-        } else {
-            videoCapturer = createCameraCapture(new Camera1Enumerator(true));
-        }
-        return videoCapturer;
-    }
-
-    private VideoCapturer createCameraCapture(CameraEnumerator enumerator) {
-        final String[] deviceNames = enumerator.getDeviceNames();
-
-        // First, try to find front facing camera
-        for (String deviceName : deviceNames) {
-            if (enumerator.isFrontFacing(deviceName)) {
-                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
-
-                if (videoCapturer != null) {
-                    return videoCapturer;
-                }
-            }
-        }
-
-        // Front facing camera not found, try something else
-        for (String deviceName : deviceNames) {
-            if (!enumerator.isFrontFacing(deviceName)) {
-                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
-
-                if (videoCapturer != null) {
-                    return videoCapturer;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private boolean useCamera2() {
-        return Camera2Enumerator.isSupported(mContext);
-    }
 
     //**************************************各种约束******************************************/
     private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
@@ -656,7 +481,7 @@ public class CallSession {
     }
 
     public void setRoom(String _room) {
-        this.mRoom = _room;
+        this.mRoomId = _room;
     }
 
     public EnumType.CallState getState() {
@@ -669,6 +494,23 @@ public class CallSession {
 
     public void setSessionCallback(CallSessionCallback sessionCallback) {
         this.sessionCallback = new WeakReference<>(sessionCallback);
+    }
+
+    //-----------------------------Engine回调-----------------------------------------
+
+    @Override
+    public void joinRoomSucc() {
+        // 关闭响铃
+        if (avEngineKit.mEvent != null) {
+            avEngineKit.mEvent.shouldStopRing();
+        }
+        // 更换界面
+        _callState = EnumType.CallState.Connected;
+        if (sessionCallback.get() != null) {
+            startTime = System.currentTimeMillis();
+            sessionCallback.get().didChangeState(_callState);
+
+        }
     }
 
     public interface CallSessionCallback {

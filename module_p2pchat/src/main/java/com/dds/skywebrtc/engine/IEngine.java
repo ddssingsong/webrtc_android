@@ -1,6 +1,8 @@
 package com.dds.skywebrtc.engine;
 
 
+import java.util.List;
+
 /**
  * rtc基类
  */
@@ -10,12 +12,17 @@ public interface IEngine {
     /**
      * 初始化
      */
-    void init();
+    void init(EngineCallback callback);
 
     /**
      * 加入房間
      */
-    void joinRoom();
+    void joinRoom(List<String> userIds);
+
+    /**
+     * 有人进入房间
+     */
+    void userIn(String userId);
 
     /**
      * 离开房间
@@ -51,5 +58,11 @@ public interface IEngine {
      * 关闭远端预览
      */
     void stopRemoteVideo();
+
+
+    /**
+     * 释放所有内容
+     */
+    void release();
 
 }

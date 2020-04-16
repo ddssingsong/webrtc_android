@@ -1,6 +1,9 @@
 package com.dds.skywebrtc;
 
+import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.IEngine;
+
+import java.util.List;
 
 public class AVEngine implements IEngine {
 
@@ -25,20 +28,21 @@ public class AVEngine implements IEngine {
 
 
     @Override
-    public void init() {
+    public void init(EngineCallback callback) {
         if (iEngine == null) {
             return;
         }
-        iEngine.init();
+        iEngine.init(callback);
     }
 
     @Override
-    public void joinRoom() {
+    public void joinRoom(List<String> userIds) {
         if (iEngine == null) {
             return;
         }
-        iEngine.joinRoom();
+        iEngine.joinRoom(userIds);
     }
+
 
     @Override
     public void leaveRoom() {
