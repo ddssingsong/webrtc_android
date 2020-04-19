@@ -1,5 +1,7 @@
 package com.dds.core.ui.user;
 
+import android.text.TextUtils;
+
 /**
  * Created by dds on 2020/4/13.
  * android_shuai@163.com
@@ -26,6 +28,9 @@ public class UserBean {
     }
 
     public String getNickName() {
+        if (TextUtils.isEmpty(nickName)) {
+            return userId;
+        }
         return nickName;
     }
 

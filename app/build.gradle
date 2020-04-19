@@ -35,8 +35,8 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     // navigation
-    implementation 'androidx.navigation:navigation-fragment:2.2.1'
-    implementation 'androidx.navigation:navigation-ui:2.2.1'
+    implementation 'androidx.navigation:navigation-fragment:2.2.2'
+    implementation 'androidx.navigation:navigation-ui:2.2.2'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
@@ -53,7 +53,7 @@ dependencies {
 //  implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
     api project(path: ':libwebrtc')
 
-    implementation 'com.squareup.okhttp3:okhttp:4.2.1'
+//    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     implementation 'com.alibaba:fastjson:1.1.64.android'
 

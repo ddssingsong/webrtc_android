@@ -43,6 +43,11 @@ public class AVEngine implements IEngine {
         iEngine.joinRoom(userIds);
     }
 
+    @Override
+    public void userIn(String userId) {
+
+    }
+
 
     @Override
     public void leaveRoom() {
@@ -98,6 +103,11 @@ public class AVEngine implements IEngine {
             return;
         }
         iEngine.stopRemoteVideo();
+    }
+
+    @Override
+    public void release() {
+
     }
 
 }

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -66,13 +67,17 @@ public class UrlConnUtils {
 
     public static String sendGet(String serverUrl, String param) throws Exception {
         String result;
-        String reqUrl = serverUrl + "?" + param;
+        String reqUrl = serverUrl + (param == null ? "" : ("?" + param));
         URL url = new URL(reqUrl);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        if (serverUrl.startsWith("https")) {
-            trustAllHosts(connection);
-            connection.setHostnameVerifier(DO_NOT_VERIFY);
-        }
+
+        // ---------------------------------https--------------------------
+//        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+//        if (serverUrl.startsWith("https")) {
+//            trustAllHosts(connection);
+//            connection.setHostnameVerifier(DO_NOT_VERIFY);
+//        }
+        // http
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.setRequestMethod("GET");
