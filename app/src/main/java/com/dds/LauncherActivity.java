@@ -9,7 +9,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.dds.java.MainActivity;
+import com.dds.core.MainActivity;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends AppCompatActivity {

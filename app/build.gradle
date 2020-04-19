@@ -53,7 +53,7 @@ dependencies {
 //  implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
     api project(path: ':libwebrtc')
 
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.2.1'
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     implementation 'com.alibaba:fastjson:1.1.64.android'
 

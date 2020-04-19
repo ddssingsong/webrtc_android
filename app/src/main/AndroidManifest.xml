@@ -29,9 +29,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.dds.java.MainActivity"
+            android:name="com.dds.core.MainActivity"
             android:label="@string/title_activity_main"></activity>
-        <activity android:name="com.dds.java.voip.CallMultiActivity" />
+        <activity android:name="com.dds.core.voip.CallMultiActivity" />
         <activity
             android:name="com.dds.LauncherActivity"
             android:label="@string/app_name"
@@ -43,9 +43,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.dds.java.JavaActivity" /> <!-- ======================java====================== -->
+        <activity android:name="com.dds.core.JavaActivity" /> <!-- ======================java====================== -->
         <activity
-            android:name="com.dds.java.voip.CallSingleActivity"
+            android:name="com.dds.core.voip.CallSingleActivity"
             android:screenOrientation="portrait"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
@@ -58,13 +58,13 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.dds.java.voip.VoipReceiver">
+        <receiver android:name="com.dds.core.voip.VoipReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
             </intent-filter>
         </receiver> <!-- 悬浮窗 -->
         <service
-            android:name="com.dds.java.voip.FloatingVoipService"
+            android:name="com.dds.core.voip.FloatingVoipService"
             android:enabled="true"
             android:exported="true" />
     </application>

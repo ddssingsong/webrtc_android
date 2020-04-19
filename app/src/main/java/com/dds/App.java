@@ -2,6 +2,8 @@ package com.dds;
 
 import android.app.Application;
 
+import com.dds.net.HttpRequestPresenter;
+import com.dds.net.urlconn.UrlConnRequest;
 import com.squareup.leakcanary.LeakCanary;
 
 /**
@@ -22,6 +24,9 @@ public class App extends Application {
         }
         LeakCanary.install(this);
 
+
+        // 初始化网络请求
+        HttpRequestPresenter.init(new UrlConnRequest());
 
     }
 
