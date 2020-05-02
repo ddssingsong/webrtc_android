@@ -27,10 +27,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity
-            android:name="com.dds.core.MainActivity"
-            android:label="@string/title_activity_main"></activity>
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name="com.dds.core.MainActivity" />
         <activity android:name="com.dds.core.voip.CallMultiActivity" />
         <activity
             android:name="com.dds.LauncherActivity"

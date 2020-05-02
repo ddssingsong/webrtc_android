@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe"
         android:layout_width="match_parent"
@@ -16,6 +15,7 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+
     <TextView
         android:id="@+id/no_data"
         android:layout_width="match_parent"
@@ -24,5 +24,4 @@
         android:gravity="center"
         android:text="no data"
         android:textSize="25sp" />
-
 </RelativeLayout>

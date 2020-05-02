@@ -2,9 +2,10 @@ package com.dds.core.socket;
 
 /**
  * Created by dds on 2019/7/26.
- * android_shuai@163.com
+ * ddssingsong@163.com
  */
 public interface IEvent {
+
 
     void onOpen();
 

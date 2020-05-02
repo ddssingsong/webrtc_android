@@ -10,7 +10,7 @@ public class AVEngine implements IEngine {
     private IEngine iEngine;
     private static volatile AVEngine instance;
 
-    public AVEngine(IEngine engine) {
+    private AVEngine(IEngine engine) {
         iEngine = engine;
     }
 
@@ -25,7 +25,6 @@ public class AVEngine implements IEngine {
 
         return instance;
     }
-
 
     @Override
     public void init(EngineCallback callback) {

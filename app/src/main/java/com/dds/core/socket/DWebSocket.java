@@ -300,18 +300,15 @@ public class DWebSocket extends WebSocketClient {
         send(jsonString);
     }
 
-    public void sendMeetingInvite(String room, String myId, String userId) {
-
-    }
-
     // 取消邀请
-    public void sendCancel(String useId, String userList) {
+    public void sendCancel(String mRoomId, String useId, String userList) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__cancel");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("inviteID", useId);
         childMap.put("userList", userList);
+        childMap.put("room", mRoomId);
 
 
         map.put("data", childMap);
@@ -322,13 +319,14 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 发送响铃通知
-    public void sendRing(String myId, String toId) {
+    public void sendRing(String myId, String toId, String room) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__ring");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("fromID", myId);
         childMap.put("toID", toId);
+        childMap.put("room", room);
 
 
         map.put("data", childMap);
@@ -353,11 +351,12 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 拒接接听
-    public void sendRefuse(String inviteID, String myId, int refuseType) {
+    public void sendRefuse(String room, String inviteID, String myId, int refuseType) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__reject");
 
         Map<String, Object> childMap = new HashMap<>();
+        childMap.put("room", room);
         childMap.put("toID", inviteID);
         childMap.put("fromID", myId);
         childMap.put("refuseType", String.valueOf(refuseType));
@@ -453,11 +452,12 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 断开重连
-    public void sendDisconnect(String myId, String userId) {
+    public void sendDisconnect(String room, String myId, String userId) {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("fromID", myId);
         childMap.put("userID", userId);
+        childMap.put("room", room);
         map.put("data", childMap);
         map.put("eventName", "__disconnect");
         JSONObject object = new JSONObject(map);

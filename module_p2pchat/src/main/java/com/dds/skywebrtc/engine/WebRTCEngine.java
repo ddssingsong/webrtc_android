@@ -70,6 +70,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
 
+    // -----------------------------------对外方法------------------------------------------
     @Override
     public void init(EngineCallback callback) {
         mCallback = callback;

@@ -10,22 +10,15 @@ import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.WebRTCEngine;
 import com.dds.skywebrtc.render.ProxyVideoSink;
 
-import org.webrtc.AudioSource;
-import org.webrtc.AudioTrack;
 import org.webrtc.CameraVideoCapturer;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
-import org.webrtc.NetworkMonitor;
-import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RendererCommon;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
-import org.webrtc.VideoSource;
-import org.webrtc.VideoTrack;
-import org.webrtc.audio.AudioDeviceModule;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -44,25 +37,13 @@ public class CallSession implements EngineCallback {
     public SkyEngineKit avEngineKit;
     public ExecutorService executor;
 
-    public static final String VIDEO_TRACK_ID = "ARDAMSv0";
-    public static final String AUDIO_TRACK_ID = "ARDAMSa0";
-    public static final String VIDEO_CODEC_H264 = "H264";
-    public static final int VIDEO_RESOLUTION_WIDTH = 320;
-    public static final int VIDEO_RESOLUTION_HEIGHT = 240;
-    public static final int FPS = 15;
 
-    public PeerConnectionFactory _factory;
     public MediaStream _localStream;
     public MediaStream _remoteStream;
-    public VideoTrack _localVideoTrack;
-    public AudioTrack _localAudioTrack;
-    public VideoSource videoSource;
-    public AudioSource audioSource;
     public VideoCapturer captureAndroid;
     public EglBase mRootEglBase;
     private Context mContext;
     private AudioManager audioManager;
-    private NetworkMonitor networkMonitor;
     private Peer mPeer;
     // session参数
     public boolean mIsAudioOnly;
@@ -73,7 +54,6 @@ public class CallSession implements EngineCallback {
     public EnumType.CallState _callState = EnumType.CallState.Idle;
     private long startTime;
 
-    private AudioDeviceModule audioDeviceModule;
     private boolean isSwitch = false; // 是否正在切换摄像头
 
     private AVEngine iEngine;
@@ -86,7 +66,6 @@ public class CallSession implements EngineCallback {
         mContext = context;
         this.mIsAudioOnly = audioOnly;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        networkMonitor = NetworkMonitor.getInstance();
         iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
         iEngine.init(this);
     }
@@ -129,10 +108,10 @@ public class CallSession implements EngineCallback {
     }
 
     // 发送响铃回复
-    public void sendRingBack(String targetId) {
+    public void sendRingBack(String targetId, String room) {
         executor.execute(() -> {
             if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendRingBack(targetId);
+                avEngineKit.mEvent.sendRingBack(targetId, room);
             }
         });
     }
@@ -142,7 +121,17 @@ public class CallSession implements EngineCallback {
         executor.execute(() -> {
             if (avEngineKit.mEvent != null) {
                 // 取消拨出
-                avEngineKit.mEvent.sendRefuse(mTargetId, EnumType.RefuseType.Hangup.ordinal());
+                avEngineKit.mEvent.sendRefuse(mRoomId, mTargetId, EnumType.RefuseType.Hangup.ordinal());
+            }
+        });
+
+    }
+
+    public void sendRefuse(String room, String targetId, EnumType.RefuseType refuseType) {
+        executor.execute(() -> {
+            if (avEngineKit.mEvent != null) {
+                // 取消拨出
+                avEngineKit.mEvent.sendRefuse(room, targetId, refuseType.ordinal());
             }
         });
 
@@ -153,7 +142,7 @@ public class CallSession implements EngineCallback {
         executor.execute(() -> {
             if (avEngineKit.mEvent != null) {
                 // 取消拨出
-                avEngineKit.mEvent.sendCancel(mTargetId);
+                avEngineKit.mEvent.sendCancel(mRoomId, mTargetId);
             }
         });
 
@@ -185,11 +174,6 @@ public class CallSession implements EngineCallback {
 //            _localAudioTrack.setEnabled(enable);
 //            return true;
 //        }
-        if (audioDeviceModule != null) {
-            audioDeviceModule.setMicrophoneMute(enable);
-            return true;
-        }
-
         return false;
 
     }
@@ -211,10 +195,6 @@ public class CallSession implements EngineCallback {
 //            return true;
 //        }
 
-        if (audioDeviceModule != null) {
-            audioDeviceModule.setSpeakerMute(enable);
-            return true;
-        }
         return false;
     }
 

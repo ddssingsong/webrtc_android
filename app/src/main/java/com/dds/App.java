@@ -19,12 +19,8 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         app = this;
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
-        LeakCanary.install(this);
 
-
+        // initLeakCanary();
         // 初始化网络请求
         HttpRequestPresenter.init(new UrlConnRequest());
 
@@ -40,5 +36,13 @@ public class App extends Application {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+
+    private void initLeakCanary() {
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+        LeakCanary.install(this);
     }
 }

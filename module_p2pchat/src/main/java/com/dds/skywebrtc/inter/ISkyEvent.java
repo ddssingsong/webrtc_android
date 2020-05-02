@@ -15,17 +15,17 @@ public interface ISkyEvent {
     // 发起会议邀请
     void sendMeetingInvite(String userList);
 
-    void sendRefuse(String inviteId, int refuseType);
+    void sendRefuse(String room, String inviteId, int refuseType);
 
     void sendTransAudio(String toId);
 
-    void sendDisConnect(String toId);
+    void sendDisConnect(String room,String toId);
 
-    void sendCancel(String toId);
+    void sendCancel(String mRoomId, String toId);
 
     void sendJoin(String room);
 
-    void sendRingBack(String targetId);
+    void sendRingBack(String targetId, String room);
 
     void sendLeave(String room, String userId);
 

@@ -23,7 +23,7 @@ import javax.net.ssl.TrustManager;
 
 /**
  * Created by dds on 2019/7/26.
- * android_shuai@163.com
+ * ddssignsong@163.com
  */
 public class SocketManager implements IEvent {
     private final static String TAG = "dds_SocketManager";
@@ -131,21 +131,21 @@ public class SocketManager implements IEvent {
         }
     }
 
-    public void sendRingBack(String targetId) {
+    public void sendRingBack(String targetId, String room) {
         if (webSocket != null) {
-            webSocket.sendRing(myId, targetId);
+            webSocket.sendRing(myId, targetId, room);
         }
     }
 
-    public void sendRefuse(String inviteId, int refuseType) {
+    public void sendRefuse(String room, String inviteId, int refuseType) {
         if (webSocket != null) {
-            webSocket.sendRefuse(inviteId, myId, refuseType);
+            webSocket.sendRefuse(room, inviteId, myId, refuseType);
         }
     }
 
-    public void sendCancel(String userId) {
+    public void sendCancel(String mRoomId, String userId) {
         if (webSocket != null) {
-            webSocket.sendCancel(myId, userId);
+            webSocket.sendCancel(mRoomId, myId, userId);
         }
     }
 
@@ -183,9 +183,9 @@ public class SocketManager implements IEvent {
         }
     }
 
-    public void sendDisconnect(String userId) {
+    public void sendDisconnect(String room, String userId) {
         if (webSocket != null) {
-            webSocket.sendDisconnect(myId, userId);
+            webSocket.sendDisconnect(room, myId, userId);
         }
     }
 

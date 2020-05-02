@@ -6,11 +6,6 @@ import android.util.Log;
 import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.skywebrtc.inter.ISkyEvent;
 
-import org.webrtc.PeerConnection;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by dds on 2019/8/19.
  */
@@ -82,7 +77,7 @@ public class SkyEngineKit {
             if (mEvent != null) {
                 // 发送->忙线中...
                 Log.i(TAG, "startInCall busy,currentCallSession is exist,start sendRefuse!");
-                mEvent.sendRefuse(targetId, EnumType.RefuseType.Busy.ordinal());
+                mCurrentCallSession.sendRefuse(room,targetId, EnumType.RefuseType.Busy);
             }
             return false;
         }
@@ -97,7 +92,7 @@ public class SkyEngineKit {
 
         // 开始响铃并回复
         mCurrentCallSession.shouldStartRing();
-        mCurrentCallSession.sendRingBack(targetId);
+        mCurrentCallSession.sendRingBack(targetId, room);
 
 
         return true;
@@ -135,7 +130,6 @@ public class SkyEngineKit {
     public CallSession getCurrentSession() {
         return this.mCurrentCallSession;
     }
-
 
 
 }

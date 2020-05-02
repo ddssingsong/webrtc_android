@@ -29,33 +29,25 @@ public class UserListViewModel extends ViewModel {
 
     // 获取远程用户列表
     public void loadUsers() {
-        if (thread == null) {
-            thread = new Thread(() -> {
-                String url = Urls.getUserList();
-                HttpRequestPresenter.getInstance().get(url, null, new ICallback() {
-                    @Override
-                    public void onSuccess(String result) {
-                        Log.d("dds_test", result);
-                        List<UserBean> userBeans = JSON.parseArray(result, UserBean.class);
-                        mList.postValue(userBeans);
-                    }
+        thread = new Thread(() -> {
+            String url = Urls.getUserList();
+            HttpRequestPresenter.getInstance().get(url, null, new ICallback() {
+                @Override
+                public void onSuccess(String result) {
+                    Log.d("dds_test", result);
+                    List<UserBean> userBeans = JSON.parseArray(result, UserBean.class);
+                    mList.postValue(userBeans);
+                }
 
-                    @Override
-                    public void onFailure(int code, Throwable t) {
-                        Log.d("dds_test", "code:" + code + ",msg:" + t.toString());
-                    }
-                });
+                @Override
+                public void onFailure(int code, Throwable t) {
+                    Log.d("dds_test", "code:" + code + ",msg:" + t.toString());
+                }
             });
-        }
+        });
         thread.start();
 
 
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        thread.interrupt();
-        thread = null;
-    }
 }

@@ -36,8 +36,8 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void sendRefuse(String inviteId, int refuseType) {
-        SocketManager.getInstance().sendRefuse(inviteId, refuseType);
+    public void sendRefuse(String room, String inviteId, int refuseType) {
+        SocketManager.getInstance().sendRefuse(room,inviteId, refuseType);
     }
 
     @Override
@@ -46,13 +46,13 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void sendDisConnect(String toId) {
-        SocketManager.getInstance().sendDisconnect(toId);
+    public void sendDisConnect(String room,String toId) {
+        SocketManager.getInstance().sendDisconnect(room,toId);
     }
 
     @Override
-    public void sendCancel(String toId) {
-        SocketManager.getInstance().sendCancel(toId);
+    public void sendCancel(String mRoomId, String toId) {
+        SocketManager.getInstance().sendCancel(mRoomId,toId);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void sendRingBack(String targetId) {
-        SocketManager.getInstance().sendRingBack(targetId);
+    public void sendRingBack(String targetId, String room) {
+        SocketManager.getInstance().sendRingBack(targetId,room);
     }
 
     @Override

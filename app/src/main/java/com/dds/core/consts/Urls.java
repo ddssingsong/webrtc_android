@@ -6,7 +6,11 @@ package com.dds.core.consts;
  */
 public class Urls {
 
-    public final static String HOST = "http://47.93.186.97:5000/";
+    //    public final static String HOST = "http://47.93.186.97:5000/";
+    private final static String HOST = "http://192.168.2.9:5000/";
+
+    //    private final static String WS = "ws://47.93.186.97:5000/ws";
+    public final static String WS = "ws://192.168.2.9:5000/ws";
 
     public static String getUserList() {
         return HOST + "userList";
