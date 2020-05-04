@@ -1,6 +1,7 @@
 package com.dds.skywebrtc.engine;
 
 import android.content.Context;
+import android.view.SurfaceView;
 import android.view.View;
 
 import com.dds.skywebrtc.Peer;
@@ -39,7 +40,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private PeerConnectionFactory _factory;
     private EglBase mRootEglBase;
     private MediaStream _localStream;
-    public MediaStream _remoteStream;
     private VideoSource videoSource;
     private AudioSource audioSource;
     private VideoTrack _localVideoTrack;
@@ -119,6 +119,11 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
+    public void userReject(String userId) {
+
+    }
+
+    @Override
     public void receiveOffer(String userId, String description) {
         Peer peer = peers.get(userId);
         if (peer != null) {
@@ -189,17 +194,19 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public View setupRemoteVideo(boolean isOverlay) {
+    public SurfaceView setupRemoteVideo(String userId, boolean isO) {
+        Peer peer = peers.get(userId);
+        if (peer == null) return null;
         SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
         renderer.init(mRootEglBase.getEglBaseContext(), null);
         renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         renderer.setMirror(true);
-        renderer.setZOrderMediaOverlay(isOverlay);
+        renderer.setZOrderMediaOverlay(isO);
 
         ProxyVideoSink sink = new ProxyVideoSink();
         sink.setTarget(renderer);
-        if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
-            _remoteStream.videoTracks.get(0).addSink(sink);
+        if (peer._remoteStream != null && peer._remoteStream.videoTracks.size() > 0) {
+            peer._remoteStream.videoTracks.get(0).addSink(sink);
         }
         return renderer;
 
@@ -392,46 +399,45 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private MediaConstraints createAudioConstraints() {
         MediaConstraints audioConstraints = new MediaConstraints();
         audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
+                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "false"));
         audioConstraints.mandatory.add(
                 new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
         audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "true"));
+                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false"));
         audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
+                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "false"));
         return audioConstraints;
     }
 
-
-    private MediaConstraints offerOrAnswerConstraint() {
-        MediaConstraints mediaConstraints = new MediaConstraints();
-        ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
-        mediaConstraints.mandatory.addAll(keyValuePairs);
-        return mediaConstraints;
-    }
-
-
     //------------------------------------回调---------------------------------------------
     @Override
-    public void onSendIceCandidate(IceCandidate candidate) {
+    public void onSendIceCandidate(String userId, IceCandidate candidate) {
+        if (mCallback != null) {
+            mCallback.onSendIceCandidate(userId, candidate);
+        }
 
     }
 
     @Override
-    public void onSendOffer(SessionDescription description) {
-
+    public void onSendOffer(String userId, SessionDescription description) {
+        if (mCallback != null) {
+            mCallback.onSendOffer(userId, description);
+        }
     }
 
     @Override
-    public void onSendAnswer(SessionDescription description) {
-
+    public void onSendAnswer(String userId, SessionDescription description) {
+        if (mCallback != null) {
+            mCallback.onSendAnswer(userId, description);
+        }
     }
 
     @Override
-    public void onRemoteStream(MediaStream stream) {
-        _remoteStream = stream;
+    public void onRemoteStream(String userId, MediaStream stream) {
+        if (mCallback != null) {
+            mCallback.onRemoteStream(userId);
+        }
     }
+
 
 }

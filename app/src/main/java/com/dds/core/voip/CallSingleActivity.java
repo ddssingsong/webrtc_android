@@ -47,6 +47,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     private SkyEngineKit gEngineKit;
 
     private CallSession.CallSessionCallback currentFragment;
+    private String room;
 
 
     public static void openActivity(Context context, String targetId, boolean isOutgoing,
@@ -118,7 +119,6 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         } else {
             fragment = new FragmentVideo();
         }
-
         currentFragment = (CallSession.CallSessionCallback) fragment;
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (isReplace) {
@@ -132,7 +132,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         }
         if (outgoing) {
             // 创建会话
-            String room = UUID.randomUUID().toString() + System.currentTimeMillis();
+            room = UUID.randomUUID().toString() + System.currentTimeMillis();
             boolean b = gEngineKit.startOutCall(getApplicationContext(), room, targetId, audioOnly);
             if (!b) {
                 finish();
@@ -186,6 +186,10 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         init(targetId, isOutgoing, true, true);
     }
 
+    public String getRoomId() {
+        return room;
+    }
+
     // ======================================界面回调================================
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason var1) {
@@ -211,8 +215,8 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     }
 
     @Override
-    public void didReceiveRemoteVideoTrack() {
-        handler.post(() -> currentFragment.didReceiveRemoteVideoTrack());
+    public void didReceiveRemoteVideoTrack(String userId) {
+        handler.post(() -> currentFragment.didReceiveRemoteVideoTrack(userId));
     }
 
     @Override

@@ -42,7 +42,7 @@ public class LauncherActivity extends AppCompatActivity implements IUserState {
         etUser = findViewById(R.id.et_user);
         button8 = findViewById(R.id.button8);
 
-
+        etUser.setText(App.getInstance().getUsername());
     }
 
     public void java(View view) {

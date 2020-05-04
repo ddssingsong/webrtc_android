@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dds.core.util.StringUtil;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.X509TrustManager;
@@ -283,7 +285,7 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 发送邀请
-    public void sendInvite(String room, String myId, String users, boolean audioOnly) {
+    public void sendInvite(String room, String myId, List<String> users, boolean audioOnly) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__invite");
 
@@ -291,7 +293,9 @@ public class DWebSocket extends WebSocketClient {
         childMap.put("room", room);
         childMap.put("audioOnly", audioOnly);
         childMap.put("inviteID", myId);
-        childMap.put("userList", users);
+
+        String join = StringUtil.listToString(users);
+        childMap.put("userList", join);
 
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
@@ -301,14 +305,16 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // 取消邀请
-    public void sendCancel(String mRoomId, String useId, String userList) {
+    public void sendCancel(String mRoomId, String useId, List<String> users) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__cancel");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("inviteID", useId);
-        childMap.put("userList", userList);
         childMap.put("room", mRoomId);
+
+        String join = StringUtil.listToString(users);
+        childMap.put("userList", join);
 
 
         map.put("data", childMap);
@@ -340,9 +346,12 @@ public class DWebSocket extends WebSocketClient {
     public void sendJoin(String room, String myId) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__join");
+
         Map<String, String> childMap = new HashMap<>();
         childMap.put("room", room);
         childMap.put("userID", myId);
+
+
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
         final String jsonString = object.toString();

@@ -13,7 +13,7 @@ import com.squareup.leakcanary.LeakCanary;
 public class App extends Application {
 
     private static App app;
-    private String username;
+    private String username = "";
 
     @Override
     public void onCreate() {

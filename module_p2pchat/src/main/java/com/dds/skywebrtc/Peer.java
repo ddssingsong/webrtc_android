@@ -31,26 +31,23 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private List<PeerConnection.IceServer> mIceLis;
     public ExecutorService executor;
     private IPeerEvent mEvent;
+    public MediaStream _remoteStream;
 
     private boolean isOffer;
 
-    public Peer(PeerConnectionFactory factory, List<PeerConnection.IceServer> list,String userId,IPeerEvent event) {
+    public Peer(PeerConnectionFactory factory, List<PeerConnection.IceServer> list, String userId, IPeerEvent event) {
         mFactory = factory;
         mIceLis = list;
         mEvent = event;
         mUserId = userId;
-
         queuedRemoteCandidates = new ArrayList<>();
         executor = Executors.newSingleThreadExecutor();
-
-
         this.pc = createPeerConnection();
 
 
     }
 
     public PeerConnection createPeerConnection() {
-        // 管道连接抽象类实现方法
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(mIceLis);
         return mFactory.createPeerConnection(rtcConfig, this);
     }
@@ -108,6 +105,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         }
     }
 
+    public MediaStream getRemoteStream() {
+        return _remoteStream;
+    }
+
     //------------------------------Observer-------------------------------------
     @Override
     public void onSignalingChange(PeerConnection.SignalingState signalingState) {
@@ -132,7 +133,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceCandidate(IceCandidate candidate) {
-        Log.i(TAG, "onIceCandidate:");
         // 发送IceCandidate
         executor.execute(() -> {
             try {
@@ -140,9 +140,9 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+            mEvent.onSendIceCandidate(mUserId, candidate);
         });
-        mEvent.onSendIceCandidate(candidate);
+
 
     }
 
@@ -153,8 +153,13 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onAddStream(MediaStream stream) {
-        mEvent.onRemoteStream(stream);
-
+        Log.i(TAG, "onAddStream:");
+        stream.audioTracks.get(0).setEnabled(true);
+        stream.videoTracks.get(0).setEnabled(true);
+        _remoteStream = stream;
+        if (mEvent != null) {
+            mEvent.onRemoteStream(mUserId, stream);
+        }
     }
 
     @Override
@@ -174,7 +179,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onAddTrack(RtpReceiver receiver, MediaStream[] mediaStreams) {
-        Log.i(TAG, "onAddTrack:");
+        Log.i(TAG, "onAddTrack:" + mediaStreams.length);
     }
 
 
@@ -199,10 +204,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                     Log.d(TAG, "Local SDP set succesfully");
                     if (!isOffer) {
                         //接收者，发送Answer
-                        mEvent.onSendAnswer(localSdp);
+                        mEvent.onSendAnswer(mUserId, localSdp);
                     } else {
                         //发送者,发送自己的offer
-                       mEvent.onSendOffer(localSdp);
+                        mEvent.onSendOffer(mUserId, localSdp);
                     }
                 } else {
                     Log.d(TAG, "Remote SDP set succesfully");
@@ -215,10 +220,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                     Log.d(TAG, "Local SDP set succesfully");
                     if (!isOffer) {
                         //接收者，发送Answer
-                       mEvent.onSendAnswer(localSdp);
+                        mEvent.onSendAnswer(mUserId, localSdp);
                     } else {
                         //发送者,发送自己的offer
-                       mEvent.onSendOffer(localSdp);
+                        mEvent.onSendOffer(mUserId, localSdp);
                     }
 
                     drainCandidates();
@@ -263,12 +268,14 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     // ----------------------------回调-----------------------------------
 
-    public interface IPeerEvent{
+    public interface IPeerEvent {
+        void onSendIceCandidate(String userId, IceCandidate candidate);
 
-        void onSendIceCandidate(IceCandidate candidate);
-        void onSendOffer(SessionDescription description);
-        void onSendAnswer(SessionDescription description);
-        void onRemoteStream(MediaStream stream);
+        void onSendOffer(String userId, SessionDescription description);
+
+        void onSendAnswer(String userId, SessionDescription description);
+
+        void onRemoteStream(String userId, MediaStream stream);
 
     }
 

@@ -167,7 +167,7 @@ public class FloatingVoipService extends Service {
             }
 
             @Override
-            public void didReceiveRemoteVideoTrack() {
+            public void didReceiveRemoteVideoTrack(String userId) {
 
             }
 
@@ -259,7 +259,7 @@ public class FloatingVoipService extends Service {
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         remoteVideoFrameLayout.setVisibility(View.VISIBLE);
-        surfaceView = session.setupRemoteVideo(true);
+        surfaceView = session.setupRemoteVideo(session.mTargetId, true);
         if (surfaceView != null) {
             remoteVideoFrameLayout.addView(surfaceView);
         }

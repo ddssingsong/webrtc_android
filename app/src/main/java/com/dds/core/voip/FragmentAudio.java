@@ -158,7 +158,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
-    public void didReceiveRemoteVideoTrack() {
+    public void didReceiveRemoteVideoTrack(String userId) {
 
     }
 
@@ -181,7 +181,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         if (id == R.id.acceptImageView) {
             CallSession session = gEngineKit.getCurrentSession();
             if (session != null && session.getState() == EnumType.CallState.Incoming) {
-                session.joinHome();
+                session.joinHome(session.getRoomId());
             } else {
                 activity.finish();
             }

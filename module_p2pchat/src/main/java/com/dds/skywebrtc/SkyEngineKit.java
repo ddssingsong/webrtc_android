@@ -59,6 +59,9 @@ public class SkyEngineKit {
         mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
         // 创建房间
         mCurrentCallSession.createHome(room, 2);
+
+
+
         return true;
     }
 

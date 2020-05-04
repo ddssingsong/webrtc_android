@@ -8,6 +8,8 @@ import com.dds.core.socket.SocketManager;
 import com.dds.skywebrtc.inter.ISkyEvent;
 import com.dds.webrtc.R;
 
+import java.util.List;
+
 /**
  * Created by dds on 2019/8/25.
  * android_shuai@163.com
@@ -25,19 +27,14 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void sendInvite(String room, String users, boolean audioOnly) {
-        SocketManager.getInstance().sendInvite(room, users, audioOnly);
+    public void sendInvite(String room, List<String> userIds, boolean audioOnly) {
+        SocketManager.getInstance().sendInvite(room, userIds, audioOnly);
     }
 
-    @Override
-    public void sendMeetingInvite(String userList) {
-        SocketManager.getInstance().sendMeetingInvite(userList);
-
-    }
 
     @Override
     public void sendRefuse(String room, String inviteId, int refuseType) {
-        SocketManager.getInstance().sendRefuse(room,inviteId, refuseType);
+        SocketManager.getInstance().sendRefuse(room, inviteId, refuseType);
     }
 
     @Override
@@ -46,14 +43,15 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void sendDisConnect(String room,String toId) {
-        SocketManager.getInstance().sendDisconnect(room,toId);
+    public void sendDisConnect(String room, String toId) {
+        SocketManager.getInstance().sendDisconnect(room, toId);
     }
 
     @Override
-    public void sendCancel(String mRoomId, String toId) {
-        SocketManager.getInstance().sendCancel(mRoomId,toId);
+    public void sendCancel(String mRoomId, List<String> toIds) {
+        SocketManager.getInstance().sendCancel(mRoomId, toIds);
     }
+
 
     @Override
     public void sendJoin(String room) {
@@ -62,7 +60,7 @@ public class VoipEvent implements ISkyEvent {
 
     @Override
     public void sendRingBack(String targetId, String room) {
-        SocketManager.getInstance().sendRingBack(targetId,room);
+        SocketManager.getInstance().sendRingBack(targetId, room);
     }
 
     @Override

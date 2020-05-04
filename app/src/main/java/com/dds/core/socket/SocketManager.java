@@ -16,6 +16,7 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -119,7 +120,7 @@ public class SocketManager implements IEvent {
 
     }
 
-    public void sendInvite(String room, String users, boolean audioOnly) {
+    public void sendInvite(String room, List<String> users, boolean audioOnly) {
         if (webSocket != null) {
             webSocket.sendInvite(room, myId, users, audioOnly);
         }
@@ -143,9 +144,9 @@ public class SocketManager implements IEvent {
         }
     }
 
-    public void sendCancel(String mRoomId, String userId) {
+    public void sendCancel(String mRoomId, List<String> userIds) {
         if (webSocket != null) {
-            webSocket.sendCancel(mRoomId, myId, userId);
+            webSocket.sendCancel(mRoomId, myId, userIds);
         }
     }
 

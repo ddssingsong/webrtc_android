@@ -46,7 +46,18 @@ public class AVEngine implements IEngine {
 
     @Override
     public void userIn(String userId) {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.userIn(userId);
+    }
 
+    @Override
+    public void userReject(String userId) {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.userReject(userId);
     }
 
     @Override
@@ -115,11 +126,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public View setupRemoteVideo(boolean isO) {
+    public View setupRemoteVideo(String userId, boolean isO) {
         if (iEngine == null) {
             return null;
         }
-        return iEngine.setupRemoteVideo(isO);
+        return iEngine.setupRemoteVideo(userId, isO);
     }
 
     @Override

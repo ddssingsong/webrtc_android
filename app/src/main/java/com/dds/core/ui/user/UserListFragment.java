@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.dds.App;
+import com.dds.core.voip.CallSingleActivity;
+import com.dds.core.voip.VoipEvent;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
 import java.util.ArrayList;
@@ -68,6 +71,8 @@ public class UserListFragment extends Fragment {
         refreshLayout.setOnRefreshListener(() -> {
             homeViewModel.loadUsers();
         });
+
+        SkyEngineKit.init(new VoipEvent());
     }
 
 
@@ -108,7 +113,14 @@ public class UserListFragment extends Fragment {
                 holder.item_call_audio.setVisibility(View.VISIBLE);
                 holder.item_call_video.setVisibility(View.VISIBLE);
             }
+            holder.item_call_video.setOnClickListener(view -> {
+                CallSingleActivity.openActivity(getContext(), userBean.getUserId(), true, false);
 
+            });
+            holder.item_call_audio.setOnClickListener(view -> {
+                SkyEngineKit.init(new VoipEvent());
+                CallSingleActivity.openActivity(getContext(), userBean.getUserId(), true, true);
+            });
         }
 
 

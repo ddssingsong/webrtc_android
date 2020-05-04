@@ -1,5 +1,7 @@
 package com.dds.skywebrtc.inter;
 
+import java.util.List;
+
 /**
  * Created by dds on 2019/8/21.
  * android_shuai@163.com
@@ -10,18 +12,15 @@ public interface ISkyEvent {
     void createRoom(String room, int roomSize);
 
     // 发送单人邀请
-    void sendInvite(String room, String userId, boolean audioOnly);
-
-    // 发起会议邀请
-    void sendMeetingInvite(String userList);
+    void sendInvite(String room, List<String> userIds, boolean audioOnly);
 
     void sendRefuse(String room, String inviteId, int refuseType);
 
     void sendTransAudio(String toId);
 
-    void sendDisConnect(String room,String toId);
+    void sendDisConnect(String room, String toId);
 
-    void sendCancel(String mRoomId, String toId);
+    void sendCancel(String mRoomId, List<String> toId);
 
     void sendJoin(String room);
 

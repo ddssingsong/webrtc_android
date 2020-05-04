@@ -27,6 +27,9 @@ public interface IEngine {
     void userIn(String userId);
 
 
+    void userReject(String userId);
+
+
     /**
      * receive Offer
      */
@@ -70,7 +73,7 @@ public interface IEngine {
     /**
      * 开始远端预览
      */
-    View setupRemoteVideo(boolean isOverlay);
+    View setupRemoteVideo(String userId, boolean isO);
 
     /**
      * 关闭远端预览

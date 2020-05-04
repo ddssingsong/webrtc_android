@@ -142,7 +142,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
         if (isFromFloatingView) {
             didCreateLocalVideoTrack();
-            didReceiveRemoteVideoTrack();
+            //didReceiveRemoteVideoTrack(null);
         }
 
 
@@ -208,18 +208,20 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
-    public void didReceiveRemoteVideoTrack() {
+    public void didReceiveRemoteVideoTrack(String userId) {
         pipRenderer.setVisibility(View.VISIBLE);
+
         if (isOutgoing && localSurfaceView != null) {
             ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
             pipRenderer.addView(localSurfaceView);
 
         }
-        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(false);
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false);
         if (surfaceView != null) {
+            fullscreenRenderer.setVisibility(View.VISIBLE);
             remoteSurfaceView = surfaceView;
             fullscreenRenderer.removeAllViews();
-            fullscreenRenderer.addView(surfaceView);
+            fullscreenRenderer.addView(remoteSurfaceView);
         }
     }
 
@@ -252,7 +254,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         CallSession session = gEngineKit.getCurrentSession();
         if (id == R.id.acceptImageView) {
             if (session != null && session.getState() == EnumType.CallState.Incoming) {
-                session.joinHome();
+                session.joinHome(session.getRoomId());
             } else {
                 activity.finish();
             }
