@@ -1,8 +1,10 @@
 package com.dds.skywebrtc.engine;
 
 import android.content.Context;
+import android.view.View;
 
 import com.dds.skywebrtc.Peer;
+import com.dds.skywebrtc.render.ProxyVideoSink;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -17,8 +19,10 @@ import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RendererCommon;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
+import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
@@ -28,13 +32,14 @@ import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private PeerConnectionFactory _factory;
     private EglBase mRootEglBase;
     private MediaStream _localStream;
+    public MediaStream _remoteStream;
     private VideoSource videoSource;
     private AudioSource audioSource;
     private VideoTrack _localVideoTrack;
@@ -50,7 +55,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private static final int FPS = 15;
 
     // 对话实例列表
-    private HashMap<String, Peer> peers = new HashMap<>();
+    private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
     // 服务器实例列表
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
@@ -65,7 +70,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         this.mContext = mContext;
         // 初始化ice地址
         initIceServer();
-
+        mRootEglBase = EglBase.create();
 
     }
 
@@ -114,13 +119,58 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
+    public void receiveOffer(String userId, String description) {
+        Peer peer = peers.get(userId);
+        if (peer != null) {
+            SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
+            peer.setOffer(false);
+            peer.setRemoteDescription(sdp);
+            peer.createAnswer();
+        }
+
+
+    }
+
+    @Override
+    public void receiveAnswer(String userId, String sdp) {
+        Peer peer = peers.get(userId);
+        if (peer != null) {
+            SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
+            peer.setRemoteDescription(sessionDescription);
+        }
+
+
+    }
+
+    @Override
+    public void receiveIceCandidate(String userId, String id, int label, String candidate) {
+        Peer peer = peers.get(userId);
+        if (peer != null) {
+            IceCandidate iceCandidate = new IceCandidate(id, label, candidate);
+            peer.addRemoteIceCandidate(iceCandidate);
+
+        }
+    }
+
+    @Override
     public void leaveRoom() {
 
     }
 
     @Override
-    public void startPreview() {
+    public View startPreview(boolean isOverlay) {
+        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
+        renderer.init(mRootEglBase.getEglBaseContext(), null);
+        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        renderer.setMirror(true);
+        renderer.setZOrderMediaOverlay(isOverlay);
 
+        ProxyVideoSink sink = new ProxyVideoSink();
+        sink.setTarget(renderer);
+        if (_localStream.videoTracks.size() > 0) {
+            _localStream.videoTracks.get(0).addSink(sink);
+        }
+        return renderer;
     }
 
     @Override
@@ -139,7 +189,19 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public void setupRemoteVideo() {
+    public View setupRemoteVideo(boolean isOverlay) {
+        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
+        renderer.init(mRootEglBase.getEglBaseContext(), null);
+        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        renderer.setMirror(true);
+        renderer.setZOrderMediaOverlay(isOverlay);
+
+        ProxyVideoSink sink = new ProxyVideoSink();
+        sink.setTarget(renderer);
+        if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
+            _remoteStream.videoTracks.get(0).addSink(sink);
+        }
+        return renderer;
 
     }
 
@@ -369,7 +431,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void onRemoteStream(MediaStream stream) {
-
+        _remoteStream = stream;
     }
 
 }

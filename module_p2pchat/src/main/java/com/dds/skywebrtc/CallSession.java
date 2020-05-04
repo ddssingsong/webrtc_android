@@ -1,27 +1,15 @@
 package com.dds.skywebrtc;
 
-import android.app.Application;
 import android.content.Context;
 import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.WebRTCEngine;
-import com.dds.skywebrtc.render.ProxyVideoSink;
-
-import org.webrtc.CameraVideoCapturer;
-import org.webrtc.EglBase;
-import org.webrtc.IceCandidate;
-import org.webrtc.MediaConstraints;
-import org.webrtc.MediaStream;
-import org.webrtc.RendererCommon;
-import org.webrtc.SessionDescription;
-import org.webrtc.SurfaceViewRenderer;
-import org.webrtc.VideoCapturer;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -36,15 +24,7 @@ public class CallSession implements EngineCallback {
     public WeakReference<CallSessionCallback> sessionCallback;
     public SkyEngineKit avEngineKit;
     public ExecutorService executor;
-
-
-    public MediaStream _localStream;
-    public MediaStream _remoteStream;
-    public VideoCapturer captureAndroid;
-    public EglBase mRootEglBase;
-    private Context mContext;
     private AudioManager audioManager;
-    private Peer mPeer;
     // session参数
     public boolean mIsAudioOnly;
     public String mTargetId;
@@ -54,18 +34,17 @@ public class CallSession implements EngineCallback {
     public EnumType.CallState _callState = EnumType.CallState.Idle;
     private long startTime;
 
-    private boolean isSwitch = false; // 是否正在切换摄像头
 
     private AVEngine iEngine;
 
 
     public CallSession(SkyEngineKit avEngineKit, Context context, boolean audioOnly) {
         this.avEngineKit = avEngineKit;
-        mRootEglBase = EglBase.create();
         executor = Executors.newSingleThreadExecutor();
-        mContext = context;
         this.mIsAudioOnly = audioOnly;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+
         iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
         iEngine.init(this);
     }
@@ -210,31 +189,33 @@ public class CallSession implements EngineCallback {
 
     }
 
+    private boolean isSwitch = false; // 是否正在切换摄像头
+
     // 调整摄像头前置后置
     public void switchCamera() {
-        if (isSwitch) return;
-        isSwitch = true;
-        if (captureAndroid == null) return;
-        if (captureAndroid instanceof CameraVideoCapturer) {
-            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
-            try {
-                cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
-                    @Override
-                    public void onCameraSwitchDone(boolean isFrontCamera) {
-                        isSwitch = false;
-                    }
-
-                    @Override
-                    public void onCameraSwitchError(String errorDescription) {
-                        isSwitch = false;
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
-        }
+//        if (isSwitch) return;
+//        isSwitch = true;
+//        if (captureAndroid == null) return;
+//        if (captureAndroid instanceof CameraVideoCapturer) {
+//            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
+//            try {
+//                cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
+//                    @Override
+//                    public void onCameraSwitchDone(boolean isFrontCamera) {
+//                        isSwitch = false;
+//                    }
+//
+//                    @Override
+//                    public void onCameraSwitchError(String errorDescription) {
+//                        isSwitch = false;
+//                    }
+//                });
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
+//        }
 
     }
 
@@ -245,10 +226,6 @@ public class CallSession implements EngineCallback {
             }
             // 释放内容
             iEngine.release();
-
-            // 关闭peer
-            mPeer.close();
-
             // 状态设置为Idle
             _callState = EnumType.CallState.Idle;
 
@@ -330,14 +307,7 @@ public class CallSession implements EngineCallback {
 
     public void onReceiveOffer(String userId, String description) {
         executor.execute(() -> {
-            SessionDescription sdp = new SessionDescription(SessionDescription.Type.OFFER, description);
-            if (mPeer != null) {
-                mPeer.setOffer(false);
-                mPeer.setRemoteDescription(sdp);
-                mPeer.createAnswer();
-            }
-
-
+            iEngine.receiveOffer(userId, description);
         });
 
     }
@@ -345,21 +315,14 @@ public class CallSession implements EngineCallback {
     public void onReceiverAnswer(String userId, String sdp) {
         Log.e("dds_test", "onReceiverAnswer:" + userId);
         executor.execute(() -> {
-            SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
-            if (mPeer != null) {
-                mPeer.setRemoteDescription(sessionDescription);
-            }
+            iEngine.receiveAnswer(userId, sdp);
         });
 
     }
 
     public void onRemoteIceCandidate(String userId, String id, int label, String candidate) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                IceCandidate iceCandidate = new IceCandidate(id, label, candidate);
-                mPeer.addRemoteIceCandidate(iceCandidate);
-
-            }
+            iEngine.receiveIceCandidate(userId, id, label, candidate);
         });
 
     }
@@ -376,61 +339,12 @@ public class CallSession implements EngineCallback {
         return startTime;
     }
 
-    public SurfaceViewRenderer createRendererView() {
-        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
-        renderer.init(mRootEglBase.getEglBaseContext(), null);
-        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
-        renderer.setMirror(true);
-        return renderer;
+    public View setupLocalVideo(boolean isOverlay) {
+        return iEngine.startPreview(isOverlay);
     }
 
-    public void setupRemoteVideo(SurfaceViewRenderer surfaceView) {
-        ProxyVideoSink sink = new ProxyVideoSink();
-        sink.setTarget(surfaceView);
-        if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
-            _remoteStream.videoTracks.get(0).addSink(sink);
-        }
-
-
-    }
-
-    public void setupLocalVideo(SurfaceViewRenderer SurfaceViewRenderer) {
-        ProxyVideoSink sink = new ProxyVideoSink();
-        sink.setTarget(SurfaceViewRenderer);
-        if (_localStream.videoTracks.size() > 0) {
-            _localStream.videoTracks.get(0).addSink(sink);
-        }
-    }
-
-    //------------------------------------各种初始化---------------------------------------------
-
-
-    //**************************************各种约束******************************************/
-    private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
-    private static final String AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl";
-    private static final String AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter";
-    private static final String AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression";
-
-    private MediaConstraints createAudioConstraints() {
-        MediaConstraints audioConstraints = new MediaConstraints();
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "true"));
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
-        return audioConstraints;
-    }
-
-    private MediaConstraints offerOrAnswerConstraint() {
-        MediaConstraints mediaConstraints = new MediaConstraints();
-        ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
-        mediaConstraints.mandatory.addAll(keyValuePairs);
-        return mediaConstraints;
+    public View setupRemoteVideo(boolean isOverlay) {
+        return iEngine.setupRemoteVideo(isOverlay);
     }
 
 
@@ -445,15 +359,6 @@ public class CallSession implements EngineCallback {
 
     public void setTargetId(String targetIds) {
         this.mTargetId = targetIds;
-    }
-
-    public void setContext(Context context) {
-        if (context instanceof Application) {
-            this.mContext = context;
-        } else {
-            this.mContext = context.getApplicationContext();
-        }
-
     }
 
     public void setIsComing(boolean isComing) {

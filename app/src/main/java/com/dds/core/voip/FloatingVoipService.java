@@ -1,5 +1,6 @@
 package com.dds.core.voip;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,13 +25,11 @@ import android.widget.TextView;
 
 import androidx.core.app.NotificationCompat;
 
-import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.BuildConfig;
 import com.dds.webrtc.R;
-
-import org.webrtc.SurfaceViewRenderer;
 
 
 /**
@@ -49,7 +48,7 @@ public class FloatingVoipService extends Service {
     private View view;
     private WindowManager.LayoutParams params;
 
-    private SurfaceViewRenderer surfaceView;
+    private View surfaceView;
 
     public FloatingVoipService() {
     }
@@ -114,9 +113,6 @@ public class FloatingVoipService extends Service {
             e.printStackTrace();
         }
         isStarted = false;
-        if (surfaceView != null) {
-            surfaceView.release();
-        }
     }
 
     private void showFloatingWindow() {
@@ -227,26 +223,7 @@ public class FloatingVoipService extends Service {
         startActivity(resumeActivityIntent);
     }
 
-    private void showAudioInfo() {
-
-        FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
-        if (remoteVideoFrameLayout.getVisibility() == View.VISIBLE) {
-            session.setupRemoteVideo(null);
-            remoteVideoFrameLayout.setVisibility(View.GONE);
-            if (surfaceView != null) {
-                surfaceView.release();
-            }
-            wm.removeView(view);
-            wm.addView(view, params);
-        }
-
-        view.findViewById(R.id.audioLinearLayout).setVisibility(View.VISIBLE);
-        TextView timeV = view.findViewById(R.id.durationTextView);
-        ImageView mediaIconV = view.findViewById(R.id.av_media_type);
-        mediaIconV.setImageResource(R.drawable.av_float_audio);
-        refreshCallDurationInfo(timeV);
-    }
-
+    @SuppressLint("DefaultLocale")
     private void refreshCallDurationInfo(TextView timeView) {
         CallSession session = SkyEngineKit.Instance().getCurrentSession();
         if (session == null || !session.isAudioOnly()) {
@@ -262,14 +239,29 @@ public class FloatingVoipService extends Service {
         handler.postDelayed(() -> refreshCallDurationInfo(timeView), 1000);
     }
 
+    private void showAudioInfo() {
+        FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
+        if (remoteVideoFrameLayout.getVisibility() == View.VISIBLE) {
+            remoteVideoFrameLayout.setVisibility(View.GONE);
+            wm.removeView(view);
+            wm.addView(view, params);
+        }
+
+        view.findViewById(R.id.audioLinearLayout).setVisibility(View.VISIBLE);
+        TextView timeV = view.findViewById(R.id.durationTextView);
+        ImageView mediaIconV = view.findViewById(R.id.av_media_type);
+        mediaIconV.setImageResource(R.drawable.av_float_audio);
+        refreshCallDurationInfo(timeV);
+    }
+
+
     private void showVideoInfo() {
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         remoteVideoFrameLayout.setVisibility(View.VISIBLE);
-        surfaceView = session.createRendererView();
+        surfaceView = session.setupRemoteVideo(true);
         if (surfaceView != null) {
             remoteVideoFrameLayout.addView(surfaceView);
-            session.setupRemoteVideo(surfaceView);
         }
     }
 

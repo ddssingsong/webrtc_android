@@ -19,8 +19,6 @@ import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
-import org.webrtc.SurfaceViewRenderer;
-
 
 /**
  * Created by dds on 2018/7/26.
@@ -58,8 +56,8 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     private SkyEngineKit gEngineKit;
     private boolean isOutgoing;
     private boolean isFromFloatingView;
-    private SurfaceViewRenderer localSurfaceView;
-    private SurfaceViewRenderer remoteSurfaceView;
+    private View localSurfaceView;
+    private View remoteSurfaceView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -198,16 +196,14 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
     @Override
     public void didCreateLocalVideoTrack() {
-        SurfaceViewRenderer surfaceView = gEngineKit.getCurrentSession().createRendererView();
+        View surfaceView = gEngineKit.getCurrentSession().setupLocalVideo(true);
         if (surfaceView != null) {
-            surfaceView.setZOrderMediaOverlay(true);
             localSurfaceView = surfaceView;
             if (isOutgoing && remoteSurfaceView == null) {
                 fullscreenRenderer.addView(surfaceView);
             } else {
                 pipRenderer.addView(surfaceView);
             }
-            gEngineKit.getCurrentSession().setupLocalVideo(surfaceView);
         }
     }
 
@@ -217,15 +213,13 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
         if (isOutgoing && localSurfaceView != null) {
             ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
             pipRenderer.addView(localSurfaceView);
-            gEngineKit.getCurrentSession().setupLocalVideo(localSurfaceView);
-        }
 
-        SurfaceViewRenderer surfaceView = gEngineKit.getCurrentSession().createRendererView();
+        }
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(false);
         if (surfaceView != null) {
             remoteSurfaceView = surfaceView;
             fullscreenRenderer.removeAllViews();
             fullscreenRenderer.addView(surfaceView);
-            gEngineKit.getCurrentSession().setupRemoteVideo(surfaceView);
         }
     }
 
@@ -243,12 +237,6 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (localSurfaceView != null) {
-            localSurfaceView.release();
-        }
-        if (remoteSurfaceView != null) {
-            remoteSurfaceView.release();
-        }
         fullscreenRenderer.removeAllViews();
         pipRenderer.removeAllViews();
 

@@ -52,7 +52,6 @@ public class SkyEngineKit {
         }
         // 初始化会话
         mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
-        mCurrentCallSession.setContext(context);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);
@@ -86,7 +85,6 @@ public class SkyEngineKit {
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);
-        mCurrentCallSession.setContext(context);
         mCurrentCallSession.setIsComing(true);
         mCurrentCallSession.setCallState(EnumType.CallState.Incoming);
 

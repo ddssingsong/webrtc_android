@@ -1,6 +1,8 @@
 package com.dds.skywebrtc.engine;
 
 
+import android.view.View;
+
 import java.util.List;
 
 /**
@@ -24,6 +26,22 @@ public interface IEngine {
      */
     void userIn(String userId);
 
+
+    /**
+     * receive Offer
+     */
+    void receiveOffer(String userId, String description);
+
+    /**
+     * receive Answer
+     */
+    void receiveAnswer(String userId, String sdp);
+
+    /**
+     * receive IceCandidate
+     */
+    void receiveIceCandidate(String userId, String id, int label, String candidate);
+
     /**
      * 离开房间
      */
@@ -32,7 +50,7 @@ public interface IEngine {
     /**
      * 开启本地预览
      */
-    void startPreview();
+    View startPreview(boolean isOverlay);
 
     /**
      * 关闭本地预览
@@ -52,7 +70,7 @@ public interface IEngine {
     /**
      * 开始远端预览
      */
-    void setupRemoteVideo();
+    View setupRemoteVideo(boolean isOverlay);
 
     /**
      * 关闭远端预览

@@ -1,5 +1,7 @@
 package com.dds.skywebrtc;
 
+import android.view.View;
+
 import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.IEngine;
 
@@ -47,6 +49,30 @@ public class AVEngine implements IEngine {
 
     }
 
+    @Override
+    public void receiveOffer(String userId, String description) {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.receiveOffer(userId, description);
+    }
+
+    @Override
+    public void receiveAnswer(String userId, String sdp) {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.receiveAnswer(userId, sdp);
+    }
+
+    @Override
+    public void receiveIceCandidate(String userId, String id, int label, String candidate) {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.receiveIceCandidate(userId, id, label, candidate);
+    }
+
 
     @Override
     public void leaveRoom() {
@@ -57,11 +83,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public void startPreview() {
+    public View startPreview(boolean isO) {
         if (iEngine == null) {
-            return;
+            return null;
         }
-        iEngine.startPreview();
+        return iEngine.startPreview(isO);
     }
 
     @Override
@@ -89,11 +115,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public void setupRemoteVideo() {
+    public View setupRemoteVideo(boolean isO) {
         if (iEngine == null) {
-            return;
+            return null;
         }
-        iEngine.setupRemoteVideo();
+        return iEngine.setupRemoteVideo(isO);
     }
 
     @Override
