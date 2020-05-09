@@ -1,5 +1,6 @@
 package com.dds.skywebrtc;
 
+import android.content.Context;
 import android.view.View;
 
 import com.dds.skywebrtc.engine.EngineCallback;
@@ -126,11 +127,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public View setupRemoteVideo(String userId, boolean isO) {
+    public View setupRemoteVideo(Context context, String userId, boolean isO) {
         if (iEngine == null) {
             return null;
         }
-        return iEngine.setupRemoteVideo(userId, isO);
+        return iEngine.setupRemoteVideo(context, userId, isO);
     }
 
     @Override
@@ -143,7 +144,10 @@ public class AVEngine implements IEngine {
 
     @Override
     public void release() {
-
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.release();
     }
 
 }

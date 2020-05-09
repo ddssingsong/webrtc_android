@@ -1,7 +1,6 @@
 package com.dds.skywebrtc.engine;
 
 import android.content.Context;
-import android.view.SurfaceView;
 import android.view.View;
 
 import com.dds.skywebrtc.Peer;
@@ -50,9 +49,9 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
     public static final String VIDEO_CODEC_H264 = "H264";
-    private static final int VIDEO_RESOLUTION_WIDTH = 320;
-    private static final int VIDEO_RESOLUTION_HEIGHT = 240;
-    private static final int FPS = 15;
+    private static final int VIDEO_RESOLUTION_WIDTH = 1280;
+    private static final int VIDEO_RESOLUTION_HEIGHT = 720;
+    private static final int FPS = 20;
 
     // 对话实例列表
     private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
@@ -68,10 +67,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public WebRTCEngine(boolean mIsAudioOnly, Context mContext) {
         this.mIsAudioOnly = mIsAudioOnly;
         this.mContext = mContext;
+
+        mRootEglBase = EglBase.create();
         // 初始化ice地址
         initIceServer();
-        mRootEglBase = EglBase.create();
-
     }
 
 
@@ -92,7 +91,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         for (String id : userIds) {
             // create Peer
             Peer peer = new Peer(_factory, iceServers, id, this);
-            peer.setOffer(true);
+            peer.setOffer(false);
             // add localStream
             peer.addLocalStream(_localStream);
             // 添加列表
@@ -193,13 +192,14 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     }
 
+
     @Override
-    public SurfaceView setupRemoteVideo(String userId, boolean isO) {
+    public View setupRemoteVideo(Context context, String userId, boolean isO) {
         Peer peer = peers.get(userId);
         if (peer == null) return null;
-        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
+        SurfaceViewRenderer renderer = new SurfaceViewRenderer(context);
         renderer.init(mRootEglBase.getEglBaseContext(), null);
-        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
         renderer.setMirror(true);
         renderer.setZOrderMediaOverlay(isO);
 
@@ -435,7 +435,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void onRemoteStream(String userId, MediaStream stream) {
         if (mCallback != null) {
-            mCallback.onRemoteStream(userId);
+            mCallback.onRemoteStream(userId,stream);
         }
     }
 

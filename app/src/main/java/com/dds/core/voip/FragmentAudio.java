@@ -19,6 +19,8 @@ import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
+import org.webrtc.MediaStream;
+
 /**
  * Created by dds on 2018/7/26.
  * android_shuai@163.com
@@ -158,7 +160,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
-    public void didReceiveRemoteVideoTrack(String userId) {
+    public void didReceiveRemoteVideoTrack(String userId, MediaStream stream) {
 
     }
 

@@ -9,6 +9,7 @@ import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.WebRTCEngine;
 
 import org.webrtc.IceCandidate;
+import org.webrtc.MediaStream;
 import org.webrtc.SessionDescription;
 
 import java.lang.ref.WeakReference;
@@ -36,7 +37,6 @@ public class CallSession implements EngineCallback {
     public boolean mIsComing;
     public EnumType.CallState _callState = EnumType.CallState.Idle;
     private long startTime;
-    private boolean isSwitch = false; // 是否正在切换摄像头
 
     private AVEngine iEngine;
 
@@ -153,30 +153,25 @@ public class CallSession implements EngineCallback {
 
     // 设置静音
     public boolean muteAudio(boolean enable) {
-//        if (_localAudioTrack != null) {
-//            _localAudioTrack.setEnabled(enable);
-//            return true;
-//        }
-        return false;
-
+        return true;
     }
 
     // 设置扬声器
     public boolean toggleSpeaker(boolean enable) {
-//        if (audioManager != null) {
-//            if (enable) {
-//                audioManager.setSpeakerphoneOn(true);
-//                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-//                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
-//                        AudioManager.STREAM_VOICE_CALL);
-//            } else {
-//                audioManager.setSpeakerphoneOn(false);
-//                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-//                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), AudioManager.STREAM_VOICE_CALL);
-//            }
-//
-//            return true;
-//        }
+        if (audioManager != null) {
+            if (enable) {
+                audioManager.setSpeakerphoneOn(true);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                        AudioManager.STREAM_VOICE_CALL);
+            } else {
+                audioManager.setSpeakerphoneOn(false);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), AudioManager.STREAM_VOICE_CALL);
+            }
+
+            return true;
+        }
 
         return false;
     }
@@ -193,6 +188,7 @@ public class CallSession implements EngineCallback {
 
     }
 
+    private boolean isSwitch = false; // 是否正在切换摄像头
 
     // 调整摄像头前置后置
     public void switchCamera() {
@@ -363,9 +359,8 @@ public class CallSession implements EngineCallback {
     }
 
 
-
-    public View setupRemoteVideo(String userId, boolean isOverlay) {
-        return iEngine.setupRemoteVideo(userId, isOverlay);
+    public View setupRemoteVideo(Context context, String userId, boolean isOverlay) {
+        return iEngine.setupRemoteVideo(context, userId, isOverlay);
     }
 
 
@@ -445,10 +440,10 @@ public class CallSession implements EngineCallback {
     }
 
     @Override
-    public void onRemoteStream(String userId) {
+    public void onRemoteStream(String userId, MediaStream stream) {
         // 画面预览
         if (sessionCallback.get() != null) {
-            sessionCallback.get().didReceiveRemoteVideoTrack(userId);
+            sessionCallback.get().didReceiveRemoteVideoTrack(userId, stream);
         }
     }
 
@@ -461,7 +456,7 @@ public class CallSession implements EngineCallback {
 
         void didCreateLocalVideoTrack();
 
-        void didReceiveRemoteVideoTrack(String userId);
+        void didReceiveRemoteVideoTrack(String userId, MediaStream stream);
 
         void didError(String error);
 

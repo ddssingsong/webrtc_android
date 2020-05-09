@@ -155,7 +155,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     public void onAddStream(MediaStream stream) {
         Log.i(TAG, "onAddStream:");
         stream.audioTracks.get(0).setEnabled(true);
-        stream.videoTracks.get(0).setEnabled(true);
         _remoteStream = stream;
         if (mEvent != null) {
             mEvent.onRemoteStream(mUserId, stream);

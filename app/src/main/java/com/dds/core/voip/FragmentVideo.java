@@ -19,6 +19,8 @@ import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
+import org.webrtc.MediaStream;
+
 
 /**
  * Created by dds on 2018/7/26.
@@ -208,21 +210,22 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
-    public void didReceiveRemoteVideoTrack(String userId) {
+    public void didReceiveRemoteVideoTrack(String userId, MediaStream stream) {
         pipRenderer.setVisibility(View.VISIBLE);
-
         if (isOutgoing && localSurfaceView != null) {
             ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
             pipRenderer.addView(localSurfaceView);
 
         }
-        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false);
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(getActivity(), userId, false);
         if (surfaceView != null) {
             fullscreenRenderer.setVisibility(View.VISIBLE);
             remoteSurfaceView = surfaceView;
             fullscreenRenderer.removeAllViews();
             fullscreenRenderer.addView(remoteSurfaceView);
         }
+        
+
     }
 
     @Override

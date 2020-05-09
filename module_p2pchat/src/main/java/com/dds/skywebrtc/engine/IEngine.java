@@ -1,6 +1,7 @@
 package com.dds.skywebrtc.engine;
 
 
+import android.content.Context;
 import android.view.View;
 
 import java.util.List;
@@ -73,7 +74,7 @@ public interface IEngine {
     /**
      * 开始远端预览
      */
-    View setupRemoteVideo(String userId, boolean isO);
+    View setupRemoteVideo(Context context, String userId, boolean isO);
 
     /**
      * 关闭远端预览
