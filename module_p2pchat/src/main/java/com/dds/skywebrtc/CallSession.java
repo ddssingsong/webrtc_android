@@ -420,23 +420,32 @@ public class CallSession implements EngineCallback {
 
     @Override
     public void onSendIceCandidate(String userId, IceCandidate candidate) {
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
-        }
+        executor.execute(() -> {
+            if (avEngineKit.mEvent != null) {
+                avEngineKit.mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
+            }
+        });
+
     }
 
     @Override
     public void onSendOffer(String userId, SessionDescription description) {
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.sendOffer(userId, description.description);
-        }
+        executor.execute(() -> {
+            if (avEngineKit.mEvent != null) {
+                avEngineKit.mEvent.sendOffer(userId, description.description);
+            }
+        });
+
     }
 
     @Override
     public void onSendAnswer(String userId, SessionDescription description) {
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.sendAnswer(userId, description.description);
-        }
+        executor.execute(() -> {
+            if (avEngineKit.mEvent != null) {
+                avEngineKit.mEvent.sendAnswer(userId, description.description);
+            }
+        });
+
     }
 
     @Override

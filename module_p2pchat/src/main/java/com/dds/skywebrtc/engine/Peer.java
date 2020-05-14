@@ -1,4 +1,4 @@
-package com.dds.skywebrtc;
+package com.dds.skywebrtc.engine;
 
 import android.util.Log;
 
@@ -14,8 +14,6 @@ import org.webrtc.SessionDescription;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by dds on 2020/3/11.
@@ -29,19 +27,18 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private SessionDescription localSdp;
     private PeerConnectionFactory mFactory;
     private List<PeerConnection.IceServer> mIceLis;
-    public ExecutorService executor;
     private IPeerEvent mEvent;
     public MediaStream _remoteStream;
-
+    private WebRTCEngine mWebRTCEngine;
     private boolean isOffer;
 
-    public Peer(PeerConnectionFactory factory, List<PeerConnection.IceServer> list, String userId, IPeerEvent event) {
+    public Peer(WebRTCEngine webRTCEngine, PeerConnectionFactory factory, List<PeerConnection.IceServer> list, String userId, IPeerEvent event) {
+        mWebRTCEngine = webRTCEngine;
         mFactory = factory;
         mIceLis = list;
         mEvent = event;
         mUserId = userId;
         queuedRemoteCandidates = new ArrayList<>();
-        executor = Executors.newSingleThreadExecutor();
         this.pc = createPeerConnection();
 
 
@@ -67,6 +64,11 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         if (pc == null) return;
         pc.createAnswer(this, offerOrAnswerConstraint());
 
+    }
+
+    public void setLocalDescription(SessionDescription sdp) {
+        if (pc == null) return;
+        pc.setLocalDescription(this, sdp);
     }
 
     public void setRemoteDescription(SessionDescription sdp) {
@@ -134,16 +136,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     @Override
     public void onIceCandidate(IceCandidate candidate) {
         // 发送IceCandidate
-        executor.execute(() -> {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            mEvent.onSendIceCandidate(mUserId, candidate);
-        });
-
-
+        mEvent.onSendIceCandidate(mUserId, candidate);
     }
 
     @Override
@@ -189,48 +182,46 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         String sdpString = origSdp.description;
         final SessionDescription sdp = new SessionDescription(origSdp.type, sdpString);
         localSdp = sdp;
-        executor.execute(() -> pc.setLocalDescription(this, sdp));
+        setLocalDescription(sdp);
     }
 
     @Override
     public void onSetSuccess() {
-        executor.execute(() -> {
-            Log.d(TAG, "sdp连接成功   " + pc.signalingState().toString());
-            if (pc == null) return;
-            // 发送者
-            if (isOffer) {
-                if (pc.getRemoteDescription() == null) {
-                    Log.d(TAG, "Local SDP set succesfully");
-                    if (!isOffer) {
-                        //接收者，发送Answer
-                        mEvent.onSendAnswer(mUserId, localSdp);
-                    } else {
-                        //发送者,发送自己的offer
-                        mEvent.onSendOffer(mUserId, localSdp);
-                    }
+        Log.d(TAG, "sdp连接成功   " + pc.signalingState().toString());
+        if (pc == null) return;
+        // 发送者
+        if (isOffer) {
+            if (pc.getRemoteDescription() == null) {
+                Log.d(TAG, "Local SDP set succesfully");
+                if (!isOffer) {
+                    //接收者，发送Answer
+                    mEvent.onSendAnswer(mUserId, localSdp);
                 } else {
-                    Log.d(TAG, "Remote SDP set succesfully");
-
-                    drainCandidates();
+                    //发送者,发送自己的offer
+                    mEvent.onSendOffer(mUserId, localSdp);
                 }
-
             } else {
-                if (pc.getLocalDescription() != null) {
-                    Log.d(TAG, "Local SDP set succesfully");
-                    if (!isOffer) {
-                        //接收者，发送Answer
-                        mEvent.onSendAnswer(mUserId, localSdp);
-                    } else {
-                        //发送者,发送自己的offer
-                        mEvent.onSendOffer(mUserId, localSdp);
-                    }
+                Log.d(TAG, "Remote SDP set succesfully");
 
-                    drainCandidates();
-                } else {
-                    Log.d(TAG, "Remote SDP set succesfully");
-                }
+                drainCandidates();
             }
-        });
+
+        } else {
+            if (pc.getLocalDescription() != null) {
+                Log.d(TAG, "Local SDP set succesfully");
+                if (!isOffer) {
+                    //接收者，发送Answer
+                    mEvent.onSendAnswer(mUserId, localSdp);
+                } else {
+                    //发送者,发送自己的offer
+                    mEvent.onSendOffer(mUserId, localSdp);
+                }
+
+                drainCandidates();
+            } else {
+                Log.d(TAG, "Remote SDP set succesfully");
+            }
+        }
 
 
     }

@@ -3,7 +3,6 @@ package com.dds.skywebrtc.engine;
 import android.content.Context;
 import android.view.View;
 
-import com.dds.skywebrtc.Peer;
 import com.dds.skywebrtc.render.ProxyVideoSink;
 
 import org.webrtc.AudioSource;
@@ -34,6 +33,8 @@ import org.webrtc.audio.JavaAudioDeviceModule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private PeerConnectionFactory _factory;
@@ -57,7 +58,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
     // 服务器实例列表
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
-
+    public ExecutorService executor;
 
     private EngineCallback mCallback;
 
@@ -71,6 +72,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         mRootEglBase = EglBase.create();
         // 初始化ice地址
         initIceServer();
+
+        executor = Executors.newSingleThreadExecutor();
     }
 
 
@@ -90,7 +93,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public void joinRoom(List<String> userIds) {
         for (String id : userIds) {
             // create Peer
-            Peer peer = new Peer(_factory, iceServers, id, this);
+            Peer peer = new Peer(this,_factory, iceServers, id, this);
             peer.setOffer(false);
             // add localStream
             peer.addLocalStream(_localStream);
@@ -107,7 +110,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void userIn(String userId) {
         // create Peer
-        Peer peer = new Peer(_factory, iceServers, userId, this);
+        Peer peer = new Peer(this,_factory, iceServers, userId, this);
         peer.setOffer(true);
         // add localStream
         peer.addLocalStream(_localStream);
