@@ -174,7 +174,7 @@ public class SocketManager implements IEvent {
 
     public void sendIceCandidate(String userId, String id, int label, String candidate) {
         if (webSocket != null) {
-            webSocket.sendIceCandidate(userId, id, label, candidate);
+            webSocket.sendIceCandidate(myId,userId, id, label, candidate);
         }
     }
 

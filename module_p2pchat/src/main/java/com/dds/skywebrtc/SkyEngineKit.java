@@ -13,7 +13,7 @@ public class SkyEngineKit {
     private final static String TAG = "dds_AVEngineKit";
     private static SkyEngineKit avEngineKit;
     private CallSession mCurrentCallSession;
-    public ISkyEvent mEvent;
+    private ISkyEvent mEvent;
 
 
     public static SkyEngineKit Instance() {
@@ -30,7 +30,6 @@ public class SkyEngineKit {
         if (avEngineKit == null) {
             avEngineKit = new SkyEngineKit();
             avEngineKit.mEvent = iSocketEvent;
-
         }
     }
 
@@ -51,7 +50,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
+        mCurrentCallSession = new CallSession(context, audioOnly,mEvent);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);
@@ -59,7 +58,6 @@ public class SkyEngineKit {
         mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
         // 创建房间
         mCurrentCallSession.createHome(room, 2);
-
 
 
         return true;
@@ -76,15 +74,13 @@ public class SkyEngineKit {
         }
         // 忙线中
         if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
-            if (mEvent != null) {
-                // 发送->忙线中...
-                Log.i(TAG, "startInCall busy,currentCallSession is exist,start sendRefuse!");
-                mCurrentCallSession.sendRefuse(room,targetId, EnumType.RefuseType.Busy);
-            }
+            // 发送->忙线中...
+            Log.i(TAG, "startInCall busy,currentCallSession is exist,start sendRefuse!");
+            mCurrentCallSession.sendRefuse(room, targetId, EnumType.RefuseType.Busy);
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
+        mCurrentCallSession = new CallSession(context, audioOnly,mEvent);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);

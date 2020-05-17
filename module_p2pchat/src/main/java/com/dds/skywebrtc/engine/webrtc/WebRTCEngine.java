@@ -1,8 +1,11 @@
-package com.dds.skywebrtc.engine;
+package com.dds.skywebrtc.engine.webrtc;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 
+import com.dds.skywebrtc.engine.EngineCallback;
+import com.dds.skywebrtc.engine.IEngine;
 import com.dds.skywebrtc.render.ProxyVideoSink;
 
 import org.webrtc.AudioSource;
@@ -33,8 +36,6 @@ import org.webrtc.audio.JavaAudioDeviceModule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private PeerConnectionFactory _factory;
@@ -50,15 +51,14 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
     public static final String VIDEO_CODEC_H264 = "H264";
-    private static final int VIDEO_RESOLUTION_WIDTH = 1280;
-    private static final int VIDEO_RESOLUTION_HEIGHT = 720;
-    private static final int FPS = 20;
+    private static final int VIDEO_RESOLUTION_WIDTH = 320;
+    private static final int VIDEO_RESOLUTION_HEIGHT = 240;
+    private static final int FPS = 15;
 
     // 对话实例列表
     private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
     // 服务器实例列表
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
-    public ExecutorService executor;
 
     private EngineCallback mCallback;
 
@@ -73,7 +73,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         // 初始化ice地址
         initIceServer();
 
-        executor = Executors.newSingleThreadExecutor();
     }
 
 
@@ -93,7 +92,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public void joinRoom(List<String> userIds) {
         for (String id : userIds) {
             // create Peer
-            Peer peer = new Peer(this,_factory, iceServers, id, this);
+
+            Peer peer = new Peer(this, _factory, iceServers, id, this);
             peer.setOffer(false);
             // add localStream
             peer.addLocalStream(_localStream);
@@ -110,7 +110,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void userIn(String userId) {
         // create Peer
-        Peer peer = new Peer(this,_factory, iceServers, userId, this);
+        Peer peer = new Peer(this, _factory, iceServers, userId, this);
         peer.setOffer(true);
         // add localStream
         peer.addLocalStream(_localStream);
@@ -140,6 +140,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void receiveAnswer(String userId, String sdp) {
+        Log.d("dds_test", "receiveAnswer--" + userId);
         Peer peer = peers.get(userId);
         if (peer != null) {
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
@@ -151,6 +152,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void receiveIceCandidate(String userId, String id, int label, String candidate) {
+        Log.d("dds_test", "receiveIceCandidate--" + userId);
         Peer peer = peers.get(userId);
         if (peer != null) {
             IceCandidate iceCandidate = new IceCandidate(id, label, candidate);
@@ -438,7 +440,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void onRemoteStream(String userId, MediaStream stream) {
         if (mCallback != null) {
-            mCallback.onRemoteStream(userId,stream);
+            mCallback.onRemoteStream(userId, stream);
         }
     }
 

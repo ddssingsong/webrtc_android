@@ -1,4 +1,4 @@
-package com.dds.skywebrtc.engine;
+package com.dds.skywebrtc.engine.webrtc;
 
 import android.util.Log;
 
@@ -40,7 +40,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         mUserId = userId;
         queuedRemoteCandidates = new ArrayList<>();
         this.pc = createPeerConnection();
-
+        Log.d("dds_test", "create Peer:" + mUserId);
 
     }
 
@@ -56,37 +56,45 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     // 创建offer
     public void createOffer() {
         if (pc == null) return;
+        Log.d("dds_test", "createOffer");
         pc.createOffer(this, offerOrAnswerConstraint());
     }
 
     // 创建answer
     public void createAnswer() {
         if (pc == null) return;
+        Log.d("dds_test", "createAnswer");
         pc.createAnswer(this, offerOrAnswerConstraint());
 
     }
 
     public void setLocalDescription(SessionDescription sdp) {
+        Log.d("dds_test", "setLocalDescription");
         if (pc == null) return;
         pc.setLocalDescription(this, sdp);
     }
 
     public void setRemoteDescription(SessionDescription sdp) {
         if (pc == null) return;
+        Log.d("dds_test", "setRemoteDescription");
         pc.setRemoteDescription(this, sdp);
     }
 
     public void addLocalStream(MediaStream stream) {
         if (pc == null) return;
+        Log.d("dds_test", "addLocalStream" + mUserId);
         pc.addStream(stream);
     }
 
 
     public void addRemoteIceCandidate(final IceCandidate candidate) {
+        Log.d("dds_test", "addRemoteIceCandidate");
         if (pc != null) {
             if (queuedRemoteCandidates != null) {
+                Log.d("dds_test", "addRemoteIceCandidate  2222");
                 queuedRemoteCandidates.add(candidate);
             } else {
+                Log.d("dds_test", "addRemoteIceCandidate1111");
                 pc.addIceCandidate(candidate);
             }
         }
@@ -183,6 +191,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         final SessionDescription sdp = new SessionDescription(origSdp.type, sdpString);
         localSdp = sdp;
         setLocalDescription(sdp);
+
     }
 
     @Override
@@ -238,6 +247,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
 
     private void drainCandidates() {
+        Log.i("dds_test", "drainCandidates");
         if (queuedRemoteCandidates != null) {
             Log.d(TAG, "Add " + queuedRemoteCandidates.size() + " remote candidates");
             for (IceCandidate candidate : queuedRemoteCandidates) {

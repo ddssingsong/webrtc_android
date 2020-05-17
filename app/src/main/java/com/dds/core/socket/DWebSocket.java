@@ -177,7 +177,7 @@ public class DWebSocket extends WebSocketClient {
     private void handleIceCandidate(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String userID = (String) data.get("userID");
+            String userID = (String) data.get("fromID");
             String id = (String) data.get("id");
             int label = (int) data.get("label");
             String candidate = (String) data.get("candidate");
@@ -427,12 +427,13 @@ public class DWebSocket extends WebSocketClient {
     }
 
     // send ice-candidate
-    public void sendIceCandidate(String userId, String id, int label, String candidate) {
+    public void sendIceCandidate(String myId, String userId, String id, int label, String candidate) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__ice_candidate");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("userID", userId);
+        childMap.put("fromID", myId);
         childMap.put("id", id);
         childMap.put("label", label);
         childMap.put("candidate", candidate);

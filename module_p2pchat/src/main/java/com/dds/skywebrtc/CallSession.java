@@ -3,10 +3,12 @@ package com.dds.skywebrtc;
 import android.content.Context;
 import android.media.AudioManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
 import com.dds.skywebrtc.engine.EngineCallback;
-import com.dds.skywebrtc.engine.WebRTCEngine;
+import com.dds.skywebrtc.engine.webrtc.WebRTCEngine;
+import com.dds.skywebrtc.inter.ISkyEvent;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
@@ -25,7 +27,6 @@ import java.util.concurrent.Executors;
  */
 public class CallSession implements EngineCallback {
     public WeakReference<CallSessionCallback> sessionCallback;
-    public SkyEngineKit avEngineKit;
     public ExecutorService executor;
     private AudioManager audioManager;
     // session参数
@@ -39,15 +40,13 @@ public class CallSession implements EngineCallback {
     private long startTime;
 
     private AVEngine iEngine;
+    private ISkyEvent mEvent;
 
-
-    public CallSession(SkyEngineKit avEngineKit, Context context, boolean audioOnly) {
-        this.avEngineKit = avEngineKit;
+    public CallSession(Context context, boolean audioOnly, ISkyEvent event) {
         executor = Executors.newSingleThreadExecutor();
         this.mIsAudioOnly = audioOnly;
+        this.mEvent = event;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
-
         iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
         iEngine.init(this);
     }
@@ -58,8 +57,8 @@ public class CallSession implements EngineCallback {
     // 创建房间
     public void createHome(String room, int roomSize) {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.createRoom(room, roomSize);
+            if (mEvent != null) {
+                mEvent.createRoom(room, roomSize);
             }
         });
     }
@@ -68,8 +67,8 @@ public class CallSession implements EngineCallback {
     public void joinHome(String roomId) {
         executor.execute(() -> {
             _callState = EnumType.CallState.Connecting;
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendJoin(roomId);
+            if (mEvent != null) {
+                mEvent.sendJoin(roomId);
             }
         });
 
@@ -77,23 +76,23 @@ public class CallSession implements EngineCallback {
 
     //开始响铃
     public void shouldStartRing() {
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.shouldStartRing(true);
+        if (mEvent != null) {
+            mEvent.shouldStartRing(true);
         }
     }
 
     // 关闭响铃
     public void shouldStopRing() {
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.shouldStopRing();
+        if (mEvent != null) {
+            mEvent.shouldStopRing();
         }
     }
 
     // 发送响铃回复
     public void sendRingBack(String targetId, String room) {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendRingBack(targetId, room);
+            if (mEvent != null) {
+                mEvent.sendRingBack(targetId, room);
             }
         });
     }
@@ -101,9 +100,9 @@ public class CallSession implements EngineCallback {
     // 发送拒绝信令
     public void sendRefuse() {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
+            if (mEvent != null) {
                 // 取消拨出
-                avEngineKit.mEvent.sendRefuse(mRoomId, mTargetId, EnumType.RefuseType.Hangup.ordinal());
+                mEvent.sendRefuse(mRoomId, mTargetId, EnumType.RefuseType.Hangup.ordinal());
             }
         });
 
@@ -112,9 +111,9 @@ public class CallSession implements EngineCallback {
     // 自動发送忙时拒绝
     public void sendRefuse(String room, String targetId, EnumType.RefuseType refuseType) {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
+            if (mEvent != null) {
                 // 取消拨出
-                avEngineKit.mEvent.sendRefuse(room, targetId, refuseType.ordinal());
+                mEvent.sendRefuse(room, targetId, refuseType.ordinal());
             }
         });
 
@@ -123,9 +122,9 @@ public class CallSession implements EngineCallback {
     // 发送取消信令
     public void sendCancel() {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
+            if (mEvent != null) {
                 // 取消拨出
-                avEngineKit.mEvent.sendCancel(mRoomId, mUserIDList);
+                mEvent.sendCancel(mRoomId, mUserIDList);
             }
         });
 
@@ -134,8 +133,8 @@ public class CallSession implements EngineCallback {
     // 离开房间
     public void leave() {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendLeave(mRoomId, mMyId);
+            if (mEvent != null) {
+                mEvent.sendLeave(mRoomId, mMyId);
             }
         });
         release();
@@ -144,9 +143,9 @@ public class CallSession implements EngineCallback {
 
     public void sendTransAudio() {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
+            if (mEvent != null) {
                 // 发送到对面，切换到语音
-                avEngineKit.mEvent.sendTransAudio(mTargetId);
+                mEvent.sendTransAudio(mTargetId);
             }
         });
     }
@@ -254,7 +253,7 @@ public class CallSession implements EngineCallback {
             if (!mIsComing) {
                 List<String> inviteList = new ArrayList<>();
                 inviteList.add(mTargetId);
-                avEngineKit.mEvent.sendInvite(mRoomId, inviteList, mIsAudioOnly);
+                mEvent.sendInvite(mRoomId, inviteList, mIsAudioOnly);
             } else {
                 iEngine.joinRoom(mUserIDList);
             }
@@ -282,8 +281,8 @@ public class CallSession implements EngineCallback {
             iEngine.userIn(userId);
 
             // 关闭响铃
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.shouldStopRing();
+            if (mEvent != null) {
+                mEvent.shouldStopRing();
             }
             // 更换界面
             _callState = EnumType.CallState.Connected;
@@ -302,8 +301,8 @@ public class CallSession implements EngineCallback {
 
     // 对方已响铃
     public void onRingBack(String userId) {
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.shouldStartRing(false);
+        if (mEvent != null) {
+            mEvent.shouldStartRing(false);
         }
     }
 
@@ -406,8 +405,8 @@ public class CallSession implements EngineCallback {
     @Override
     public void joinRoomSucc() {
         // 关闭响铃
-        if (avEngineKit.mEvent != null) {
-            avEngineKit.mEvent.shouldStopRing();
+        if (mEvent != null) {
+            mEvent.shouldStopRing();
         }
         // 更换界面
         _callState = EnumType.CallState.Connected;
@@ -421,8 +420,14 @@ public class CallSession implements EngineCallback {
     @Override
     public void onSendIceCandidate(String userId, IceCandidate candidate) {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
+            if (mEvent != null) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("dds_test", "onSendIceCandidate");
+                mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
             }
         });
 
@@ -431,8 +436,9 @@ public class CallSession implements EngineCallback {
     @Override
     public void onSendOffer(String userId, SessionDescription description) {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendOffer(userId, description.description);
+            if (mEvent != null) {
+                Log.d("dds_test", "onSendOffer");
+                mEvent.sendOffer(userId, description.description);
             }
         });
 
@@ -441,8 +447,9 @@ public class CallSession implements EngineCallback {
     @Override
     public void onSendAnswer(String userId, SessionDescription description) {
         executor.execute(() -> {
-            if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.sendAnswer(userId, description.description);
+            if (mEvent != null) {
+                Log.d("dds_test", "onSendAnswer");
+                mEvent.sendAnswer(userId, description.description);
             }
         });
 

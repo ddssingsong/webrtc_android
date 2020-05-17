@@ -13,7 +13,6 @@ package org.webrtc;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.os.Build;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -239,7 +238,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
         return (name.startsWith(QCOM_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) ||
                 // Exynos H264 encoder is supported in LOLLIPOP or later.
                 (name.startsWith(EXYNOS_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ||
-                // dds_test @ fix  华为手机无法硬编码的问题
+                // dds_modify @ fix  华为手机无法硬编码的问题
                 (name.startsWith("OMX.google.") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 ;
     }

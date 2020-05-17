@@ -72,7 +72,6 @@ public class UserListFragment extends Fragment {
             homeViewModel.loadUsers();
         });
 
-        SkyEngineKit.init(new VoipEvent());
     }
 
 

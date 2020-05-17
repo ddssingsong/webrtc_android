@@ -13,9 +13,6 @@ import androidx.core.content.ContextCompat;
 
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
-import com.dds.skywebrtc.SkyEngineKit;
-import com.dds.core.voip.CallSingleActivity;
-import com.dds.core.voip.VoipEvent;
 import com.dds.webrtc.R;
 
 /**
@@ -88,16 +85,16 @@ public class JavaActivity extends AppCompatActivity implements IUserState {
     // 拨打语音
     public void call(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
-        SkyEngineKit.init(new VoipEvent());
-        CallSingleActivity.openActivity(this, phone, true, true);
+//        SkyEngineKit.init(new VoipEvent());
+//        CallSingleActivity.openActivity(this, phone, true, true);
 
     }
 
     // 拨打视频
     public void callVideo(View view) {
         String phone = ((TextView) findViewById(R.id.et_phone)).getText().toString().trim();
-        SkyEngineKit.init(new VoipEvent());
-        CallSingleActivity.openActivity(this, phone, true, false);
+//        SkyEngineKit.init(new VoipEvent());
+//        CallSingleActivity.openActivity(this, phone, true, false);
     }
 
     @Override

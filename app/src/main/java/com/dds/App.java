@@ -2,8 +2,10 @@ package com.dds;
 
 import android.app.Application;
 
+import com.dds.core.voip.VoipEvent;
 import com.dds.net.HttpRequestPresenter;
 import com.dds.net.urlconn.UrlConnRequest;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.squareup.leakcanary.LeakCanary;
 
 /**
@@ -23,6 +25,8 @@ public class App extends Application {
         // initLeakCanary();
         // 初始化网络请求
         HttpRequestPresenter.init(new UrlConnRequest());
+
+        SkyEngineKit.init(new VoipEvent());
 
     }
 
