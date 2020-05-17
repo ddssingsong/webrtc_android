@@ -1,7 +1,6 @@
 package com.dds.skywebrtc.engine;
 
 
-import android.content.Context;
 import android.view.View;
 
 import java.util.List;
@@ -48,8 +47,10 @@ public interface IEngine {
 
     /**
      * 离开房间
+     *
+     * @param userId
      */
-    void leaveRoom();
+    void leaveRoom(String userId);
 
     /**
      * 开启本地预览
@@ -74,13 +75,27 @@ public interface IEngine {
     /**
      * 开始远端预览
      */
-    View setupRemoteVideo(Context context, String userId, boolean isO);
+    View setupRemoteVideo(String userId, boolean isO);
 
     /**
      * 关闭远端预览
      */
     void stopRemoteVideo();
 
+    /**
+     * 切换摄像头
+     */
+    void switchCamera();
+
+    /**
+     * 设置静音
+     */
+    boolean muteAudio(boolean enable);
+
+    /**
+     * 开启扬声器
+     */
+    boolean toggleSpeaker(boolean enable);
 
     /**
      * 释放所有内容

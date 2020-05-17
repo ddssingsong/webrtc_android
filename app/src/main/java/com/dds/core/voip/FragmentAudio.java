@@ -202,7 +202,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         if (id == R.id.muteImageView) {
             CallSession session = gEngineKit.getCurrentSession();
             if (session != null && session.getState() != EnumType.CallState.Idle) {
-                if (session.muteAudio(!micEnabled)) {
+                if (session.toggleMuteAudio(!micEnabled)) {
                     micEnabled = !micEnabled;
                 }
                 muteImageView.setSelected(micEnabled);

@@ -1,6 +1,5 @@
 package com.dds.skywebrtc;
 
-import android.content.Context;
 import android.view.View;
 
 import com.dds.skywebrtc.engine.EngineCallback;
@@ -87,11 +86,11 @@ public class AVEngine implements IEngine {
 
 
     @Override
-    public void leaveRoom() {
+    public void leaveRoom(String userId) {
         if (iEngine == null) {
             return;
         }
-        iEngine.leaveRoom();
+        iEngine.leaveRoom(userId);
     }
 
     @Override
@@ -127,11 +126,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public View setupRemoteVideo(Context context, String userId, boolean isO) {
+    public View setupRemoteVideo(String userId, boolean isO) {
         if (iEngine == null) {
             return null;
         }
-        return iEngine.setupRemoteVideo(context, userId, isO);
+        return iEngine.setupRemoteVideo(userId, isO);
     }
 
     @Override
@@ -141,6 +140,32 @@ public class AVEngine implements IEngine {
         }
         iEngine.stopRemoteVideo();
     }
+
+
+    @Override
+    public void switchCamera() {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.switchCamera();
+    }
+
+    @Override
+    public boolean muteAudio(boolean enable) {
+        if (iEngine == null) {
+            return false;
+        }
+        return iEngine.muteAudio(enable);
+    }
+
+    @Override
+    public boolean toggleSpeaker(boolean enable) {
+        if (iEngine == null) {
+            return false;
+        }
+        return iEngine.toggleSpeaker(enable);
+    }
+
 
     @Override
     public void release() {

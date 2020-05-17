@@ -1,7 +1,6 @@
 package com.dds.skywebrtc;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -26,17 +25,21 @@ import java.util.concurrent.Executors;
  * 会话层
  */
 public class CallSession implements EngineCallback {
-    public WeakReference<CallSessionCallback> sessionCallback;
-    public ExecutorService executor;
-    private AudioManager audioManager;
+    private WeakReference<CallSessionCallback> sessionCallback;
+    private ExecutorService executor;
     // session参数
-    public boolean mIsAudioOnly;
-    public List<String> mUserIDList;
+    private boolean mIsAudioOnly;
+    // 房间人列表
+    private List<String> mUserIDList;
+    // 单聊对方Id/群聊邀请人
     public String mTargetId;
-    public String mRoomId;
-    public String mMyId;
-    public boolean mIsComing;
-    public EnumType.CallState _callState = EnumType.CallState.Idle;
+    // 房间Id
+    private String mRoomId;
+    // myId
+    private String mMyId;
+
+    private boolean mIsComing;
+    private EnumType.CallState _callState = EnumType.CallState.Idle;
     private long startTime;
 
     private AVEngine iEngine;
@@ -46,7 +49,7 @@ public class CallSession implements EngineCallback {
         executor = Executors.newSingleThreadExecutor();
         this.mIsAudioOnly = audioOnly;
         this.mEvent = event;
-        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
         iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
         iEngine.init(this);
     }
@@ -108,12 +111,12 @@ public class CallSession implements EngineCallback {
 
     }
 
-    // 自動发送忙时拒绝
-    public void sendRefuse(String room, String targetId, EnumType.RefuseType refuseType) {
+    // 发送忙时拒绝
+    void sendBusyRefuse(String room, String targetId) {
         executor.execute(() -> {
             if (mEvent != null) {
                 // 取消拨出
-                mEvent.sendRefuse(room, targetId, refuseType.ordinal());
+                mEvent.sendRefuse(room, targetId, EnumType.RefuseType.Busy.ordinal());
             }
         });
 
@@ -137,10 +140,12 @@ public class CallSession implements EngineCallback {
                 mEvent.sendLeave(mRoomId, mMyId);
             }
         });
+        // 释放变量
         release();
 
     }
 
+    // 切换到语音接听
     public void sendTransAudio() {
         executor.execute(() -> {
             if (mEvent != null) {
@@ -151,28 +156,14 @@ public class CallSession implements EngineCallback {
     }
 
     // 设置静音
-    public boolean muteAudio(boolean enable) {
-        return true;
+    public boolean toggleMuteAudio(boolean enable) {
+        return iEngine.muteAudio(enable);
     }
 
     // 设置扬声器
     public boolean toggleSpeaker(boolean enable) {
-        if (audioManager != null) {
-            if (enable) {
-                audioManager.setSpeakerphoneOn(true);
-                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
-                        AudioManager.STREAM_VOICE_CALL);
-            } else {
-                audioManager.setSpeakerphoneOn(false);
-                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), AudioManager.STREAM_VOICE_CALL);
-            }
 
-            return true;
-        }
-
-        return false;
+        return iEngine.toggleSpeaker(enable);
     }
 
     // 切换到语音通话
@@ -187,41 +178,14 @@ public class CallSession implements EngineCallback {
 
     }
 
-    private boolean isSwitch = false; // 是否正在切换摄像头
-
     // 调整摄像头前置后置
     public void switchCamera() {
-//        if (isSwitch) return;
-//        isSwitch = true;
-//        if (captureAndroid == null) return;
-//        if (captureAndroid instanceof CameraVideoCapturer) {
-//            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
-//            try {
-//                cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
-//                    @Override
-//                    public void onCameraSwitchDone(boolean isFrontCamera) {
-//                        isSwitch = false;
-//                    }
-//
-//                    @Override
-//                    public void onCameraSwitchError(String errorDescription) {
-//                        isSwitch = false;
-//                    }
-//                });
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
-//        }
-
+        iEngine.switchCamera();
     }
 
+    // 释放资源
     private void release() {
         executor.execute(() -> {
-            if (audioManager != null) {
-                audioManager.setMode(AudioManager.MODE_NORMAL);
-            }
             // 释放内容
             iEngine.release();
             // 状态设置为Idle
@@ -239,7 +203,6 @@ public class CallSession implements EngineCallback {
     // 加入房间成功
     public void onJoinHome(String myId, String users) {
         startTime = 0;
-        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         executor.execute(() -> {
             mMyId = myId;
             List<String> strings;
@@ -261,7 +224,7 @@ public class CallSession implements EngineCallback {
             if (!isAudioOnly()) {
                 // debug测试视频，关闭语音以防杂音
 //                if (BuildConfig.DEBUG) {
-//                    muteAudio(false);
+//                    toggleMuteAudio(false);
 //                }
                 // 画面预览
                 if (sessionCallback.get() != null) {
@@ -315,7 +278,7 @@ public class CallSession implements EngineCallback {
         }
     }
 
-    // 切换到语音
+    // 对方网络断开
     public void onDisConnect(String userId) {
 
     }
@@ -343,11 +306,11 @@ public class CallSession implements EngineCallback {
 
     // 对方离开房间
     public void onLeave(String userId) {
-        release();
+        iEngine.leaveRoom(userId);
     }
 
 
-    // --------------------------------界面显示相关-------------------------------------------------
+    // --------------------------------界面显示相关--------------------------------------------/
 
     public long getStartTime() {
         return startTime;
@@ -358,12 +321,13 @@ public class CallSession implements EngineCallback {
     }
 
 
-    public View setupRemoteVideo(Context context, String userId, boolean isOverlay) {
-        return iEngine.setupRemoteVideo(context, userId, isOverlay);
+    public View setupRemoteVideo(String userId, boolean isOverlay) {
+        return iEngine.setupRemoteVideo(userId, isOverlay);
     }
 
 
-    // ***********************************各种参数******************************************/
+    //------------------------------------各种参数----------------------------------------------/
+
     public void setIsAudioOnly(boolean _isAudioOnly) {
         this.mIsAudioOnly = _isAudioOnly;
     }

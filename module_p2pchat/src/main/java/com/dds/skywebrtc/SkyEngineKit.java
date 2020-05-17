@@ -75,8 +75,8 @@ public class SkyEngineKit {
         // 忙线中
         if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
             // 发送->忙线中...
-            Log.i(TAG, "startInCall busy,currentCallSession is exist,start sendRefuse!");
-            mCurrentCallSession.sendRefuse(room, targetId, EnumType.RefuseType.Busy);
+            Log.i(TAG, "startInCall busy,currentCallSession is exist,start sendBusyRefuse!");
+            mCurrentCallSession.sendBusyRefuse(room, targetId);
             return false;
         }
         // 初始化会话

@@ -1,6 +1,7 @@
 package com.dds.skywebrtc.engine.webrtc;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.util.Log;
 import android.view.View;
 
@@ -13,6 +14,7 @@ import org.webrtc.AudioTrack;
 import org.webrtc.Camera1Enumerator;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
+import org.webrtc.CameraVideoCapturer;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
+    private static final String TAG = "WebRTCEngine";
     private PeerConnectionFactory _factory;
     private EglBase mRootEglBase;
     private MediaStream _localStream;
@@ -51,9 +54,9 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
     public static final String VIDEO_CODEC_H264 = "H264";
-    private static final int VIDEO_RESOLUTION_WIDTH = 320;
-    private static final int VIDEO_RESOLUTION_HEIGHT = 240;
-    private static final int FPS = 15;
+    private static final int VIDEO_RESOLUTION_WIDTH = 1280;
+    private static final int VIDEO_RESOLUTION_HEIGHT = 720;
+    private static final int FPS = 20;
 
     // 对话实例列表
     private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
@@ -64,11 +67,12 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     public boolean mIsAudioOnly;
     private Context mContext;
+    private AudioManager audioManager;
 
     public WebRTCEngine(boolean mIsAudioOnly, Context mContext) {
         this.mIsAudioOnly = mIsAudioOnly;
         this.mContext = mContext;
-
+        audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mRootEglBase = EglBase.create();
         // 初始化ice地址
         initIceServer();
@@ -103,7 +107,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (mCallback != null) {
             mCallback.joinRoomSucc();
         }
-
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
 
     }
 
@@ -162,7 +166,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public void leaveRoom() {
+    public void leaveRoom(String userId) {
 
     }
 
@@ -184,7 +188,45 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void stopPreview() {
-
+        if (_localAudioTrack != null) {
+            _localAudioTrack.setEnabled(false);
+            _localAudioTrack.dispose();
+            _localAudioTrack = null;
+        }
+        if (_localVideoTrack != null) {
+            _localVideoTrack.setEnabled(false);
+            _localVideoTrack.dispose();
+            _localVideoTrack = null;
+        }
+        // audio释放
+        if (audioSource != null) {
+            audioSource.dispose();
+            audioSource = null;
+        }
+        // video释放
+        if (videoSource != null) {
+            videoSource.dispose();
+            videoSource = null;
+        }
+        // 本地流释放
+        if (_localStream != null) {
+            _localStream.dispose();
+        }
+        // 释放摄像头
+        if (captureAndroid != null) {
+            try {
+                captureAndroid.stopCapture();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            captureAndroid.dispose();
+            captureAndroid = null;
+        }
+        // 释放画布
+        if (surfaceTextureHelper != null) {
+            surfaceTextureHelper.dispose();
+            surfaceTextureHelper = null;
+        }
     }
 
     @Override
@@ -199,10 +241,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
 
     @Override
-    public View setupRemoteVideo(Context context, String userId, boolean isO) {
+    public View setupRemoteVideo(String userId, boolean isO) {
         Peer peer = peers.get(userId);
         if (peer == null) return null;
-        SurfaceViewRenderer renderer = new SurfaceViewRenderer(context);
+        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
         renderer.init(mRootEglBase.getEglBaseContext(), null);
         renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
         renderer.setMirror(true);
@@ -222,44 +264,82 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     }
 
+    private boolean isSwitch = false; // 是否正在切换摄像头
+
+    @Override
+    public void switchCamera() {
+        if (isSwitch) return;
+        isSwitch = true;
+        if (captureAndroid == null) return;
+        if (captureAndroid instanceof CameraVideoCapturer) {
+            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) captureAndroid;
+            try {
+                cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
+                    @Override
+                    public void onCameraSwitchDone(boolean isFrontCamera) {
+                        isSwitch = false;
+                    }
+
+                    @Override
+                    public void onCameraSwitchError(String errorDescription) {
+                        isSwitch = false;
+                    }
+                });
+            } catch (Exception e) {
+                isSwitch = false;
+            }
+        } else {
+            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
+        }
+    }
+
+    @Override
+    public boolean muteAudio(boolean enable) {
+        if (_localAudioTrack != null) {
+            _localAudioTrack.setEnabled(false);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean toggleSpeaker(boolean enable) {
+        if (audioManager != null) {
+            if (enable) {
+                audioManager.setSpeakerphoneOn(true);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                        AudioManager.STREAM_VOICE_CALL);
+            } else {
+                audioManager.setSpeakerphoneOn(false);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), AudioManager.STREAM_VOICE_CALL);
+            }
+
+            return true;
+        }
+        return false;
+
+    }
+
     @Override
     public void release() {
-        // audio释放
-        if (audioSource != null) {
-            audioSource.dispose();
-            audioSource = null;
+        if (audioManager != null) {
+            audioManager.setMode(AudioManager.MODE_NORMAL);
         }
-        // video释放
-        if (videoSource != null) {
-            videoSource.dispose();
-            videoSource = null;
-        }
-
-        // 释放摄像头
-        if (captureAndroid != null) {
-            try {
-                captureAndroid.stopCapture();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            captureAndroid.dispose();
-            captureAndroid = null;
-        }
-
-        // 本地流释放
-        _localStream.dispose();
-
-        // 释放画布
-        if (surfaceTextureHelper != null) {
-            surfaceTextureHelper.dispose();
-            surfaceTextureHelper = null;
-        }
-
+        // 停止预览
+        stopPreview();
         // 释放factory
         if (_factory != null) {
             _factory.dispose();
             _factory = null;
         }
+        // 清空peer
+        if (peers != null) {
+            peers.clear();
+            peers = null;
+        }
+
     }
 
 

@@ -217,7 +217,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             pipRenderer.addView(localSurfaceView);
 
         }
-        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(getActivity(), userId, false);
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false);
         if (surfaceView != null) {
             fullscreenRenderer.setVisibility(View.VISIBLE);
             remoteSurfaceView = surfaceView;
