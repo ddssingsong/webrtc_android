@@ -50,7 +50,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(context, audioOnly,mEvent);
+        mCurrentCallSession = new CallSession(context, audioOnly, mEvent);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);
@@ -80,7 +80,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(context, audioOnly,mEvent);
+        mCurrentCallSession = new CallSession(context, audioOnly, mEvent);
         mCurrentCallSession.setIsAudioOnly(audioOnly);
         mCurrentCallSession.setRoom(room);
         mCurrentCallSession.setTargetId(targetId);
@@ -101,7 +101,7 @@ public class SkyEngineKit {
             // 停止响铃
             mCurrentCallSession.shouldStopRing();
 
-            if (mCurrentCallSession.mIsComing) {
+            if (mCurrentCallSession.isComing()) {
                 if (mCurrentCallSession.getState() == EnumType.CallState.Incoming) {
                     // 接收到邀请，还没同意，发送拒绝
                     mCurrentCallSession.sendRefuse();

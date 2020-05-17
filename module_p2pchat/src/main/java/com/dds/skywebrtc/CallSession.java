@@ -344,6 +344,10 @@ public class CallSession implements EngineCallback {
         this.mIsComing = isComing;
     }
 
+    public boolean isComing() {
+        return mIsComing;
+    }
+
     public void setRoom(String _room) {
         this.mRoomId = _room;
     }
