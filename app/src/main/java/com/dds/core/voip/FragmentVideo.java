@@ -144,7 +144,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
 
         if (isFromFloatingView) {
             didCreateLocalVideoTrack();
-            //didReceiveRemoteVideoTrack(null);
+            didReceiveRemoteVideoTrack(null, null);
         }
 
 
@@ -224,7 +224,7 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             fullscreenRenderer.removeAllViews();
             fullscreenRenderer.addView(remoteSurfaceView);
         }
-        
+
 
     }
 

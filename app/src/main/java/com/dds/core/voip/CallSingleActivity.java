@@ -30,8 +30,7 @@ import java.util.UUID;
 
 /**
  * Created by dds on 2018/7/26.
- * android_shuai@163.com
- * 单聊界面
+ * 单人通话界面
  */
 public class CallSingleActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
 

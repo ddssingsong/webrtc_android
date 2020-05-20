@@ -51,6 +51,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private VideoCapturer captureAndroid;
     private SurfaceTextureHelper surfaceTextureHelper;
 
+    private ProxyVideoSink localSink;
+    private SurfaceViewRenderer localRenderer;
+
+
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
     public static final String VIDEO_CODEC_H264 = "H264";
@@ -167,50 +171,44 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void leaveRoom(String userId) {
+        Peer peer = peers.get(userId);
+        if (peer != null) {
+            peer.close();
+            peers.remove(userId);
+        }
+        if (peers.size() == 0) {
+            if (mCallback != null) {
+                mCallback.exitRoom();
+            }
+        }
+
 
     }
 
     @Override
     public View startPreview(boolean isOverlay) {
-        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
-        renderer.init(mRootEglBase.getEglBaseContext(), null);
-        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
-        renderer.setMirror(true);
-        renderer.setZOrderMediaOverlay(isOverlay);
+        localRenderer = new SurfaceViewRenderer(mContext);
+        localRenderer.init(mRootEglBase.getEglBaseContext(), null);
+        localRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        localRenderer.setMirror(true);
+        localRenderer.setZOrderMediaOverlay(isOverlay);
 
-        ProxyVideoSink sink = new ProxyVideoSink();
-        sink.setTarget(renderer);
+        localSink = new ProxyVideoSink();
+        localSink.setTarget(localRenderer);
         if (_localStream.videoTracks.size() > 0) {
-            _localStream.videoTracks.get(0).addSink(sink);
+            _localStream.videoTracks.get(0).addSink(localSink);
         }
-        return renderer;
+        return localRenderer;
     }
 
     @Override
     public void stopPreview() {
-        if (_localAudioTrack != null) {
-            _localAudioTrack.setEnabled(false);
-            _localAudioTrack.dispose();
-            _localAudioTrack = null;
+        if (localSink != null) {
+            localSink.setTarget(null);
         }
-        if (_localVideoTrack != null) {
-            _localVideoTrack.setEnabled(false);
-            _localVideoTrack.dispose();
-            _localVideoTrack = null;
-        }
-        // audio释放
         if (audioSource != null) {
             audioSource.dispose();
             audioSource = null;
-        }
-        // video释放
-        if (videoSource != null) {
-            videoSource.dispose();
-            videoSource = null;
-        }
-        // 本地流释放
-        if (_localStream != null) {
-            _localStream.dispose();
         }
         // 释放摄像头
         if (captureAndroid != null) {
@@ -227,6 +225,13 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             surfaceTextureHelper.dispose();
             surfaceTextureHelper = null;
         }
+
+        if (videoSource != null) {
+            videoSource.dispose();
+            videoSource = null;
+        }
+        localSink = null;
+        localRenderer.release();
     }
 
     @Override
@@ -327,18 +332,23 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (audioManager != null) {
             audioManager.setMode(AudioManager.MODE_NORMAL);
         }
+        // 清空peer
+        if (peers != null) {
+            for (Peer peer : peers.values()) {
+                peer.close();
+            }
+            peers.clear();
+            peers = null;
+        }
         // 停止预览
         stopPreview();
-        // 释放factory
+
         if (_factory != null) {
             _factory.dispose();
             _factory = null;
         }
-        // 清空peer
-        if (peers != null) {
-            peers.clear();
-            peers = null;
-        }
+
+        mRootEglBase.release();
 
     }
 
@@ -484,13 +494,13 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private MediaConstraints createAudioConstraints() {
         MediaConstraints audioConstraints = new MediaConstraints();
         audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "false"));
+                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
         audioConstraints.mandatory.add(
                 new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
         audioConstraints.mandatory.add(
                 new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false"));
         audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "false"));
+                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
         return audioConstraints;
     }
 

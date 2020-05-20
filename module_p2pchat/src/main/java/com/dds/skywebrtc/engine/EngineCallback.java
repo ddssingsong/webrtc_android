@@ -16,6 +16,8 @@ public interface EngineCallback {
      */
     void joinRoomSucc();
 
+    void exitRoom();
+
     void onSendIceCandidate(String userId, IceCandidate candidate);
 
     void onSendOffer(String userId, SessionDescription description);

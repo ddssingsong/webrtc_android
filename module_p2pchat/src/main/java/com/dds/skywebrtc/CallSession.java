@@ -307,6 +307,8 @@ public class CallSession implements EngineCallback {
     // 对方离开房间
     public void onLeave(String userId) {
         iEngine.leaveRoom(userId);
+
+
     }
 
 
@@ -383,6 +385,12 @@ public class CallSession implements EngineCallback {
             sessionCallback.get().didChangeState(_callState);
 
         }
+    }
+
+    @Override
+    public void exitRoom() {
+        // 状态设置为Idle
+        release();
     }
 
     @Override

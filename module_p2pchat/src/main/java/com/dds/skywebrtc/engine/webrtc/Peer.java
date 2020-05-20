@@ -112,6 +112,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     public void close() {
         if (pc != null) {
             pc.close();
+            pc.dispose();
         }
     }
 
