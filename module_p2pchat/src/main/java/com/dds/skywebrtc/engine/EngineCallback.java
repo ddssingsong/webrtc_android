@@ -1,7 +1,6 @@
 package com.dds.skywebrtc.engine;
 
 import org.webrtc.IceCandidate;
-import org.webrtc.MediaStream;
 import org.webrtc.SessionDescription;
 
 /**
@@ -24,6 +23,6 @@ public interface EngineCallback {
 
     void onSendAnswer(String userId, SessionDescription description);
 
-    void onRemoteStream(String userId, MediaStream stream);
+    void onRemoteStream(String userId);
 
 }

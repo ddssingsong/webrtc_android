@@ -31,8 +31,6 @@ import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.BuildConfig;
 import com.dds.webrtc.R;
 
-import org.webrtc.MediaStream;
-
 
 /**
  * Created by dds on 2018/7/26.
@@ -169,7 +167,7 @@ public class FloatingVoipService extends Service {
             }
 
             @Override
-            public void didReceiveRemoteVideoTrack(String userId, MediaStream stream) {
+            public void didReceiveRemoteVideoTrack(String userId) {
 
             }
 

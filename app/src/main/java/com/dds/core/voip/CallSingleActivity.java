@@ -23,8 +23,6 @@ import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.webrtc.R;
 
-import org.webrtc.MediaStream;
-
 import java.util.UUID;
 
 
@@ -216,8 +214,8 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     }
 
     @Override
-    public void didReceiveRemoteVideoTrack(String userId, MediaStream stream) {
-        handler.post(() -> currentFragment.didReceiveRemoteVideoTrack(userId, stream));
+    public void didReceiveRemoteVideoTrack(String userId) {
+        handler.post(() -> currentFragment.didReceiveRemoteVideoTrack(userId));
     }
 
     @Override

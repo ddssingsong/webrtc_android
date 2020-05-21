@@ -67,6 +67,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     // 服务器实例列表
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
+    private ConcurrentHashMap<String, SurfaceViewRenderer> remoteRenders = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ProxyVideoSink> remoteSinks = new ConcurrentHashMap<>();
     private EngineCallback mCallback;
 
     public boolean mIsAudioOnly;
@@ -77,10 +79,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         this.mIsAudioOnly = mIsAudioOnly;
         this.mContext = mContext;
         audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mRootEglBase = EglBase.create();
         // 初始化ice地址
         initIceServer();
-
     }
 
 
@@ -88,6 +88,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void init(EngineCallback callback) {
         mCallback = callback;
+
+        if (mRootEglBase == null) {
+            mRootEglBase = EglBase.create();
+        }
         if (_factory == null) {
             _factory = createConnectionFactory();
         }
@@ -176,6 +180,20 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peer.close();
             peers.remove(userId);
         }
+
+        SurfaceViewRenderer renderer = remoteRenders.get(userId);
+        if (renderer != null) {
+            renderer.release();
+            remoteRenders.remove(userId);
+        }
+
+        ProxyVideoSink proxyVideoSink = remoteSinks.get(userId);
+        if (proxyVideoSink != null) {
+            proxyVideoSink.setTarget(null);
+            remoteSinks.remove(userId);
+        }
+
+
         if (peers.size() == 0) {
             if (mCallback != null) {
                 mCallback.exitRoom();
@@ -254,9 +272,11 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
         renderer.setMirror(true);
         renderer.setZOrderMediaOverlay(isO);
-
         ProxyVideoSink sink = new ProxyVideoSink();
         sink.setTarget(renderer);
+
+        remoteRenders.put(userId, renderer);
+        remoteSinks.put(userId, sink);
         if (peer._remoteStream != null && peer._remoteStream.videoTracks.size() > 0) {
             peer._remoteStream.videoTracks.get(0).addSink(sink);
         }
@@ -338,8 +358,17 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
                 peer.close();
             }
             peers.clear();
-            peers = null;
         }
+        for (SurfaceViewRenderer renderer : remoteRenders.values()) {
+            renderer.release();
+        }
+        remoteRenders.clear();
+        _localStream = null;
+
+        for (ProxyVideoSink sink : remoteSinks.values()) {
+            sink.setTarget(null);
+        }
+        remoteSinks.clear();
         // 停止预览
         stopPreview();
 
@@ -349,6 +378,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         }
 
         mRootEglBase.release();
+        mRootEglBase = null;
+
 
     }
 
@@ -534,7 +565,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void onRemoteStream(String userId, MediaStream stream) {
         if (mCallback != null) {
-            mCallback.onRemoteStream(userId, stream);
+            mCallback.onRemoteStream(userId);
         }
     }
 

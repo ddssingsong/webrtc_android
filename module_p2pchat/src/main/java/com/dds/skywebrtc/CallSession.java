@@ -1,6 +1,8 @@
 package com.dds.skywebrtc;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +12,6 @@ import com.dds.skywebrtc.engine.webrtc.WebRTCEngine;
 import com.dds.skywebrtc.inter.ISkyEvent;
 
 import org.webrtc.IceCandidate;
-import org.webrtc.MediaStream;
 import org.webrtc.SessionDescription;
 
 import java.lang.ref.WeakReference;
@@ -27,6 +28,7 @@ import java.util.concurrent.Executors;
 public class CallSession implements EngineCallback {
     private WeakReference<CallSessionCallback> sessionCallback;
     private ExecutorService executor;
+    private Handler handler = new Handler(Looper.getMainLooper());
     // session参数
     private boolean mIsAudioOnly;
     // 房间人列表
@@ -203,7 +205,7 @@ public class CallSession implements EngineCallback {
     // 加入房间成功
     public void onJoinHome(String myId, String users) {
         startTime = 0;
-        executor.execute(() -> {
+        handler.post(() -> executor.execute(() -> {
             mMyId = myId;
             List<String> strings;
             if (!TextUtils.isEmpty(users)) {
@@ -234,12 +236,14 @@ public class CallSession implements EngineCallback {
             }
 
 
-        });
+        }));
+
+
     }
 
     // 新成员进入
     public void newPeer(String userId) {
-        executor.execute(() -> {
+        handler.post(() -> executor.execute(() -> {
             // 其他人加入房间
             iEngine.userIn(userId);
 
@@ -254,7 +258,8 @@ public class CallSession implements EngineCallback {
                 sessionCallback.get().didChangeState(_callState);
 
             }
-        });
+        }));
+
     }
 
     // 对方已拒绝
@@ -306,8 +311,7 @@ public class CallSession implements EngineCallback {
 
     // 对方离开房间
     public void onLeave(String userId) {
-        iEngine.leaveRoom(userId);
-
+        executor.execute(() -> iEngine.leaveRoom(userId));
 
     }
 
@@ -390,7 +394,8 @@ public class CallSession implements EngineCallback {
     @Override
     public void exitRoom() {
         // 状态设置为Idle
-        release();
+        handler.post(this::release);
+
     }
 
     @Override
@@ -398,7 +403,7 @@ public class CallSession implements EngineCallback {
         executor.execute(() -> {
             if (mEvent != null) {
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -432,10 +437,10 @@ public class CallSession implements EngineCallback {
     }
 
     @Override
-    public void onRemoteStream(String userId, MediaStream stream) {
+    public void onRemoteStream(String userId) {
         // 画面预览
         if (sessionCallback.get() != null) {
-            sessionCallback.get().didReceiveRemoteVideoTrack(userId, stream);
+            sessionCallback.get().didReceiveRemoteVideoTrack(userId);
         }
     }
 
@@ -448,7 +453,7 @@ public class CallSession implements EngineCallback {
 
         void didCreateLocalVideoTrack();
 
-        void didReceiveRemoteVideoTrack(String userId, MediaStream stream);
+        void didReceiveRemoteVideoTrack(String userId);
 
         void didError(String error);
 
