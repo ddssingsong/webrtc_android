@@ -458,7 +458,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", mRootEglBase.getEglBaseContext());
             videoSource = _factory.createVideoSource(captureAndroid.isScreencast());
 
-
             captureAndroid.initialize(surfaceTextureHelper, mContext, videoSource.getCapturerObserver());
             captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
 
