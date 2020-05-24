@@ -58,6 +58,10 @@ java      https://github.com/ddssingsong/webrtc_server_java         for branch:m
 
 ## CHANGELOG
 
+**2.0.0**
+
+Various optimization
+
 **v1.2.0:** 
 
  move to androidx

@@ -60,6 +60,10 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
 
 ## 更新日志
 
+**2.0.0**
+
+重构代码
+
 **v1.2.0**
 
 使用androidx
