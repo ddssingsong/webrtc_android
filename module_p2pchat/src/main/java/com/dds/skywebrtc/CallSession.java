@@ -224,10 +224,6 @@ public class CallSession implements EngineCallback {
             }
 
             if (!isAudioOnly()) {
-                // debug测试视频，关闭语音以防杂音
-//                if (BuildConfig.DEBUG) {
-//                    toggleMuteAudio(false);
-//                }
                 // 画面预览
                 if (sessionCallback.get() != null) {
                     sessionCallback.get().didCreateLocalVideoTrack();

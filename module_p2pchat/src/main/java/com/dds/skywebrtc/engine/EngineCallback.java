@@ -15,6 +15,9 @@ public interface EngineCallback {
      */
     void joinRoomSucc();
 
+    /**
+     * 退出房间成功
+     */
     void exitRoom();
 
     void onSendIceCandidate(String userId, IceCandidate candidate);

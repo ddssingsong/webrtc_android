@@ -1,5 +1,6 @@
 package com.dds.core.ui.room;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -93,7 +94,16 @@ public class RoomFragment extends Fragment {
 
     // 创建房间
     private void createRoom() {
-        SocketManager.getInstance().createRoom(UUID.randomUUID().toString(), 9);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("是否创建一个房间，房间名称将自动为你创建！");
+        builder.setPositiveButton("确定", (dialog, which) -> {
+            // 创建一个房间
+            SocketManager.getInstance().createRoom(UUID.randomUUID().toString(), 9);
+
+        }).setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
 

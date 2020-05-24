@@ -1,6 +1,5 @@
 package com.dds.core.voip;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,6 +30,8 @@ import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.BuildConfig;
 import com.dds.webrtc.R;
 
+import java.util.Locale;
+
 
 /**
  * Created by dds on 2018/7/26.
@@ -47,8 +48,6 @@ public class FloatingVoipService extends Service {
     private WindowManager wm;
     private View view;
     private WindowManager.LayoutParams params;
-
-    private View surfaceView;
 
     public FloatingVoipService() {
     }
@@ -193,6 +192,7 @@ public class FloatingVoipService extends Service {
             final int action = event.getAction();
             float x = event.getX();
             float y = event.getY();
+
             if (tag == 0) {
                 oldOffsetX = params.x;
                 oldOffsetY = params.y;
@@ -207,6 +207,7 @@ public class FloatingVoipService extends Service {
                 tag = 1;
                 wm.updateViewLayout(v, params);
             } else if (action == MotionEvent.ACTION_UP) {
+                view.performClick();
                 int newOffsetX = params.x;
                 int newOffsetY = params.y;
                 if (Math.abs(oldOffsetX - newOffsetX) <= 20 && Math.abs(oldOffsetY - newOffsetY) <= 20) {
@@ -223,7 +224,6 @@ public class FloatingVoipService extends Service {
         startActivity(resumeActivityIntent);
     }
 
-    @SuppressLint("DefaultLocale")
     private void refreshCallDurationInfo(TextView timeView) {
         CallSession session = SkyEngineKit.Instance().getCurrentSession();
         if (session == null || !session.isAudioOnly()) {
@@ -232,9 +232,11 @@ public class FloatingVoipService extends Service {
 
         long duration = (System.currentTimeMillis() - session.getStartTime()) / 1000;
         if (duration >= 3600) {
-            timeView.setText(String.format("%d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60)));
+            timeView.setText(String.format(Locale.getDefault(), "%d:%02d:%02d",
+                    duration / 3600, (duration % 3600) / 60, (duration % 60)));
         } else {
-            timeView.setText(String.format("%02d:%02d", (duration % 3600) / 60, (duration % 60)));
+            timeView.setText(String.format(Locale.getDefault(), "%02d:%02d",
+                    (duration % 3600) / 60, (duration % 60)));
         }
         handler.postDelayed(() -> refreshCallDurationInfo(timeView), 1000);
     }
@@ -254,13 +256,13 @@ public class FloatingVoipService extends Service {
         refreshCallDurationInfo(timeV);
     }
 
-
     private void showVideoInfo() {
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         remoteVideoFrameLayout.setVisibility(View.VISIBLE);
-        surfaceView = session.setupRemoteVideo(session.mTargetId, true);
+        View surfaceView = session.setupRemoteVideo(session.mTargetId, true);
         if (surfaceView != null) {
+            remoteVideoFrameLayout.removeAllViews();
             remoteVideoFrameLayout.addView(surfaceView);
         }
     }

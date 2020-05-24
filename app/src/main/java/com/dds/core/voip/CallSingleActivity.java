@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -37,7 +38,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     public static final String EXTRA_AUDIO_ONLY = "audioOnly";
     public static final String EXTRA_FROM_FLOATING_VIEW = "fromFloatingView";
 
-    private Handler handler = new Handler();
+    private Handler handler = new Handler(Looper.getMainLooper());
     private boolean isOutgoing;
     private String targetId;
     private boolean isAudioOnly;

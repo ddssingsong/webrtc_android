@@ -1,16 +1,22 @@
 package com.dds.skywebrtc.engine.webrtc;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.dds.skywebrtc.render.ProxyVideoSink;
+
 import org.webrtc.DataChannel;
+import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RendererCommon;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
+import org.webrtc.SurfaceViewRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +34,14 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private PeerConnectionFactory mFactory;
     private List<PeerConnection.IceServer> mIceLis;
     private IPeerEvent mEvent;
-    public MediaStream _remoteStream;
-    private WebRTCEngine mWebRTCEngine;
     private boolean isOffer;
 
-    public Peer(WebRTCEngine webRTCEngine, PeerConnectionFactory factory, List<PeerConnection.IceServer> list, String userId, IPeerEvent event) {
-        mWebRTCEngine = webRTCEngine;
+    public MediaStream _remoteStream;
+    public SurfaceViewRenderer renderer;
+    public ProxyVideoSink sink;
+
+
+    public Peer(PeerConnectionFactory factory, List<PeerConnection.IceServer> list, String userId, IPeerEvent event) {
         mFactory = factory;
         mIceLis = list;
         mEvent = event;
@@ -68,25 +76,28 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     }
 
+    // 设置LocalDescription
     public void setLocalDescription(SessionDescription sdp) {
         Log.d("dds_test", "setLocalDescription");
         if (pc == null) return;
         pc.setLocalDescription(this, sdp);
     }
 
+    // 设置RemoteDescription
     public void setRemoteDescription(SessionDescription sdp) {
         if (pc == null) return;
         Log.d("dds_test", "setRemoteDescription");
         pc.setRemoteDescription(this, sdp);
     }
 
+    //添加本地流
     public void addLocalStream(MediaStream stream) {
         if (pc == null) return;
         Log.d("dds_test", "addLocalStream" + mUserId);
         pc.addStream(stream);
     }
 
-
+    // 添加RemoteIceCandidate
     public void addRemoteIceCandidate(final IceCandidate candidate) {
         Log.d("dds_test", "addRemoteIceCandidate");
         if (pc != null) {
@@ -100,6 +111,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         }
     }
 
+    // 移除RemoteIceCandidates
     public void removeRemoteIceCandidates(final IceCandidate[] candidates) {
         if (pc == null) {
             return;
@@ -108,16 +120,46 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         pc.removeIceCandidates(candidates);
     }
 
+    public void createRender(EglBase mRootEglBase, Context context, boolean isOverlay) {
+        renderer = new SurfaceViewRenderer(context);
+        renderer.init(mRootEglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
+            @Override
+            public void onFirstFrameRendered() {
+                Log.d(TAG, "createRender onFirstFrameRendered");
 
+            }
+
+            @Override
+            public void onFrameResolutionChanged(int videoWidth, int videoHeight, int rotation) {
+                Log.d(TAG, "createRender onFrameResolutionChanged");
+            }
+        });
+        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        renderer.setMirror(true);
+        renderer.setZOrderMediaOverlay(isOverlay);
+        sink = new ProxyVideoSink();
+        sink.setTarget(renderer);
+        if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
+            _remoteStream.videoTracks.get(0).addSink(sink);
+        }
+
+    }
+
+    // 关闭Peer
     public void close() {
+        if (renderer != null) {
+            renderer.release();
+            renderer = null;
+        }
+        if (sink != null) {
+            sink.setTarget(null);
+        }
         if (pc != null) {
             pc.close();
             pc.dispose();
         }
-    }
 
-    public MediaStream getRemoteStream() {
-        return _remoteStream;
+
     }
 
     //------------------------------Observer-------------------------------------
@@ -140,7 +182,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     public void onIceGatheringChange(PeerConnection.IceGatheringState newState) {
         Log.i(TAG, "onIceGatheringChange:" + newState.toString());
     }
-
 
     @Override
     public void onIceCandidate(IceCandidate candidate) {
@@ -166,6 +207,9 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     @Override
     public void onRemoveStream(MediaStream stream) {
         Log.i(TAG, "onRemoveStream:");
+        if (mEvent != null) {
+            mEvent.onRemoveStream(mUserId, stream);
+        }
     }
 
     @Override
@@ -270,6 +314,8 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     // ----------------------------回调-----------------------------------
 
     public interface IPeerEvent {
+
+
         void onSendIceCandidate(String userId, IceCandidate candidate);
 
         void onSendOffer(String userId, SessionDescription description);
@@ -278,6 +324,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
         void onRemoteStream(String userId, MediaStream stream);
 
+        void onRemoveStream(String userId, MediaStream stream);
     }
 
 }

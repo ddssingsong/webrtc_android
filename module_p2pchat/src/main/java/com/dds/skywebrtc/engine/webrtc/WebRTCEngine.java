@@ -1,7 +1,12 @@
 package com.dds.skywebrtc.engine.webrtc;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.media.projection.MediaProjection;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
@@ -24,6 +29,7 @@ import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RendererCommon;
+import org.webrtc.ScreenCapturerAndroid;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.SurfaceViewRenderer;
@@ -46,7 +52,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private MediaStream _localStream;
     private VideoSource videoSource;
     private AudioSource audioSource;
-    private VideoTrack _localVideoTrack;
     private AudioTrack _localAudioTrack;
     private VideoCapturer captureAndroid;
     private SurfaceTextureHelper surfaceTextureHelper;
@@ -58,8 +63,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
     public static final String VIDEO_CODEC_H264 = "H264";
-    private static final int VIDEO_RESOLUTION_WIDTH = 1280;
-    private static final int VIDEO_RESOLUTION_HEIGHT = 720;
+    private static final int VIDEO_RESOLUTION_WIDTH = 640;
+    private static final int VIDEO_RESOLUTION_HEIGHT = 480;
     private static final int FPS = 20;
 
     // 对话实例列表
@@ -67,8 +72,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     // 服务器实例列表
     private List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
-    private ConcurrentHashMap<String, SurfaceViewRenderer> remoteRenders = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ProxyVideoSink> remoteSinks = new ConcurrentHashMap<>();
     private EngineCallback mCallback;
 
     public boolean mIsAudioOnly;
@@ -105,7 +108,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         for (String id : userIds) {
             // create Peer
 
-            Peer peer = new Peer(this, _factory, iceServers, id, this);
+            Peer peer = new Peer(_factory, iceServers, id, this);
             peer.setOffer(false);
             // add localStream
             peer.addLocalStream(_localStream);
@@ -122,7 +125,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void userIn(String userId) {
         // create Peer
-        Peer peer = new Peer(this, _factory, iceServers, userId, this);
+        Peer peer = new Peer(_factory, iceServers, userId, this);
         peer.setOffer(true);
         // add localStream
         peer.addLocalStream(_localStream);
@@ -180,19 +183,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peer.close();
             peers.remove(userId);
         }
-
-        SurfaceViewRenderer renderer = remoteRenders.get(userId);
-        if (renderer != null) {
-            renderer.release();
-            remoteRenders.remove(userId);
-        }
-
-        ProxyVideoSink proxyVideoSink = remoteSinks.get(userId);
-        if (proxyVideoSink != null) {
-            proxyVideoSink.setTarget(null);
-            remoteSinks.remove(userId);
-        }
-
 
         if (peers.size() == 0) {
             if (mCallback != null) {
@@ -265,22 +255,18 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public View setupRemoteVideo(String userId, boolean isO) {
+        if (TextUtils.isEmpty(userId)) {
+            Log.e(TAG, "setupRemoteVideo userId is null ");
+            return null;
+        }
         Peer peer = peers.get(userId);
         if (peer == null) return null;
-        SurfaceViewRenderer renderer = new SurfaceViewRenderer(mContext);
-        renderer.init(mRootEglBase.getEglBaseContext(), null);
-        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
-        renderer.setMirror(true);
-        renderer.setZOrderMediaOverlay(isO);
-        ProxyVideoSink sink = new ProxyVideoSink();
-        sink.setTarget(renderer);
 
-        remoteRenders.put(userId, renderer);
-        remoteSinks.put(userId, sink);
-        if (peer._remoteStream != null && peer._remoteStream.videoTracks.size() > 0) {
-            peer._remoteStream.videoTracks.get(0).addSink(sink);
+        if (peer.renderer == null) {
+            peer.createRender(mRootEglBase, mContext, isO);
         }
-        return renderer;
+
+        return peer.renderer;
 
     }
 
@@ -359,16 +345,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             }
             peers.clear();
         }
-        for (SurfaceViewRenderer renderer : remoteRenders.values()) {
-            renderer.release();
-        }
-        remoteRenders.clear();
         _localStream = null;
-
-        for (ProxyVideoSink sink : remoteSinks.values()) {
-            sink.setTarget(null);
-        }
-        remoteSinks.clear();
         // 停止预览
         stopPreview();
 
@@ -382,7 +359,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
 
     }
-
 
     // -----------------------------其他方法--------------------------------
 
@@ -462,11 +438,15 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             captureAndroid.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
 
 
-            _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
+            VideoTrack _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
             _localStream.addTrack(_localVideoTrack);
         }
 
     }
+
+
+    // 是否使用录屏
+    private boolean screencaptureEnabled = false;
 
     /**
      * 创建媒体方式
@@ -475,6 +455,12 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
      */
     private VideoCapturer createVideoCapture() {
         VideoCapturer videoCapturer;
+
+
+        if (screencaptureEnabled) {
+            return createScreenCapturer();
+        }
+
         if (Camera2Enumerator.isSupported(mContext)) {
             videoCapturer = createCameraCapture(new Camera2Enumerator(mContext));
         } else {
@@ -517,6 +503,23 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         return null;
     }
 
+
+    private static Intent mediaProjectionPermissionResultData;
+    private static int mediaProjectionPermissionResultCode;
+
+    @TargetApi(21)
+    private VideoCapturer createScreenCapturer() {
+        if (mediaProjectionPermissionResultCode != Activity.RESULT_OK) {
+            return null;
+        }
+        return new ScreenCapturerAndroid(
+                mediaProjectionPermissionResultData, new MediaProjection.Callback() {
+            @Override
+            public void onStop() {
+                Log.e(TAG, "User revoked permission to capture the screen.");
+            }
+        });
+    }
 
     //**************************************各种约束******************************************/
     private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
@@ -566,6 +569,11 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (mCallback != null) {
             mCallback.onRemoteStream(userId);
         }
+    }
+
+    @Override
+    public void onRemoveStream(String userId, MediaStream stream) {
+        leaveRoom(userId);
     }
 
 
