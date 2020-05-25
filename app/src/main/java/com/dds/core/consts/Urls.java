@@ -6,8 +6,8 @@ package com.dds.core.consts;
  */
 public class Urls {
 
-    private final static String IP = "192.168.2.111";
-    //    public final static String IP = "47.93.186.97";
+    //    private final static String IP = "192.168.2.111";
+    public final static String IP = "47.93.186.97";
 
 
     private final static String HOST = "http://" + IP + ":5000/";
