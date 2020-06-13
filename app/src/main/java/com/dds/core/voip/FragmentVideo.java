@@ -213,7 +213,9 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     public void didReceiveRemoteVideoTrack(String userId) {
         pipRenderer.setVisibility(View.VISIBLE);
         if (isOutgoing && localSurfaceView != null) {
-            ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
+            if (localSurfaceView.getParent() != null) {
+                ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
+            }
             pipRenderer.addView(localSurfaceView);
 
         }
