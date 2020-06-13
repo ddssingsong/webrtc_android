@@ -95,24 +95,6 @@ public class SkyEngineKit {
         return true;
     }
 
-    // 加入房间
-    public boolean joinRoom(Context context, String room) {
-        if (avEngineKit == null) {
-            Log.e(TAG, "joinRoom error,init is not set");
-            return false;
-        }
-        // 忙线中
-        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
-            Log.e(TAG, "joinRoom error,currentCallSession is exist");
-            return false;
-        }
-        mCurrentCallSession = new CallSession(context, true, mEvent);
-        mCurrentCallSession.setRoom(room);
-        mCurrentCallSession.setIsComing(true);
-        mCurrentCallSession.joinHome(room);
-        return true;
-    }
-
     // 挂断会话
     public void endCall() {
         if (mCurrentCallSession != null) {
@@ -138,6 +120,24 @@ public class SkyEngineKit {
             mCurrentCallSession.setCallState(EnumType.CallState.Idle);
         }
 
+    }
+
+    // 加入房间
+    public boolean joinRoom(Context context, String room) {
+        if (avEngineKit == null) {
+            Log.e(TAG, "joinRoom error,init is not set");
+            return false;
+        }
+        // 忙线中
+        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
+            Log.e(TAG, "joinRoom error,currentCallSession is exist");
+            return false;
+        }
+        mCurrentCallSession = new CallSession(context, true, mEvent);
+        mCurrentCallSession.setRoom(room);
+        mCurrentCallSession.setIsComing(true);
+        mCurrentCallSession.joinHome(room);
+        return true;
     }
 
 

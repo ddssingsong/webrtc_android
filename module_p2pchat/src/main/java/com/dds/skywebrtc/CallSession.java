@@ -129,7 +129,9 @@ public class CallSession implements EngineCallback {
         executor.execute(() -> {
             if (mEvent != null) {
                 // 取消拨出
-                mEvent.sendCancel(mRoomId, mUserIDList);
+                List<String> list = new ArrayList<>();
+                list.add(mTargetId);
+                mEvent.sendCancel(mRoomId, list);
             }
         });
 
@@ -282,6 +284,11 @@ public class CallSession implements EngineCallback {
     // 对方网络断开
     public void onDisConnect(String userId) {
 
+    }
+
+    // 对方取消拨出
+    public void onCancel(String userId) {
+        release();
     }
 
     public void onReceiveOffer(String userId, String description) {

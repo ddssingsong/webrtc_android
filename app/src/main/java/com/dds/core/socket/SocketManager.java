@@ -174,7 +174,7 @@ public class SocketManager implements IEvent {
 
     public void sendIceCandidate(String userId, String id, int label, String candidate) {
         if (webSocket != null) {
-            webSocket.sendIceCandidate(myId,userId, id, label, candidate);
+            webSocket.sendIceCandidate(myId, userId, id, label, candidate);
         }
     }
 
@@ -208,6 +208,12 @@ public class SocketManager implements IEvent {
 
     @Override
     public void onCancel(String inviteId) {
+        handler.post(() -> {
+            CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
+            if (currentSession != null) {
+                currentSession.onCancel(inviteId);
+            }
+        });
 
     }
 

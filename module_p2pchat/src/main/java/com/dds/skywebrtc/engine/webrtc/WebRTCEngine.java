@@ -213,6 +213,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public void stopPreview() {
         if (localSink != null) {
             localSink.setTarget(null);
+            localSink = null;
         }
         if (audioSource != null) {
             audioSource.dispose();
@@ -238,8 +239,14 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             videoSource.dispose();
             videoSource = null;
         }
-        localSink = null;
-        localRenderer.release();
+        if (_localStream != null) {
+            _localStream = null;
+        }
+        if (localRenderer != null) {
+            localRenderer.release();
+        }
+
+
     }
 
     @Override
@@ -345,7 +352,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             }
             peers.clear();
         }
-        _localStream = null;
+
+
         // 停止预览
         stopPreview();
 
@@ -354,8 +362,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             _factory = null;
         }
 
-        mRootEglBase.release();
-        mRootEglBase = null;
+        if (mRootEglBase != null) {
+            mRootEglBase.release();
+            mRootEglBase = null;
+        }
 
 
     }
