@@ -230,12 +230,12 @@ public class SocketManager implements IEvent {
     }
 
     @Override  // 加入房间
-    public void onPeers(String myId, String userId) {
+    public void onPeers(String myId, String connections, int roomSize) {
         handler.post(() -> {
             //自己进入了房间，然后开始发送offer
             CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
-                currentSession.onJoinHome(myId, userId);
+                currentSession.onJoinHome(myId, connections,roomSize);
             }
         });
 

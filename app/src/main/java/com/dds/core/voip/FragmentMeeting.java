@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +23,7 @@ import com.dds.webrtc.R;
 public class FragmentMeeting extends Fragment implements CallSession.CallSessionCallback, View.OnClickListener {
     private SkyEngineKit gEngineKit;
     private CallMultiActivity activity;
+    private RelativeLayout meeting_item_container;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,7 +51,7 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
     }
 
     private void initView(View view) {
-
+        meeting_item_container = view.findViewById(R.id.meeting_item_container);
     }
 
 
@@ -82,7 +84,8 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
     public void didCreateLocalVideoTrack() {
         View surfaceView = gEngineKit.getCurrentSession().setupLocalVideo(true);
         if (surfaceView != null) {
-
+            surfaceView.setLayoutParams(new ViewGroup.LayoutParams(200, 280));
+            meeting_item_container.addView(surfaceView);
         }
     }
 

@@ -50,9 +50,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(context, audioOnly, mEvent);
-        mCurrentCallSession.setIsAudioOnly(audioOnly);
-        mCurrentCallSession.setRoom(room);
+        mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
         mCurrentCallSession.setTargetId(targetId);
         mCurrentCallSession.setIsComing(false);
         mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
@@ -80,9 +78,7 @@ public class SkyEngineKit {
             return false;
         }
         // 初始化会话
-        mCurrentCallSession = new CallSession(context, audioOnly, mEvent);
-        mCurrentCallSession.setIsAudioOnly(audioOnly);
-        mCurrentCallSession.setRoom(room);
+        mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
         mCurrentCallSession.setTargetId(targetId);
         mCurrentCallSession.setIsComing(true);
         mCurrentCallSession.setCallState(EnumType.CallState.Incoming);
@@ -133,11 +129,40 @@ public class SkyEngineKit {
             Log.e(TAG, "joinRoom error,currentCallSession is exist");
             return false;
         }
-        mCurrentCallSession = new CallSession(context, true, mEvent);
-        mCurrentCallSession.setRoom(room);
+        mCurrentCallSession = new CallSession(context, room, true, mEvent);
         mCurrentCallSession.setIsComing(true);
         mCurrentCallSession.joinHome(room);
         return true;
+    }
+
+    public boolean createAndJoinRoom(Context context, String room) {
+        if (avEngineKit == null) {
+            Log.e(TAG, "joinRoom error,init is not set");
+            return false;
+        }
+        // 忙线中
+        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
+            Log.e(TAG, "joinRoom error,currentCallSession is exist");
+            return false;
+        }
+        mCurrentCallSession = new CallSession(context, room, true, mEvent);
+        mCurrentCallSession.setIsComing(true);
+        mCurrentCallSession.createHome(room, 9);
+        return true;
+    }
+
+    // 离开房间
+    public void leaveRoom() {
+        if (avEngineKit == null) {
+            Log.e(TAG, "leaveRoom error,init is not set");
+            return;
+        }
+        if (mCurrentCallSession != null) {
+            mCurrentCallSession.leave();
+            mCurrentCallSession.setCallState(EnumType.CallState.Idle);
+            mCurrentCallSession.exitRoom();
+        }
+
     }
 
 

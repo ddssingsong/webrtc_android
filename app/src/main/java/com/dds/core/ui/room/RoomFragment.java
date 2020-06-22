@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,7 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.dds.core.socket.SocketManager;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
 import java.util.ArrayList;
@@ -95,10 +96,10 @@ public class RoomFragment extends Fragment {
     // 创建房间
     private void createRoom() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("是否创建一个房间，房间名称将自动为你创建！");
+        builder.setMessage("自动创建一个房间并进入房间");
         builder.setPositiveButton("确定", (dialog, which) -> {
-            // 创建一个房间
-            SocketManager.getInstance().createRoom(UUID.randomUUID().toString(), 9);
+            // 创建一个房间并进入
+            SkyEngineKit.Instance().createAndJoinRoom(getContext(), "room-" + UUID.randomUUID().toString().substring(0, 16));
 
         }).setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = builder.create();
@@ -120,6 +121,9 @@ public class RoomFragment extends Fragment {
         public void onBindViewHolder(@NonNull RoomFragment.Holder holder, int position) {
             RoomInfo roomInfo = datas.get(position);
             holder.text.setText(roomInfo.getRoomId());
+            holder.item_join_room.setOnClickListener(v -> {
+                SkyEngineKit.Instance().joinRoom(getActivity(), roomInfo.getRoomId());
+            });
         }
 
 
@@ -131,13 +135,15 @@ public class RoomFragment extends Fragment {
 
     }
 
-    private class Holder extends RecyclerView.ViewHolder {
+    private static class Holder extends RecyclerView.ViewHolder {
 
         private final TextView text;
+        private final Button item_join_room;
 
         Holder(View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.item_user_name);
+            item_join_room = itemView.findViewById(R.id.item_join_room);
         }
     }
 

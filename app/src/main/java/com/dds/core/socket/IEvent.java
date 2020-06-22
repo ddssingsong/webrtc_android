@@ -20,7 +20,7 @@ public interface IEvent {
     void onRing(String userId);
 
 
-    void onPeers(String myId, String userList);
+    void onPeers(String myId, String userList, int roomSize);
 
     void onNewPeer(String myId);
 

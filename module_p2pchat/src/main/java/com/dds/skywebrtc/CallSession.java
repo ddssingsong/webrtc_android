@@ -47,11 +47,12 @@ public class CallSession implements EngineCallback {
     private AVEngine iEngine;
     private ISkyEvent mEvent;
 
-    public CallSession(Context context, boolean audioOnly, ISkyEvent event) {
+    public CallSession(Context context, String roomId, boolean audioOnly, ISkyEvent event) {
         executor = Executors.newSingleThreadExecutor();
         this.mIsAudioOnly = audioOnly;
-        this.mEvent = event;
+        this.mRoomId = roomId;
 
+        this.mEvent = event;
         iEngine = AVEngine.createEngine(new WebRTCEngine(audioOnly, context));
         iEngine.init(this);
     }
@@ -205,7 +206,8 @@ public class CallSession implements EngineCallback {
     //------------------------------------receive---------------------------------------------------
 
     // 加入房间成功
-    public void onJoinHome(String myId, String users) {
+    public void onJoinHome(String myId, String users, int roomSize) {
+        // 开始计时
         startTime = 0;
         handler.post(() -> executor.execute(() -> {
             mMyId = myId;
@@ -218,9 +220,11 @@ public class CallSession implements EngineCallback {
 
             // 发送邀请
             if (!mIsComing) {
-                List<String> inviteList = new ArrayList<>();
-                inviteList.add(mTargetId);
-                mEvent.sendInvite(mRoomId, inviteList, mIsAudioOnly);
+                if (roomSize == 2) {
+                    List<String> inviteList = new ArrayList<>();
+                    inviteList.add(mTargetId);
+                    mEvent.sendInvite(mRoomId, inviteList, mIsAudioOnly);
+                }
             } else {
                 iEngine.joinRoom(mUserIDList);
             }

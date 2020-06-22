@@ -215,9 +215,10 @@ public class DWebSocket extends WebSocketClient {
     private void handlePeers(Map map) {
         Map data = (Map) map.get("data");
         if (data != null) {
-            String userID = (String) data.get("userID");
+            String you = (String) data.get("you");
             String connections = (String) data.get("connections");
-            this.iEvent.onPeers(userID, connections);
+            int roomSize = (int) data.get("roomSize");
+            this.iEvent.onPeers(you, connections,roomSize);
         }
     }
 
