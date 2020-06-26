@@ -145,8 +145,8 @@ public class SkyEngineKit {
             Log.e(TAG, "joinRoom error,currentCallSession is exist");
             return false;
         }
-        mCurrentCallSession = new CallSession(context, room, true, mEvent);
-        mCurrentCallSession.setIsComing(true);
+        mCurrentCallSession = new CallSession(context, room, false, mEvent);
+        mCurrentCallSession.setIsComing(false);
         mCurrentCallSession.createHome(room, 9);
         return true;
     }

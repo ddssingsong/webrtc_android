@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.dds.skywebrtc.SkyEngineKit;
+import com.dds.core.voip.CallMultiActivity;
 import com.dds.webrtc.R;
 
 import java.util.ArrayList;
@@ -99,7 +99,9 @@ public class RoomFragment extends Fragment {
         builder.setMessage("自动创建一个房间并进入房间");
         builder.setPositiveButton("确定", (dialog, which) -> {
             // 创建一个房间并进入
-            SkyEngineKit.Instance().createAndJoinRoom(getContext(), "room-" + UUID.randomUUID().toString().substring(0, 16));
+            CallMultiActivity.openActivity(getActivity(),
+                    "room-" + UUID.randomUUID().toString().substring(0, 16), true);
+
 
         }).setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = builder.create();
@@ -122,7 +124,7 @@ public class RoomFragment extends Fragment {
             RoomInfo roomInfo = datas.get(position);
             holder.text.setText(roomInfo.getRoomId());
             holder.item_join_room.setOnClickListener(v -> {
-                SkyEngineKit.Instance().joinRoom(getActivity(), roomInfo.getRoomId());
+                CallMultiActivity.openActivity(getActivity(), roomInfo.getRoomId(), false);
             });
         }
 

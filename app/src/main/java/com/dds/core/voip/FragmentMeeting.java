@@ -84,7 +84,8 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
     public void didCreateLocalVideoTrack() {
         View surfaceView = gEngineKit.getCurrentSession().setupLocalVideo(true);
         if (surfaceView != null) {
-            surfaceView.setLayoutParams(new ViewGroup.LayoutParams(200, 280));
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(200, 280);
+            surfaceView.setLayoutParams(layoutParams);
             meeting_item_container.addView(surfaceView);
         }
     }

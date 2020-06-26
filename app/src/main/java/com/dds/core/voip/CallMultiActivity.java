@@ -23,6 +23,8 @@ import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.webrtc.R;
 
+import java.util.UUID;
+
 /**
  * Created by dds on 2018/7/26.
  * 多人通话界面
@@ -32,10 +34,13 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
     private Handler handler = new Handler(Looper.getMainLooper());
     private ImageView meetingHangupImageView;
     private CallSession.CallSessionCallback currentFragment;
+    public static final String EXTRA_MO = "isOutGoing";
+    private boolean isOutgoing;
 
-    public static void openActivity(Activity activity, String room) {
+    public static void openActivity(Activity activity, String room, boolean isOutgoing) {
         Intent intent = new Intent(activity, CallMultiActivity.class);
         intent.putExtra("room", room);
+        intent.putExtra(EXTRA_MO, isOutgoing);
         activity.startActivity(intent);
     }
 
@@ -66,6 +71,7 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
     private void initData() {
         Intent intent = getIntent();
         String room = intent.getStringExtra("room");
+        isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
         try {
             gEngineKit = SkyEngineKit.Instance();
         } catch (NotInitializedException e) {
@@ -75,7 +81,7 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
         Permissions.request(this, per, integer -> {
             if (integer == 0) {
                 // 权限同意
-                init(room);
+                init(room, isOutgoing);
             } else {
                 // 权限拒绝
                 CallMultiActivity.this.finish();
@@ -85,10 +91,17 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
 
     }
 
-    private void init(String room) {
+    private void init(String room, boolean isOutgoing) {
         SkyEngineKit.init(new VoipEvent());
-        // 加入房间
-        gEngineKit.joinRoom(this, room);
+        if (isOutgoing) {
+            // 创建一个房间并进入
+            gEngineKit.createAndJoinRoom(this,
+                    "room-" + UUID.randomUUID().toString().substring(0, 16));
+        } else {
+            // 加入房间
+            gEngineKit.joinRoom(this, room);
+        }
+
 
         CallSession session = gEngineKit.getCurrentSession();
         if (session == null) {
