@@ -92,7 +92,13 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
 
     @Override
     public void didReceiveRemoteVideoTrack(String userId) {
-
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false);
+        if (surfaceView != null) {
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(200, 280);
+            layoutParams.leftMargin = 200;
+            surfaceView.setLayoutParams(layoutParams);
+            meeting_item_container.addView(surfaceView);
+        }
     }
 
     @Override
