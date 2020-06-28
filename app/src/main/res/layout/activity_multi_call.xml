@@ -10,7 +10,8 @@
         android:id="@+id/meeting_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3" />
+        android:layout_weight="3"
+        android:background="@color/av_bg_call_black" />
 
     <include
         layout="@layout/av_p2p_meeting_action"

@@ -4,5 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.dds.core.voip.NineGridView
+        android:id="@+id/grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

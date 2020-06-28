@@ -39,7 +39,7 @@
                 android:layout_height="60dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ac_default_header" />
+                android:src="@drawable/av_default_header" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
