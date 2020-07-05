@@ -231,6 +231,11 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
     }
 
     @Override
+    public void didUserLeave(String userId) {
+
+    }
+
+    @Override
     public void didError(String error) {
 
     }

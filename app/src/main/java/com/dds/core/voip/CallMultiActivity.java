@@ -163,6 +163,11 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
     }
 
     @Override
+    public void didUserLeave(String userId) {
+        handler.post(() -> currentFragment.didUserLeave(userId));
+    }
+
+    @Override
     public void didError(String var1) {
         finish();
     }

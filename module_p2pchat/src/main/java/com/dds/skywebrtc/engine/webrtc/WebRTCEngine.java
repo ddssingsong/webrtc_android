@@ -183,7 +183,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peer.close();
             peers.remove(userId);
         }
-
         if (peers.size() == 0) {
             if (mCallback != null) {
                 mCallback.exitRoom();

@@ -171,6 +171,11 @@ public class FloatingVoipService extends Service {
             }
 
             @Override
+            public void didUserLeave(String userId) {
+
+            }
+
+            @Override
             public void didError(String error) {
                 hideFloatBox();
             }

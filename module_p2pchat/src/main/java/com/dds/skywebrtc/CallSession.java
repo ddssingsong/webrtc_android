@@ -38,7 +38,9 @@ public class CallSession implements EngineCallback {
     // 房间Id
     private String mRoomId;
     // myId
-    private String mMyId;
+    public String mMyId;
+    // 房间大小
+    private int mRoomSize;
 
     private boolean mIsComing;
     private EnumType.CallState _callState = EnumType.CallState.Idle;
@@ -208,6 +210,7 @@ public class CallSession implements EngineCallback {
     // 加入房间成功
     public void onJoinHome(String myId, String users, int roomSize) {
         // 开始计时
+        mRoomSize = roomSize;
         startTime = 0;
         handler.post(() -> executor.execute(() -> {
             mMyId = myId;
@@ -318,7 +321,14 @@ public class CallSession implements EngineCallback {
 
     // 对方离开房间
     public void onLeave(String userId) {
+        if (mRoomSize > 2) {
+            // 返回到界面上
+            if (sessionCallback.get() != null) {
+                sessionCallback.get().didUserLeave(userId);
+            }
+        }
         executor.execute(() -> iEngine.leaveRoom(userId));
+
 
     }
 
@@ -401,7 +411,10 @@ public class CallSession implements EngineCallback {
     @Override
     public void exitRoom() {
         // 状态设置为Idle
-        handler.post(this::release);
+        if (mRoomSize == 2) {
+            handler.post(this::release);
+        }
+
 
     }
 
@@ -462,7 +475,11 @@ public class CallSession implements EngineCallback {
 
         void didReceiveRemoteVideoTrack(String userId);
 
+        void didUserLeave(String userId);
+
         void didError(String error);
 
     }
+
+
 }

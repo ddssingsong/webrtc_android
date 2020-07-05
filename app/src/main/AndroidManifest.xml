@@ -45,7 +45,6 @@
 
 
         <activity android:name="com.dds.core.MainActivity" />
-        <activity android:name="com.dds.core.JavaActivity" />
 
         <!-- ======================java====================== -->
         <activity

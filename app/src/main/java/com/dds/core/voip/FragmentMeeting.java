@@ -84,8 +84,8 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
     public void didCreateLocalVideoTrack() {
         View surfaceView = gEngineKit.getCurrentSession().setupLocalVideo(true);
         if (surfaceView != null) {
-            grid_view.addSurfaceView(surfaceView);
-
+            CallSession callSession = SkyEngineKit.Instance().getCurrentSession();
+            grid_view.addView(callSession.mMyId, surfaceView);
 
 
         }
@@ -96,8 +96,13 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
     public void didReceiveRemoteVideoTrack(String userId) {
         View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, true);
         if (surfaceView != null) {
-            grid_view.addSurfaceView(surfaceView);
+            grid_view.addView(userId, surfaceView);
         }
+    }
+
+    @Override
+    public void didUserLeave(String userId) {
+        grid_view.removeView(userId);
     }
 
     @Override

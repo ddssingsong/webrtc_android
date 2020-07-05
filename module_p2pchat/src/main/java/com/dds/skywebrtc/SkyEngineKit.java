@@ -160,7 +160,6 @@ public class SkyEngineKit {
         if (mCurrentCallSession != null) {
             mCurrentCallSession.leave();
             mCurrentCallSession.setCallState(EnumType.CallState.Idle);
-            mCurrentCallSession.exitRoom();
         }
     }
 
