@@ -23,13 +23,13 @@ import javax.net.ssl.X509TrustManager;
  * Created by dds on 2019/7/26.
  * android_shuai@163.com
  */
-public class DWebSocket extends WebSocketClient {
+public class MyWebSocket extends WebSocketClient {
     private final static String TAG = "dds_WebSocket";
     private IEvent iEvent;
     private boolean connectFlag = false;
 
 
-    public DWebSocket(URI serverUri, IEvent event) {
+    public MyWebSocket(URI serverUri, IEvent event) {
         super(serverUri);
         this.iEvent = event;
     }

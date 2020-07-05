@@ -16,7 +16,6 @@ import java.util.List;
 public class UserListViewModel extends ViewModel {
 
     private MutableLiveData<List<UserBean>> mList;
-    private Thread thread;
 
     public LiveData<List<UserBean>> getUserList() {
         if (mList == null) {
@@ -29,21 +28,22 @@ public class UserListViewModel extends ViewModel {
 
     // 获取远程用户列表
     public void loadUsers() {
-        thread = new Thread(() -> {
+        Thread thread = new Thread(() -> {
             String url = Urls.getUserList();
-            HttpRequestPresenter.getInstance().get(url, null, new ICallback() {
-                @Override
-                public void onSuccess(String result) {
-                    Log.d("dds_test", result);
-                    List<UserBean> userBeans = JSON.parseArray(result, UserBean.class);
-                    mList.postValue(userBeans);
-                }
+            HttpRequestPresenter.getInstance()
+                    .get(url, null, new ICallback() {
+                        @Override
+                        public void onSuccess(String result) {
+                            Log.d("dds_test", result);
+                            List<UserBean> userBeans = JSON.parseArray(result, UserBean.class);
+                            mList.postValue(userBeans);
+                        }
 
-                @Override
-                public void onFailure(int code, Throwable t) {
-                    Log.d("dds_test", "code:" + code + ",msg:" + t.toString());
-                }
-            });
+                        @Override
+                        public void onFailure(int code, Throwable t) {
+                            Log.d("dds_test", "code:" + code + ",msg:" + t.toString());
+                        }
+                    });
         });
         thread.start();
 

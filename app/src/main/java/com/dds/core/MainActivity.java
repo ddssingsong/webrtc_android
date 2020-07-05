@@ -15,6 +15,9 @@ import com.dds.core.socket.SocketManager;
 import com.dds.webrtc.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+/**
+ * 主界面
+ */
 public class MainActivity extends AppCompatActivity implements IUserState {
 
     @Override
@@ -26,13 +29,10 @@ public class MainActivity extends AppCompatActivity implements IUserState {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_user, R.id.navigation_room, R.id.navigation_setting)
                 .build();
-
         // 設置ActionBar跟随联动
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         // 设置Nav跟随联动
         NavigationUI.setupWithNavController(navView, navController);
-
-
         // 设置登录状态回调
         SocketManager.getInstance().addUserStateCallback(this);
 
@@ -50,12 +50,6 @@ public class MainActivity extends AppCompatActivity implements IUserState {
             startActivity(intent);
             this.finish();
         }
-
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
 }

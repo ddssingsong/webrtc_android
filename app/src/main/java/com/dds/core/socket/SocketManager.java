@@ -28,7 +28,7 @@ import javax.net.ssl.TrustManager;
  */
 public class SocketManager implements IEvent {
     private final static String TAG = "dds_SocketManager";
-    private DWebSocket webSocket;
+    private MyWebSocket webSocket;
     private int userState;
     private String myId;
 
@@ -58,13 +58,13 @@ public class SocketManager implements IEvent {
                 e.printStackTrace();
                 return;
             }
-            webSocket = new DWebSocket(uri, this);
+            webSocket = new MyWebSocket(uri, this);
             // 设置wss
             if (url.startsWith("wss")) {
                 try {
                     SSLContext sslContext = SSLContext.getInstance("TLS");
                     if (sslContext != null) {
-                        sslContext.init(null, new TrustManager[]{new DWebSocket.TrustManagerTest()}, new SecureRandom());
+                        sslContext.init(null, new TrustManager[]{new MyWebSocket.TrustManagerTest()}, new SecureRandom());
                     }
 
                     SSLSocketFactory factory = null;

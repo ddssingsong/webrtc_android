@@ -29,13 +29,14 @@ import java.util.UUID;
  * Created by dds on 2018/7/26.
  * 多人通话界面
  */
-public class CallMultiActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
+public class CallMultiActivity extends AppCompatActivity implements CallSession.CallSessionCallback, View.OnClickListener {
     private SkyEngineKit gEngineKit;
     private Handler handler = new Handler(Looper.getMainLooper());
     private ImageView meetingHangupImageView;
     private CallSession.CallSessionCallback currentFragment;
     public static final String EXTRA_MO = "isOutGoing";
     private boolean isOutgoing;
+
 
     public static void openActivity(Activity activity, String room, boolean isOutgoing) {
         Intent intent = new Intent(activity, CallMultiActivity.class);
@@ -54,18 +55,23 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
         getWindow().getDecorView().setSystemUiVisibility(getSystemUiVisibility());
         setContentView(R.layout.activity_multi_call);
         initView();
+        initListener();
         initData();
     }
 
+
     private void initView() {
         meetingHangupImageView = findViewById(R.id.meetingHangupImageView);
-
         Fragment fragment = new FragmentMeeting();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .add(R.id.meeting_container, fragment)
                 .commit();
         currentFragment = (CallSession.CallSessionCallback) fragment;
+    }
+
+    private void initListener() {
+        meetingHangupImageView.setOnClickListener(this);
     }
 
     private void initData() {
@@ -159,5 +165,21 @@ public class CallMultiActivity extends AppCompatActivity implements CallSession.
     @Override
     public void didError(String var1) {
         finish();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.meetingHangupImageView:
+                handleHangup();
+                break;
+        }
+
+    }
+
+    // 处理挂断事件
+    private void handleHangup() {
+        SkyEngineKit.Instance().leaveRoom();
+        this.finish();
     }
 }

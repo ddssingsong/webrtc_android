@@ -162,7 +162,6 @@ public class SkyEngineKit {
             mCurrentCallSession.setCallState(EnumType.CallState.Idle);
             mCurrentCallSession.exitRoom();
         }
-
     }
 
 

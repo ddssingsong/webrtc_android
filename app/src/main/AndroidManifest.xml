@@ -28,9 +28,9 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
-        <activity android:name="com.dds.core.MainActivity" />
-        <activity android:name="com.dds.core.voip.CallMultiActivity" />
+        android:usesCleartextTraffic="true"
+        tools:ignore="UnusedAttribute">
+
         <activity
             android:name="com.dds.LauncherActivity"
             android:label="@string/app_name"
@@ -42,7 +42,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.dds.core.JavaActivity" /> <!-- ======================java====================== -->
+
+
+        <activity android:name="com.dds.core.MainActivity" />
+        <activity android:name="com.dds.core.JavaActivity" />
+
+        <!-- ======================java====================== -->
         <activity
             android:name="com.dds.core.voip.CallSingleActivity"
             android:screenOrientation="portrait"
@@ -57,11 +62,19 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.dds.core.voip.CallMultiActivity"
+            android:screenOrientation="portrait"
+            android:showOnLockScreen="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <receiver android:name="com.dds.core.voip.VoipReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
             </intent-filter>
-        </receiver> <!-- 悬浮窗 -->
+        </receiver>
+
+        <!-- 悬浮窗 -->
         <service
             android:name="com.dds.core.voip.FloatingVoipService"
             android:enabled="true"
