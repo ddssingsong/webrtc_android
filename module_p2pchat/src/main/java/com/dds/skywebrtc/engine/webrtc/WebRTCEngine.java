@@ -377,14 +377,13 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
                 .createIceServer();
         iceServers.add(var1);
 
-
-        PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:47.93.186.97:3478?transport=udp")
+        PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:42.192.40.58:3478?transport=udp")
                 .createIceServer();
-        PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:47.93.186.97:3478?transport=udp")
+        PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=udp")
                 .setUsername("ddssingsong")
                 .setPassword("123456")
                 .createIceServer();
-        PeerConnection.IceServer var13 = PeerConnection.IceServer.builder("turn:47.93.186.97:3478?transport=tcp")
+        PeerConnection.IceServer var13 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=tcp")
                 .setUsername("ddssingsong")
                 .setPassword("123456")
                 .createIceServer();

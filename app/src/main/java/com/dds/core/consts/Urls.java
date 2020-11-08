@@ -7,7 +7,7 @@ package com.dds.core.consts;
 public class Urls {
 
     //    private final static String IP = "192.168.2.111";
-    public final static String IP = "47.93.186.97:5000";
+    public final static String IP = "42.192.40.58:5000";
 
     private final static String HOST = "http://" + IP + "/";
 

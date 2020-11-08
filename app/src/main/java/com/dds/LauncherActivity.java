@@ -51,8 +51,12 @@ public class LauncherActivity extends AppCompatActivity implements IUserState {
             Toast.makeText(this, "please input your name", Toast.LENGTH_LONG).show();
             return;
         }
+
+        // 设置用户名
         App.getInstance().setUsername(username);
+        // 添加登录回调
         SocketManager.getInstance().addUserStateCallback(this);
+        // 连接socket:登录
         SocketManager.getInstance().connect(Urls.WS, username, 0);
 
 
