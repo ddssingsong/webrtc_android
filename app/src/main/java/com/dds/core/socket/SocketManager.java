@@ -257,7 +257,7 @@ public class SocketManager implements IEvent {
         handler.post(() -> {
             CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
-                currentSession.onRefuse(userId);
+                currentSession.onRefuse(userId,type);
             }
         });
 

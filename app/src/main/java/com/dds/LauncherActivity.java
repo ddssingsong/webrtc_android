@@ -17,7 +17,7 @@ import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
 import com.dds.webrtc.R;
 
-public class LauncherActivity extends AppCompatActivity implements IUserState {
+public class LauncherActivity extends BaseActivity implements IUserState {
     private Toolbar toolbar;
     private EditText etUser;
     private Button button8;

@@ -33,6 +33,29 @@ public class SkyEngineKit {
         }
     }
 
+    public boolean sendRefuseOnPermissionDenied(String room, String inviteId) {
+        // 未初始化
+        if (avEngineKit == null) {
+            Log.e(TAG, "startOutCall error,please init first");
+            return false;
+        }
+        if (mCurrentCallSession != null) {
+            endCall();
+        } else {
+            avEngineKit.mEvent.sendRefuse(room, inviteId, EnumType.RefuseType.Hangup.ordinal());
+        }
+        return true;
+    }
+
+    public boolean sendDisconnected(String room, String toId) {
+        // 未初始化
+        if (avEngineKit == null) {
+            Log.e(TAG, "startOutCall error,please init first");
+            return false;
+        }
+        avEngineKit.mEvent.sendDisConnect(room, toId);
+        return true;
+    }
 
     // 拨打电话
     public boolean startOutCall(Context context,
@@ -60,6 +83,7 @@ public class SkyEngineKit {
 
         return true;
     }
+
 
     // 接听电话
     public boolean startInCall(Context context,
@@ -93,6 +117,7 @@ public class SkyEngineKit {
 
     // 挂断会话
     public void endCall() {
+        Log.d(TAG, "endCall mCurrentCallSession != null is " + (mCurrentCallSession != null));
         if (mCurrentCallSession != null) {
             // 停止响铃
             mCurrentCallSession.shouldStopRing();

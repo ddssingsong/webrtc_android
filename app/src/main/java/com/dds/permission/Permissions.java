@@ -83,7 +83,7 @@ public class Permissions {
         }
     }
 
-    private static boolean has(Context activity, String... permissions) {
+    public static boolean has(Context activity, String... permissions) {
         List<String> mPermissionListDenied = new ArrayList<>();
         for (String permission : permissions) {
             int result = checkPermission(activity, permission);

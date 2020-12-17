@@ -17,9 +17,11 @@
         android:layout_width="100dp"
         android:layout_height="140dp"
         android:layout_gravity="top|end"
-        android:layout_margin="10dp" />
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp" />
 
     <RelativeLayout
+        android:id="@+id/lytParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent">
@@ -28,7 +30,10 @@
             android:id="@+id/inviteeInfoContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:visibility="visible">
@@ -100,6 +105,15 @@
             android:layout_alignParentBottom="true"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="130dp"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
     </RelativeLayout>
 
 </FrameLayout>

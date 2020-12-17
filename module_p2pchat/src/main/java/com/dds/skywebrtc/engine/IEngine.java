@@ -26,8 +26,18 @@ public interface IEngine {
      */
     void userIn(String userId);
 
+    /**
+     * 用户拒绝
+     * @param userId
+     * @param type
+     */
+    void userReject(String userId,int type);
 
-    void userReject(String userId);
+    /**
+     * 用户网络断开
+     * @param userId
+     */
+    void disconnected(String userId);
 
 
     /**
