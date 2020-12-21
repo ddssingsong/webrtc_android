@@ -1,19 +1,26 @@
 package com.dds.core.voip;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.dds.core.util.OSUtils;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
@@ -36,7 +43,8 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     private ImageView speakerImageView;
     private ImageView incomingHangupImageView;
     private ImageView acceptImageView;
-
+    private TextView tvStatus;
+    private LinearLayout lytParent;
 
     private SkyEngineKit gEngineKit;
 
@@ -73,6 +81,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     }
 
     private void initView(View view) {
+        lytParent = view.findViewById(R.id.lytParent);
         minimizeImageView = view.findViewById(R.id.minimizeImageView);
         portraitImageView = view.findViewById(R.id.portraitImageView);
         nameTextView = view.findViewById(R.id.nameTextView);
@@ -83,7 +92,7 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         speakerImageView = view.findViewById(R.id.speakerImageView);
         incomingHangupImageView = view.findViewById(R.id.incomingHangupImageView);
         acceptImageView = view.findViewById(R.id.acceptImageView);
-
+        tvStatus = view.findViewById(R.id.tvStatus);
         outgoingActionContainer = view.findViewById(R.id.outgoingActionContainer);
         incomingActionContainer = view.findViewById(R.id.incomingActionContainer);
 
@@ -95,6 +104,15 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         minimizeImageView.setOnClickListener(this);
 
         durationTextView.setVisibility(View.GONE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || OSUtils.isMiui() || OSUtils.isFlyme()) {
+            lytParent.post(() -> {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) minimizeImageView.getLayoutParams();
+                params.topMargin = com.dds.core.util.Utils.getStatusBarHeight();
+                minimizeImageView.setLayoutParams(params);
+
+            });
+        }
     }
 
     private void init() {
@@ -129,7 +147,39 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
     // ======================================界面回调================================
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason callEndReason) {
-
+        switch (callEndReason) {
+            case Busy:
+                tvStatus.setText("对方忙线中");
+                break;
+            case SignalError:
+                tvStatus.setText("信号差");
+                break;
+            case Hangup:
+                tvStatus.setText("挂断");
+                break;
+            case MediaError:
+                tvStatus.setText("媒体错误");
+                break;
+            case RemoteHangup:
+                tvStatus.setText("对方挂断");
+                break;
+            case OpenCameraFailure:
+                tvStatus.setText("打开摄像头错误");
+                break;
+            case Timeout:
+                tvStatus.setText("超时");
+                break;
+            case AcceptByOtherClient:
+                tvStatus.setText("在其它设备接听");
+                break;
+        }
+        incomingActionContainer.setVisibility(View.GONE);
+        outgoingActionContainer.setVisibility(View.GONE);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (activity != null) {
+                activity.finish();
+            }
+        }, 1500);
     }
 
     @Override
@@ -179,6 +229,15 @@ public class FragmentAudio extends Fragment implements CallSession.CallSessionCa
         }
     }
 
+    //    public void onBackPressed() {
+//        CallSession session = gEngineKit.getCurrentSession();
+//        if (session != null) {
+//            SkyEngineKit.Instance().endCall();
+//            activity.finish();
+//        } else {
+//            activity.finish();
+//        }
+//    }
     @Override
     public void onClick(View v) {
         int id = v.getId();

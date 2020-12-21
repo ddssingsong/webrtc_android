@@ -9,6 +9,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.dds.BaseActivity;
 import com.dds.LauncherActivity;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
@@ -18,7 +19,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 /**
  * 主界面
  */
-public class MainActivity extends AppCompatActivity implements IUserState {
+public class MainActivity extends BaseActivity implements IUserState {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

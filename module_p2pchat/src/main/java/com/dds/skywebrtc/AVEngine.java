@@ -53,11 +53,19 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public void userReject(String userId) {
+    public void userReject(String userId, int type) {
         if (iEngine == null) {
             return;
         }
-        iEngine.userReject(userId);
+        iEngine.userReject(userId, type);
+    }
+
+    @Override
+    public void disconnected(String userId) {
+        if (iEngine == null) {
+            return;
+        }
+        iEngine.disconnected(userId);
     }
 
     @Override

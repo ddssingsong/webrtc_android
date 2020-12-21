@@ -68,5 +68,9 @@ dependencies {
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     implementation 'com.alibaba:fastjson:1.1.64.android'
 
+    //强大的弹窗库
+    implementation 'com.lxj:xpopup:2.2.0'
+//    implementation 'com.lxj:easyadapter:1.2.2'
+
 
 }

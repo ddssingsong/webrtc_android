@@ -136,8 +136,26 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public void userReject(String userId) {
+    public void userReject(String userId, int type) {
+        //拒绝接听userId应该是没有添加进peers里去不需要remove
+//       Peer peer = peers.get(userId);
+//        if (peer != null) {
+//            peer.close();
+//            peers.remove(userId);
+//        }
+//        if (peers.size() == 0) {
 
+        if (mCallback != null) {
+            mCallback.reject(type);
+        }
+//        }
+    }
+
+    @Override
+    public void disconnected(String userId) {
+        if (mCallback != null) {
+            mCallback.disconnected();
+        }
     }
 
     @Override

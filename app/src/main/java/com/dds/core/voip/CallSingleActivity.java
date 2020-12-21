@@ -5,11 +5,14 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -17,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.dds.App;
+import com.dds.BaseActivity;
 import com.dds.permission.Permissions;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
@@ -31,17 +36,18 @@ import java.util.UUID;
  * Created by dds on 2018/7/26.
  * 单人通话界面
  */
-public class CallSingleActivity extends AppCompatActivity implements CallSession.CallSessionCallback {
+public class CallSingleActivity extends BaseActivity implements CallSession.CallSessionCallback {
 
     public static final String EXTRA_TARGET = "targetId";
     public static final String EXTRA_MO = "isOutGoing";
     public static final String EXTRA_AUDIO_ONLY = "audioOnly";
     public static final String EXTRA_FROM_FLOATING_VIEW = "fromFloatingView";
+    private static final String TAG = "CallSingleActivity";
 
     private Handler handler = new Handler(Looper.getMainLooper());
     private boolean isOutgoing;
     private String targetId;
-    private boolean isAudioOnly;
+    boolean isAudioOnly;
     private boolean isFromFloatingView;
 
     private SkyEngineKit gEngineKit;
@@ -68,12 +74,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //全屏+锁屏+常亮显示
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        getWindow().getDecorView().setSystemUiVisibility(getSystemUiVisibility());
+        setStatusBarOrScreenStatus(this);
         setContentView(R.layout.activity_single_call);
 
         try {
@@ -86,6 +87,7 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         isFromFloatingView = intent.getBooleanExtra(EXTRA_FROM_FLOATING_VIEW, false);
         isOutgoing = intent.getBooleanExtra(EXTRA_MO, false);
         isAudioOnly = intent.getBooleanExtra(EXTRA_AUDIO_ONLY, false);
+
         if (isFromFloatingView) {
             Intent serviceIntent = new Intent(this, FloatingVoipService.class);
             stopService(serviceIntent);
@@ -99,16 +101,32 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
                 per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
             }
             Permissions.request(this, per, integer -> {
+                Log.d(TAG, "Permissions.request integer = " + integer);
                 if (integer == 0) {
                     // 权限同意
                     init(targetId, isOutgoing, isAudioOnly, false);
                 } else {
+                    Toast.makeText(this, "权限被拒绝", Toast.LENGTH_SHORT).show();
                     // 权限拒绝
                     CallSingleActivity.this.finish();
                 }
             });
         }
 
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        //通话时不能按返回键，跟微信同现象，只能挂断结束或者接听
+//        super.onBackPressed();
+//        if (currentFragment != null) {
+//            if (currentFragment instanceof FragmentAudio) {
+//                ((FragmentAudio) currentFragment).onBackPressed();
+//            } else if (currentFragment instanceof FragmentVideo) {
+//                ((FragmentVideo) currentFragment).onBackPressed();
+//            }
+//        }
 
     }
 
@@ -119,8 +137,8 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
         } else {
             fragment = new FragmentVideo();
         }
-        currentFragment = (CallSession.CallSessionCallback) fragment;
         FragmentManager fragmentManager = getSupportFragmentManager();
+        currentFragment = (CallSession.CallSessionCallback) fragment;
         if (isReplace) {
             fragmentManager.beginTransaction()
                     .replace(android.R.id.content, fragment)
@@ -138,6 +156,8 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
                 finish();
                 return;
             }
+            App.getInstance().setRoomId(room);
+            App.getInstance().setOtherUserId(targetId);
             CallSession session = gEngineKit.getCurrentSession();
             if (session == null) {
                 finish();
@@ -192,8 +212,10 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     // ======================================界面回调================================
     @Override
-    public void didCallEndWithReason(EnumType.CallEndReason var1) {
-        finish();
+    public void didCallEndWithReason(EnumType.CallEndReason reason) {
+        //交给fragment去finish
+//        finish();
+        handler.post(() -> currentFragment.didCallEndWithReason(reason));
     }
 
     @Override
@@ -247,11 +269,42 @@ public class CallSingleActivity extends AppCompatActivity implements CallSession
 
     @TargetApi(19)
     private static int getSystemUiVisibility() {
-        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
         return flags;
+    }
+
+    /**
+     * 设置状态栏透明
+     */
+    @TargetApi(19)
+    public void setStatusBarOrScreenStatus(Activity activity) {
+        Window window = activity.getWindow();
+        //全屏+锁屏+常亮显示
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        window.getDecorView().setSystemUiVisibility(getSystemUiVisibility());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+            layoutParams.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            window.setAttributes(layoutParams);
+        }
+        // 5.0以上系统状态栏透明
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //清除透明状态栏
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            //设置状态栏颜色必须添加
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);//设置透明
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //19
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
     }
 
     @Override

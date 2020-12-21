@@ -20,6 +20,15 @@ public interface EngineCallback {
      */
     void exitRoom();
 
+    /**
+     * 拒绝连接
+     * @param type
+     */
+    void reject(int type);
+
+
+    void disconnected();
+
     void onSendIceCandidate(String userId, IceCandidate candidate);
 
     void onSendOffer(String userId, SessionDescription description);

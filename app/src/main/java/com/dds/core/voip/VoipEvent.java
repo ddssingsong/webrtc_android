@@ -2,6 +2,7 @@ package com.dds.core.voip;
 
 import android.media.AudioManager;
 import android.net.Uri;
+import android.util.Log;
 
 import com.dds.App;
 import com.dds.core.socket.SocketManager;
@@ -15,6 +16,7 @@ import java.util.List;
  * android_shuai@163.com
  */
 public class VoipEvent implements ISkyEvent {
+    private static final String TAG = "VoipEvent";
     private AsyncPlayer ringPlayer;
 
     public VoipEvent() {
@@ -100,6 +102,7 @@ public class VoipEvent implements ISkyEvent {
 
     @Override
     public void shouldStopRing() {
+        Log.d(TAG, "shouldStopRing begin");
         ringPlayer.stop();
     }
 }

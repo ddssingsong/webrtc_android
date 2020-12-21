@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.dds.BaseActivity;
 import com.dds.permission.Permissions;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
@@ -29,7 +30,7 @@ import java.util.UUID;
  * Created by dds on 2018/7/26.
  * 多人通话界面
  */
-public class CallMultiActivity extends AppCompatActivity implements CallSession.CallSessionCallback, View.OnClickListener {
+public class CallMultiActivity extends BaseActivity implements CallSession.CallSessionCallback, View.OnClickListener {
     private SkyEngineKit gEngineKit;
     private Handler handler = new Handler(Looper.getMainLooper());
     private ImageView meetingHangupImageView;

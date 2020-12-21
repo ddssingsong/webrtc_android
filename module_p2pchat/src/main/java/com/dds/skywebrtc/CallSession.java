@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
  * 会话层
  */
 public class CallSession implements EngineCallback {
+    private static final String TAG = "CallSession";
     private WeakReference<CallSessionCallback> sessionCallback;
     private ExecutorService executor;
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -91,6 +92,7 @@ public class CallSession implements EngineCallback {
 
     // 关闭响铃
     public void shouldStopRing() {
+        Log.d(TAG, "shouldStopRing mEvent != null is " + (mEvent != null));
         if (mEvent != null) {
             mEvent.shouldStopRing();
         }
@@ -148,7 +150,7 @@ public class CallSession implements EngineCallback {
             }
         });
         // 释放变量
-        release();
+        release(EnumType.CallEndReason.Hangup);
 
     }
 
@@ -191,7 +193,7 @@ public class CallSession implements EngineCallback {
     }
 
     // 释放资源
-    private void release() {
+    private void release(EnumType.CallEndReason reason) {
         executor.execute(() -> {
             // 释放内容
             iEngine.release();
@@ -200,7 +202,7 @@ public class CallSession implements EngineCallback {
 
             //界面回调
             if (sessionCallback.get() != null) {
-                sessionCallback.get().didCallEndWithReason(null);
+                sessionCallback.get().didCallEndWithReason(reason);
             }
         });
     }
@@ -268,8 +270,8 @@ public class CallSession implements EngineCallback {
     }
 
     // 对方已拒绝
-    public void onRefuse(String userId) {
-        iEngine.userReject(userId);
+    public void onRefuse(String userId, int type) {
+        iEngine.userReject(userId, type);
     }
 
     // 对方已响铃
@@ -290,12 +292,16 @@ public class CallSession implements EngineCallback {
 
     // 对方网络断开
     public void onDisConnect(String userId) {
-
+        executor.execute(() -> {
+            iEngine.disconnected(userId);
+        });
     }
 
     // 对方取消拨出
     public void onCancel(String userId) {
-        release();
+        Log.d(TAG, "onCancel userId = " + userId);
+        shouldStopRing();
+        release(EnumType.CallEndReason.RemoteHangup);
     }
 
     public void onReceiveOffer(String userId, String description) {
@@ -412,10 +418,36 @@ public class CallSession implements EngineCallback {
     public void exitRoom() {
         // 状态设置为Idle
         if (mRoomSize == 2) {
-            handler.post(this::release);
+            handler.post(() -> {
+                release(EnumType.CallEndReason.Hangup);
+            });
         }
 
 
+    }
+
+    @Override
+    public void reject(int type) {
+        shouldStopRing();
+        handler.post(() -> {
+            switch (type) {
+                case 0:
+                    release(EnumType.CallEndReason.Busy);
+                    break;
+                case 1:
+                    release(EnumType.CallEndReason.RemoteHangup);
+                    break;
+
+            }
+            ;
+        });
+    }
+
+    @Override
+    public void disconnected() {
+        handler.post(() -> {
+            release(EnumType.CallEndReason.SignalError);
+        });
     }
 
     @Override
