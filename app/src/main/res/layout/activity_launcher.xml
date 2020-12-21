@@ -38,7 +38,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="The server side is written using Spring boot" />
+            android:text="The server side is written by Spring boot" />
 
         <Button
             android:id="@+id/button8"

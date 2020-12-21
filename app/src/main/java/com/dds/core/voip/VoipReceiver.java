@@ -13,8 +13,6 @@ import com.dds.core.util.ActivityStackManager;
 import com.dds.permission.Permissions;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnCancelListener;
-import com.lxj.xpopup.interfaces.OnConfirmListener;
 
 /**
  * Created by dds on 2019/8/25.
@@ -66,7 +64,8 @@ public class VoipReceiver extends BroadcastReceiver {
 
     }
 
-    private void onHasPermission(Context context, String room, String[] list, String inviteId, boolean isOutgoing, boolean audioOnly) {
+    private void onHasPermission(Context context, String room, String[] list,
+                                 String inviteId, boolean isOutgoing, boolean audioOnly) {
         boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
         if (b) {
             App.getInstance().setRoomId(room);
