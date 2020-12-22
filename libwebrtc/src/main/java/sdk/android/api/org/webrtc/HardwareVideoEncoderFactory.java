@@ -239,8 +239,7 @@ public class HardwareVideoEncoderFactory implements VideoEncoderFactory {
                 // Exynos H264 encoder is supported in LOLLIPOP or later.
                 (name.startsWith(EXYNOS_PREFIX) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ||
                 // dds_modify @ fix  华为手机无法硬编码的问题
-                (name.startsWith("OMX.google.") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                ;
+                (name.startsWith("OMX.google.") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
     }
 
     private boolean isMediaCodecAllowed(MediaCodecInfo info) {

@@ -3,13 +3,12 @@ package com.dds.core;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.dds.BaseActivity;
+import com.dds.core.base.BaseActivity;
 import com.dds.LauncherActivity;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;

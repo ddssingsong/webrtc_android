@@ -5,6 +5,7 @@ package com.dds.skywebrtc.model;
  * 用户信息
  */
 public class UserInfo {
+
     private String userId;
 
     public String getUserId() {

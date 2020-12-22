@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.dds.webrtc"
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.android.SDK_VERSION_CODE
+        versionName rootProject.ext.android.SDK_VERSION
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
@@ -16,7 +16,7 @@ android {
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters  'armeabi-v7a','x86'//, 'arm64-v8a'
+            abiFilters 'armeabi-v7a', 'x86'//, 'arm64-v8a'
         }
     }
 
@@ -33,9 +33,6 @@ android {
         }
     }
 
-    dataBinding {
-        enabled = true
-    }
 }
 
 dependencies {
@@ -51,15 +48,11 @@ dependencies {
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
-
-    // debug
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.3'
-
+    // 内存泄漏检测
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     // java
-    implementation project(path: ':module_p2pchat')
+    implementation project(path: ':rtc-chat')
 
 //  implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
     api project(path: ':libwebrtc')
@@ -69,7 +62,5 @@ dependencies {
 
     //强大的弹窗库
     implementation 'com.lxj:xpopup:2.2.0'
-//    implementation 'com.lxj:easyadapter:1.2.2'
-
 
 }

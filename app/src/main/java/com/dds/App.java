@@ -7,7 +7,6 @@ import com.dds.core.voip.VoipEvent;
 import com.dds.net.HttpRequestPresenter;
 import com.dds.net.urlconn.UrlConnRequest;
 import com.dds.skywebrtc.SkyEngineKit;
-import com.squareup.leakcanary.LeakCanary;
 
 /**
  * Created by dds on 2019/8/25.
@@ -25,10 +24,9 @@ public class App extends Application {
         super.onCreate();
         app = this;
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler());
-        // initLeakCanary();
         // 初始化网络请求
         HttpRequestPresenter.init(new UrlConnRequest());
-
+        // 初始化信令
         SkyEngineKit.init(new VoipEvent());
 
     }
@@ -59,12 +57,5 @@ public class App extends Application {
 
     public void setOtherUserId(String otherUserId) {
         this.otherUserId = otherUserId;
-    }
-
-    private void initLeakCanary() {
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
-        LeakCanary.install(this);
     }
 }

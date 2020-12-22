@@ -1,4 +1,4 @@
-package com.dds;
+package com.dds.core.base;
 
 import android.os.Bundle;
 

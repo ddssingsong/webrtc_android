@@ -1,0 +1,12 @@
+ext {
+    minSdkVersion = 19
+    targetSdkVersion = 29
+    compileSdkVersion = 29
+    buildToolsVersion = "28.0.3"
+
+    android = [
+            SDK_BASENAME    : "rtc-chat",
+            SDK_VERSION_CODE: VERSION_CODE as int,
+            SDK_VERSION     : VERSION_NAME
+    ]
+}

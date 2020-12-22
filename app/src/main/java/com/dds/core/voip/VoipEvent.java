@@ -33,7 +33,6 @@ public class VoipEvent implements ISkyEvent {
         SocketManager.getInstance().sendInvite(room, userIds, audioOnly);
     }
 
-
     @Override
     public void sendRefuse(String room, String inviteId, int refuseType) {
         SocketManager.getInstance().sendRefuse(room, inviteId, refuseType);

@@ -16,12 +16,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.dds.App;
-import com.dds.BaseActivity;
+import com.dds.core.base.BaseActivity;
 import com.dds.permission.Permissions;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
