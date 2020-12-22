@@ -10,7 +10,6 @@ import java.util.List;
  */
 public interface IEngine {
 
-
     /**
      * 初始化
      */
@@ -28,17 +27,16 @@ public interface IEngine {
 
     /**
      * 用户拒绝
-     * @param userId
-     * @param type
+     * @param userId userId
+     * @param type type
      */
     void userReject(String userId,int type);
 
     /**
      * 用户网络断开
-     * @param userId
+     * @param userId userId
      */
     void disconnected(String userId);
-
 
     /**
      * receive Offer
@@ -58,7 +56,7 @@ public interface IEngine {
     /**
      * 离开房间
      *
-     * @param userId
+     * @param userId userId
      */
     void leaveRoom(String userId);
 

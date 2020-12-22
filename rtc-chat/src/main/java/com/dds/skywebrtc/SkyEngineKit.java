@@ -7,6 +7,7 @@ import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.skywebrtc.inter.ISkyEvent;
 
 /**
+ * 主控类
  * Created by dds on 2019/8/19.
  */
 public class SkyEngineKit {
@@ -33,28 +34,27 @@ public class SkyEngineKit {
         }
     }
 
-    public boolean sendRefuseOnPermissionDenied(String room, String inviteId) {
+
+    public void sendRefuseOnPermissionDenied(String room, String inviteId) {
         // 未初始化
         if (avEngineKit == null) {
             Log.e(TAG, "startOutCall error,please init first");
-            return false;
+            return;
         }
         if (mCurrentCallSession != null) {
             endCall();
         } else {
             avEngineKit.mEvent.sendRefuse(room, inviteId, EnumType.RefuseType.Hangup.ordinal());
         }
-        return true;
     }
 
-    public boolean sendDisconnected(String room, String toId) {
+    public void sendDisconnected(String room, String toId) {
         // 未初始化
         if (avEngineKit == null) {
             Log.e(TAG, "startOutCall error,please init first");
-            return false;
+            return;
         }
         avEngineKit.mEvent.sendDisConnect(room, toId);
-        return true;
     }
 
     // 拨打电话
@@ -139,36 +139,34 @@ public class SkyEngineKit {
     }
 
     // 加入房间
-    public boolean joinRoom(Context context, String room) {
+    public void joinRoom(Context context, String room) {
         if (avEngineKit == null) {
             Log.e(TAG, "joinRoom error,init is not set");
-            return false;
+            return;
         }
         // 忙线中
         if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
             Log.e(TAG, "joinRoom error,currentCallSession is exist");
-            return false;
+            return;
         }
         mCurrentCallSession = new CallSession(context, room, false, mEvent);
         mCurrentCallSession.setIsComing(true);
         mCurrentCallSession.joinHome(room);
-        return true;
     }
 
-    public boolean createAndJoinRoom(Context context, String room) {
+    public void createAndJoinRoom(Context context, String room) {
         if (avEngineKit == null) {
             Log.e(TAG, "joinRoom error,init is not set");
-            return false;
+            return;
         }
         // 忙线中
         if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
             Log.e(TAG, "joinRoom error,currentCallSession is exist");
-            return false;
+            return;
         }
         mCurrentCallSession = new CallSession(context, room, false, mEvent);
         mCurrentCallSession.setIsComing(false);
         mCurrentCallSession.createHome(room, 9);
-        return true;
     }
 
     // 离开房间

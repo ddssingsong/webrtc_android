@@ -3,8 +3,6 @@ package com.dds.core.voip;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -163,13 +161,6 @@ public class FragmentVideo extends Fragment implements CallSession.CallSessionCa
             connectedActionContainer.setVisibility(View.VISIBLE);
             inviteeInfoContainer.setVisibility(View.GONE);
             minimizeImageView.setVisibility(View.VISIBLE);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || OSUtils.isMiui() || OSUtils.isFlyme()) {
-//                minimizeImageView.post(() -> {
-//                    RelativeLayout.LayoutParams params1 = (RelativeLayout.LayoutParams) minimizeImageView.getLayoutParams();
-//                    params1.topMargin = com.dds.core.util.Utils.getStatusBarHeight();
-//                    minimizeImageView.setLayoutParams(params1);
-//                });
-//            }
             startRefreshTime();
         } else {
             if (isOutgoing) {

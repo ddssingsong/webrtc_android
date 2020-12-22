@@ -22,10 +22,9 @@ public interface EngineCallback {
 
     /**
      * 拒绝连接
-     * @param type
+     * @param type type
      */
     void reject(int type);
-
 
     void disconnected();
 

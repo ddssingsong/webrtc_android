@@ -9,7 +9,7 @@ import java.util.List;
 
 public class AVEngine implements IEngine {
 
-    private IEngine iEngine;
+    private final IEngine iEngine;
     private static volatile AVEngine instance;
 
     private AVEngine(IEngine engine) {

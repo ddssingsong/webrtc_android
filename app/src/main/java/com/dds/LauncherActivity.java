@@ -1,6 +1,7 @@
 package com.dds;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -70,6 +71,16 @@ public class LauncherActivity extends BaseActivity implements IUserState {
 
     @Override
     public void userLogout() {
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            finishAfterTransition();
+        } else {
+            super.onBackPressed();
+        }
 
     }
 }
