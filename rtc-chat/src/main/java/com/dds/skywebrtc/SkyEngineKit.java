@@ -58,9 +58,7 @@ public class SkyEngineKit {
     }
 
     // 拨打电话
-    public boolean startOutCall(Context context,
-                                final String room,
-                                final String targetId,
+    public boolean startOutCall(Context context, final String room, final String targetId,
                                 final boolean audioOnly) {
         // 未初始化
         if (avEngineKit == null) {
@@ -84,11 +82,8 @@ public class SkyEngineKit {
         return true;
     }
 
-
     // 接听电话
-    public boolean startInCall(Context context,
-                               final String room,
-                               final String targetId,
+    public boolean startInCall(Context context, final String room, final String targetId,
                                final boolean audioOnly) {
         if (avEngineKit == null) {
             Log.e(TAG, "startInCall error,init is not set");
@@ -187,7 +182,6 @@ public class SkyEngineKit {
             mCurrentCallSession.setCallState(EnumType.CallState.Idle);
         }
     }
-
 
     // 获取对话实例
     public CallSession getCurrentSession() {

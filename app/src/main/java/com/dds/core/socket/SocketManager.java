@@ -32,16 +32,14 @@ public class SocketManager implements IEvent {
     private int userState;
     private String myId;
 
-
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     private SocketManager() {
 
     }
 
-
     private static class Holder {
-        private static SocketManager socketManager = new SocketManager();
+        private static final SocketManager socketManager = new SocketManager();
     }
 
     public static SocketManager getInstance() {
@@ -235,7 +233,7 @@ public class SocketManager implements IEvent {
             //自己进入了房间，然后开始发送offer
             CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
-                currentSession.onJoinHome(myId, connections,roomSize);
+                currentSession.onJoinHome(myId, connections, roomSize);
             }
         });
 
@@ -257,7 +255,7 @@ public class SocketManager implements IEvent {
         handler.post(() -> {
             CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
-                currentSession.onRefuse(userId,type);
+                currentSession.onRefuse(userId, type);
             }
         });
 

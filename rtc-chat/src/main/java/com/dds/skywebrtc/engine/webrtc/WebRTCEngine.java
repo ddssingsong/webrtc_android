@@ -497,9 +497,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     /**
      * 创建相机媒体流
-     *
-     * @param enumerator
-     * @return VideoCapturer
      */
     private VideoCapturer createCameraCapture(CameraEnumerator enumerator) {
         final String[] deviceNames = enumerator.getDeviceNames();

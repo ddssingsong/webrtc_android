@@ -1,6 +1,7 @@
 package com.dds.core;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.navigation.NavController;
@@ -8,8 +9,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.dds.core.base.BaseActivity;
 import com.dds.LauncherActivity;
+import com.dds.core.base.BaseActivity;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
 import com.dds.webrtc.R;
@@ -52,4 +53,13 @@ public class MainActivity extends BaseActivity implements IUserState {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            finishAfterTransition();
+        } else {
+            super.onBackPressed();
+        }
+
+    }
 }

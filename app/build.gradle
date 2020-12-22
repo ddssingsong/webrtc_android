@@ -51,15 +51,10 @@ dependencies {
     // 内存泄漏检测
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
-    // java
     implementation project(path: ':rtc-chat')
-
-//  implementation 'com.dds.skywebrtc:rtc-chat:0.0.1'
-    api project(path: ':libwebrtc')
-
+    // java
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     implementation 'com.alibaba:fastjson:1.2.23'
-
     //强大的弹窗库
     implementation 'com.lxj:xpopup:2.2.0'
 

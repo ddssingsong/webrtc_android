@@ -31,7 +31,7 @@ import java.util.UUID;
  */
 public class CallMultiActivity extends BaseActivity implements CallSession.CallSessionCallback, View.OnClickListener {
     private SkyEngineKit gEngineKit;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private ImageView meetingHangupImageView;
     private CallSession.CallSessionCallback currentFragment;
     public static final String EXTRA_MO = "isOutGoing";
