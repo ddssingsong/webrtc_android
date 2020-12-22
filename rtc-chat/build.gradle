@@ -29,3 +29,8 @@ dependencies {
     api project(path: ':libwebrtc')
 }
 
+// upload
+apply from: 'bintray.gradle'
+
+
+

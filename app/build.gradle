@@ -54,7 +54,7 @@ dependencies {
     // java
     implementation project(path: ':rtc-chat')
 
-//  implementation 'com.github.p2pchat:module_p2pchat:0.0.1'
+//  implementation 'com.dds.skywebrtc:rtc-chat:0.0.1'
     api project(path: ':libwebrtc')
 
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'

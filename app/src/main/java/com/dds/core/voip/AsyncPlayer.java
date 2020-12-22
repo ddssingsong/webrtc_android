@@ -30,7 +30,7 @@ public class AsyncPlayer {
         }
     }
 
-    private LinkedList mCmdQueue = new LinkedList();
+    private final LinkedList mCmdQueue = new LinkedList();
 
     private void startSound(Command cmd) {
 
