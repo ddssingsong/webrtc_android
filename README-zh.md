@@ -16,7 +16,7 @@
 ## 服务器搭建
 
 
-nodejs：https://github.com/ddssingsong/webrtc_server_node    for branch:branch_meeting(会议)
+nodejs：https://github.com/ddssingsong/webrtc_server_node    for branch:branch_nodejs(会议)
 
 java： https://github.com/ddssingsong/webrtc_server_java     for branch:master
 
