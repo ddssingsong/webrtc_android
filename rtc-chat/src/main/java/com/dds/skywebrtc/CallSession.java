@@ -77,6 +77,8 @@ public class CallSession implements EngineCallback {
     public void joinHome(String roomId) {
         executor.execute(() -> {
             _callState = EnumType.CallState.Connecting;
+             Log.d(TAG, "joinHome mEvent = " + mEvent);
+            setIsComing(true);
             if (mEvent != null) {
                 mEvent.sendJoin(roomId);
             }
@@ -116,7 +118,7 @@ public class CallSession implements EngineCallback {
                 mEvent.sendRefuse(mRoomId, mTargetId, EnumType.RefuseType.Hangup.ordinal());
             }
         });
-
+		release(EnumType.CallEndReason.Hangup);
     }
 
     // 发送忙时拒绝
@@ -127,6 +129,7 @@ public class CallSession implements EngineCallback {
                 mEvent.sendRefuse(room, targetId, EnumType.RefuseType.Busy.ordinal());
             }
         });
+		release(EnumType.CallEndReason.Hangup);
 
     }
 
@@ -140,6 +143,7 @@ public class CallSession implements EngineCallback {
                 mEvent.sendCancel(mRoomId, list);
             }
         });
+		release(EnumType.CallEndReason.Hangup);
 
     }
 
@@ -176,13 +180,18 @@ public class CallSession implements EngineCallback {
         return iEngine.toggleSpeaker(enable);
     }
 
+    // 设置扬声器
+    public boolean toggleHeadset(boolean isHeadset) {
+        return iEngine.toggleHeadset(isHeadset);
+    }
+
     // 切换到语音通话
     public void switchToAudio() {
         mIsAudioOnly = true;
         // 告诉远端
         sendTransAudio();
         // 本地切换
-        if (sessionCallback.get() != null) {
+        if (sessionCallback != null && sessionCallback.get() != null) {
             sessionCallback.get().didChangeMode(true);
         }
 
@@ -202,9 +211,11 @@ public class CallSession implements EngineCallback {
             _callState = EnumType.CallState.Idle;
 
             //界面回调
-            if (sessionCallback.get() != null) {
+            if (sessionCallback != null && sessionCallback.get() != null) {
                 sessionCallback.get().didCallEndWithReason(reason);
-            }
+            } else {
+				//TODO 结束会话
+			}
         });
     }
 
@@ -237,7 +248,7 @@ public class CallSession implements EngineCallback {
 
             if (!isAudioOnly()) {
                 // 画面预览
-                if (sessionCallback.get() != null) {
+                if (sessionCallback != null && sessionCallback.get() != null) {
                     sessionCallback.get().didCreateLocalVideoTrack();
                 }
 
@@ -261,7 +272,8 @@ public class CallSession implements EngineCallback {
             }
             // 更换界面
             _callState = EnumType.CallState.Connected;
-            if (sessionCallback.get() != null) {
+
+            if (sessionCallback != null && sessionCallback.get() != null) {
                 startTime = System.currentTimeMillis();
                 sessionCallback.get().didChangeState(_callState);
 
@@ -278,7 +290,8 @@ public class CallSession implements EngineCallback {
     // 对方已响铃
     public void onRingBack(String userId) {
         if (mEvent != null) {
-            mEvent.shouldStartRing(false);
+            mEvent.onRemoteRing();
+            //mEvent.shouldStartRing(false);
         }
     }
 
@@ -286,15 +299,15 @@ public class CallSession implements EngineCallback {
     public void onTransAudio(String userId) {
         mIsAudioOnly = true;
         // 本地切换
-        if (sessionCallback.get() != null) {
+        if (sessionCallback != null && sessionCallback.get() != null) {
             sessionCallback.get().didChangeMode(true);
         }
     }
 
     // 对方网络断开
-    public void onDisConnect(String userId) {
+    public void onDisConnect(String userId, EnumType.CallEndReason reason) {
         executor.execute(() -> {
-            iEngine.disconnected(userId);
+            iEngine.disconnected(userId, reason);
         });
     }
 
@@ -330,7 +343,7 @@ public class CallSession implements EngineCallback {
     public void onLeave(String userId) {
         if (mRoomSize > 2) {
             // 返回到界面上
-            if (sessionCallback.get() != null) {
+            if (sessionCallback != null && sessionCallback.get() != null) {
                 sessionCallback.get().didUserLeave(userId);
             }
         }
@@ -408,7 +421,8 @@ public class CallSession implements EngineCallback {
         }
         // 更换界面
         _callState = EnumType.CallState.Connected;
-        if (sessionCallback.get() != null) {
+        //Log.d(TAG, "joinRoomSucc, sessionCallback.get() = " + sessionCallback.get());
+        if (sessionCallback != null && sessionCallback.get() != null) {
             startTime = System.currentTimeMillis();
             sessionCallback.get().didChangeState(_callState);
 
@@ -420,7 +434,7 @@ public class CallSession implements EngineCallback {
         // 状态设置为Idle
         if (mRoomSize == 2) {
             handler.post(() -> {
-                release(EnumType.CallEndReason.Hangup);
+                release(EnumType.CallEndReason.RemoteHangup);
             });
         }
 
@@ -430,24 +444,25 @@ public class CallSession implements EngineCallback {
     @Override
     public void reject(int type) {
         shouldStopRing();
-        handler.post(() -> {
-            switch (type) {
-                case 0:
-                    release(EnumType.CallEndReason.Busy);
-                    break;
-                case 1:
-                    release(EnumType.CallEndReason.RemoteHangup);
-                    break;
+        Log.d(TAG, "reject type = " + type);
+//        handler.post(() -> {
+        switch (type) {
+            case 0:
+                release(EnumType.CallEndReason.Busy);
+                break;
+            case 1:
+                release(EnumType.CallEndReason.RemoteHangup);
+                break;
 
-            }
-            ;
-        });
+        }
+//        });
     }
 
     @Override
-    public void disconnected() {
+    public void disconnected(EnumType.CallEndReason reason) {
         handler.post(() -> {
-            release(EnumType.CallEndReason.SignalError);
+            shouldStopRing();
+            release(reason);
         });
     }
 
@@ -492,8 +507,22 @@ public class CallSession implements EngineCallback {
     @Override
     public void onRemoteStream(String userId) {
         // 画面预览
-        if (sessionCallback.get() != null) {
+        if (sessionCallback != null && sessionCallback.get() != null) {
+           Log.d(TAG, "onRemoteStream sessionCallback.get() != null ");
             sessionCallback.get().didReceiveRemoteVideoTrack(userId);
+        } else {
+            Log.d(TAG, "onRemoteStream sessionCallback.get() == null ");
+        }
+    }
+
+    @Override
+    public void onDisconnected(String userId) {
+        //断线了，需要关闭通话界面
+        if (sessionCallback != null && sessionCallback.get() != null) {
+           Log.d(TAG, "onDisconnected sessionCallback.get() != null ");
+            sessionCallback.get().didDisconnected(userId);
+        } else {
+            Log.d(TAG, "onDisconnected sessionCallback.get() == null ");
         }
     }
 
@@ -511,6 +540,8 @@ public class CallSession implements EngineCallback {
         void didUserLeave(String userId);
 
         void didError(String error);
+
+        void didDisconnected(String userId);
 
     }
 

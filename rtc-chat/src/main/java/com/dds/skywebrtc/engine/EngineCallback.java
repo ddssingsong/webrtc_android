@@ -1,5 +1,7 @@
 package com.dds.skywebrtc.engine;
 
+import com.dds.skywebrtc.EnumType;
+
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
 
@@ -26,7 +28,7 @@ public interface EngineCallback {
      */
     void reject(int type);
 
-    void disconnected();
+    void disconnected(EnumType.CallEndReason reason);
 
     void onSendIceCandidate(String userId, IceCandidate candidate);
 
@@ -35,5 +37,7 @@ public interface EngineCallback {
     void onSendAnswer(String userId, SessionDescription description);
 
     void onRemoteStream(String userId);
+
+    void onDisconnected(String userId);
 
 }

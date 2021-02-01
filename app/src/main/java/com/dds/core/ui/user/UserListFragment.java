@@ -113,12 +113,12 @@ public class UserListFragment extends Fragment {
                 holder.item_call_video.setVisibility(View.VISIBLE);
             }
             holder.item_call_video.setOnClickListener(view -> {
-                CallSingleActivity.openActivity(getContext(), userBean.getUserId(), true, false);
+                CallSingleActivity.openActivity(getContext(), userBean.getUserId(), true, userBean.getNickName(), false, false);
 
             });
             holder.item_call_audio.setOnClickListener(view -> {
                 SkyEngineKit.init(new VoipEvent());
-                CallSingleActivity.openActivity(getContext(), userBean.getUserId(), true, true);
+                CallSingleActivity.openActivity(getContext(), userBean.getUserId(), true, userBean.getNickName(), true, false);
             });
         }
 

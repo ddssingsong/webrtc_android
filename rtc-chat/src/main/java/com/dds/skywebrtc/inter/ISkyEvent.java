@@ -18,7 +18,7 @@ public interface ISkyEvent {
 
     void sendTransAudio(String toId);
 
-    void sendDisConnect(String room, String toId);
+    void sendDisConnect(String room, String toId, boolean isCrashed);
 
     void sendCancel(String mRoomId, List<String> toId);
 
@@ -37,6 +37,7 @@ public interface ISkyEvent {
     // sendIceCandidate
     void sendIceCandidate(String userId, String id, int label, String candidate);
 
+    void onRemoteRing();
 
     void shouldStartRing(boolean isComing);
 

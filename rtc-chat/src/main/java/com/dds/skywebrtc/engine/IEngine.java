@@ -3,6 +3,8 @@ package com.dds.skywebrtc.engine;
 
 import android.view.View;
 
+import com.dds.skywebrtc.EnumType;
+
 import java.util.List;
 
 /**
@@ -35,8 +37,9 @@ public interface IEngine {
     /**
      * 用户网络断开
      * @param userId userId
+     * @param reason
      */
-    void disconnected(String userId);
+    void disconnected(String userId, EnumType.CallEndReason reason);
 
     /**
      * receive Offer
@@ -104,6 +107,11 @@ public interface IEngine {
      * 开启扬声器
      */
     boolean toggleSpeaker(boolean enable);
+
+    /**
+     * 切换外放和耳机
+     */
+    boolean toggleHeadset(boolean isHeadset);
 
     /**
      * 释放所有内容

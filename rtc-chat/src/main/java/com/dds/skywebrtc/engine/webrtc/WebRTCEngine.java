@@ -4,12 +4,15 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.projection.MediaProjection;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.IEngine;
 import com.dds.skywebrtc.render.ProxyVideoSink;
@@ -43,6 +46,7 @@ import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
@@ -77,6 +81,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public boolean mIsAudioOnly;
     private Context mContext;
     private AudioManager audioManager;
+    private boolean isSpeakerOn = true;
 
     public WebRTCEngine(boolean mIsAudioOnly, Context mContext) {
         this.mIsAudioOnly = mIsAudioOnly;
@@ -118,8 +123,20 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (mCallback != null) {
             mCallback.joinRoomSucc();
         }
-        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
 
+        if (isHeadphonesPlugged()) {
+            toggleHeadset(true);
+        } else {
+            if (mIsAudioOnly)
+                toggleSpeaker(false);
+            else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                } else {
+                    audioManager.setMode(AudioManager.MODE_IN_CALL);
+                }
+            }
+        }
     }
 
     @Override
@@ -152,9 +169,9 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public void disconnected(String userId) {
+    public void disconnected(String userId, EnumType.CallEndReason reason) {
         if (mCallback != null) {
-            mCallback.disconnected();
+            mCallback.disconnected(reason);
         }
     }
 
@@ -201,9 +218,17 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peer.close();
             peers.remove(userId);
         }
-        if (peers.size() == 0) {
+       Log.d(TAG, "leaveRoom peers.size() = " + peers.size() + "; mCallback = " + mCallback);
+        if (peers.size() <= 1) {
+
             if (mCallback != null) {
                 mCallback.exitRoom();
+            }
+            if (peers.size() == 1) {
+                for (Map.Entry<String, Peer> set : peers.entrySet()) {
+                    set.getValue().close();
+                }
+                peers.clear();
             }
         }
 
@@ -212,6 +237,9 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public View startPreview(boolean isOverlay) {
+        if (mRootEglBase == null) {
+            return null;
+        }
         localRenderer = new SurfaceViewRenderer(mContext);
         localRenderer.init(mRootEglBase.getEglBaseContext(), null);
         localRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
@@ -331,7 +359,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public boolean muteAudio(boolean enable) {
         if (_localAudioTrack != null) {
-            _localAudioTrack.setEnabled(false);
+            _localAudioTrack.setEnabled(!enable);
             return true;
         }
         return false;
@@ -340,21 +368,74 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public boolean toggleSpeaker(boolean enable) {
         if (audioManager != null) {
+            isSpeakerOn = enable;
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             if (enable) {
-                audioManager.setSpeakerphoneOn(true);
                 audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
                         audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
-                        AudioManager.STREAM_VOICE_CALL);
+                        AudioManager.FX_KEY_CLICK);
+                audioManager.setSpeakerphoneOn(true);
             } else {
+                //5.0以上
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    //设置mode
+                    audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                } else {
+                    //设置mode
+                    audioManager.setMode(AudioManager.MODE_IN_CALL);
+                }
+                //设置音量，解决有些机型切换后没声音或者声音突然变大的问题
+                audioManager.setStreamVolume(
+                        AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL),
+                        AudioManager.FX_KEY_CLICK
+                );
                 audioManager.setSpeakerphoneOn(false);
-                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), AudioManager.STREAM_VOICE_CALL);
             }
-
             return true;
         }
         return false;
 
+    }
+
+    @Override
+    public boolean toggleHeadset(boolean isHeadset) {
+        if (audioManager != null) {
+            if (isHeadset) {
+                //5.0以上
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    //设置mode
+                    audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                } else {
+                    //设置mode
+                    audioManager.setMode(AudioManager.MODE_IN_CALL);
+                }
+                audioManager.setSpeakerphoneOn(false);
+            } else {
+                if (mIsAudioOnly) {
+                    toggleSpeaker(isSpeakerOn);
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isHeadphonesPlugged() {
+        if (audioManager == null) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+            for (AudioDeviceInfo deviceInfo : audioDevices) {
+                if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return audioManager.isWiredHeadsetOn();
+        }
     }
 
     @Override
@@ -599,5 +680,14 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         leaveRoom(userId);
     }
 
+    @Override
+    public void onDisconnected(String userId) {
+        if (mCallback != null) {
+           Log.d(TAG, "onDisconnected mCallback != null");
+            mCallback.onDisconnected(userId);
+        } else {
+           Log.d(TAG, "onDisconnected mCallback == null");
+        }
+    }
 
 }
