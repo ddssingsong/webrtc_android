@@ -214,13 +214,17 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
     @Override
     public void didReceiveRemoteVideoTrack(String userId) {
         pipRenderer.setVisibility(View.VISIBLE);
-        localSurfaceView.setZOrderMediaOverlay(true);
-        if (isOutgoing && localSurfaceView != null) {
-            if (localSurfaceView.getParent() != null) {
-                ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
+        if (localSurfaceView != null) {
+            localSurfaceView.setZOrderMediaOverlay(true);
+            if (isOutgoing) {
+                if (localSurfaceView.getParent() != null) {
+                    ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
+                }
+                pipRenderer.addView(localSurfaceView);
             }
-            pipRenderer.addView(localSurfaceView);
         }
+
+
         View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false);
         Log.d(TAG, "didReceiveRemoteVideoTrack,surfaceView = " + surfaceView);
         if (surfaceView != null) {

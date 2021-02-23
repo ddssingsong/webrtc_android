@@ -44,7 +44,7 @@ public class Utils {
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
         for (ActivityManager.RunningAppProcessInfo appProcessInfo : runningAppProcesses) {
             if (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                if (appProcessInfo.processName == App.getInstance().getApplicationInfo().processName)
+                if (appProcessInfo.processName.equals(App.getInstance().getApplicationInfo().processName))
                     return true;
             }
         }

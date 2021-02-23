@@ -16,6 +16,8 @@ import androidx.core.app.NotificationCompat;
 import com.dds.core.util.ActivityStackManager;
 import com.dds.webrtc.R;
 
+import java.util.Random;
+
 /**
  * <pre>
  *     author : Jasper
@@ -26,8 +28,8 @@ import com.dds.webrtc.R;
  */
 public class CallForegroundNotification extends ContextWrapper {
     private static final String TAG = "CallForegroundNotificat";
-    private static final String id = "channel_1";
-    private static final String name = "notification";
+    private static final String id = "channel1";
+    private static final String name = "voip";
     private NotificationManager manager;
 
     public CallForegroundNotification(Context base) {
@@ -54,10 +56,12 @@ public class CallForegroundNotification extends ContextWrapper {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("room", room);
+        intent.putExtra("isFromCall", true);
         intent.putExtra("audioOnly", isAudioOnly);
+        intent.putExtra("inviteUserName", inviteUserName);
         intent.putExtra("inviteId", inviteId);
         intent.putExtra("userList", userList);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, new Random().nextInt(100), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, id)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getResources().getString(R.string.app_name))
@@ -105,7 +109,7 @@ public class CallForegroundNotification extends ContextWrapper {
     ) {
         Intent fullScreenIntent = CallSingleActivity.getCallIntent(context, targetId, isOutgoing, inviteUserName, isAudioOnly, isClearTop);
         fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(this, new Random().nextInt(100), fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, id)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getResources().getString(R.string.app_name))

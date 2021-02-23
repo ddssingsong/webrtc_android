@@ -184,7 +184,6 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
             if (session == null) {
                 finish();
             } else {
-                //TODO 这里需处理一下，对方挂断了，activity这里才启动，这里需要结束activity，并挂断
                 if (session.isAudioOnly() && !audioOnly) { //这种情况是，对方切换成音频的时候，activity还没启动，这里启动后需要切换一下
                     isAudioOnly = session.isAudioOnly();
                     fragment.didChangeMode(true);

@@ -64,6 +64,7 @@ public class FragmentAudio extends SingleCallFragment implements View.OnClickLis
             descTextView.setVisibility(View.GONE); // 提示语
             outgoingActionContainer.setVisibility(View.VISIBLE);
             durationTextView.setVisibility(View.VISIBLE);
+            minimizeImageView.setVisibility(View.VISIBLE);
             startRefreshTime();
         } else {
             // 如果未接通
@@ -97,7 +98,6 @@ public class FragmentAudio extends SingleCallFragment implements View.OnClickLis
             }
         });
     }
-
 
     @Override
     public void onClick(View v) {

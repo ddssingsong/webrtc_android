@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.dds.App;
 import com.dds.core.base.BaseActivity;
 import com.dds.core.util.ActivityStackManager;
@@ -45,7 +46,7 @@ public class VoipReceiver extends BroadcastReceiver {
             SkyEngineKit.init(new VoipEvent());
             //todo 处理邀请人名称
             if (inviteUserName == null) {
-                inviteUserName = "";
+                inviteUserName = "p2pChat";
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (com.dds.core.util.Utils.isAppRunningForeground()) {
@@ -103,15 +104,10 @@ public class VoipReceiver extends BroadcastReceiver {
             Context context, String room, ArrayList<String> list,
             String inviteId, Boolean audioOnly, String inviteUserName) {
         boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
+        LogUtils.dTag(TAG, "onBackgroundHasPermission b = " + b );
         if (b) {
             App.getInstance().setOtherUserId(inviteId);
             if (list.size() == 1) {
-                //TODO 处理这种情况
-//                if (SkyEngineKit.Instance().currentSession.releasedCallMsgId == msgId) {
-//                    //这种情况应该是，界面还没拉起来，对方就挂断了，这里返回，不拉起界面
-//                    Log.i(TAG, "onHasPermission call isCancelled return")
-//                    return
-//                }
                 CallForegroundNotification notification = new CallForegroundNotification(App.getInstance());
                 notification.sendIncomingCallNotification(
                         App.getInstance(),
@@ -143,9 +139,11 @@ public class VoipReceiver extends BroadcastReceiver {
             per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
         }
         boolean hasPermission = Permissions.has(activity, per);
+        LogUtils.dTag(TAG, "onForegroundOrBeforeVersionO hasPermission = " + hasPermission + ", isForeGround = " + isForeGround);
         if (hasPermission) {
             onHasPermission(activity, room, list, inviteId, audioOnly, inviteUserName);
         } else {
+
             ringPlayer = new AsyncPlayer(null);
             shouldStartRing(true); //来电先响铃
             if (isForeGround) {
@@ -195,15 +193,11 @@ public class VoipReceiver extends BroadcastReceiver {
             String inviteId, Boolean audioOnly, String inviteUserName
     ) {
         boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
+        LogUtils.dTag(TAG, "onHasPermission b = " + b);
         if (b) {
             App.getInstance().setOtherUserId(inviteId);
+            LogUtils.dTag(TAG, "onHasPermission list.size() = " + list.size());
             if (list.size() == 1) {
-//                if (SkyEngineKit.Instance().getCurrentSession().releasedCallMsgId == msgId) {
-//                    TODO 处理这种情况
-//                    // 这种情况应该是，界面还没拉起来，对方就挂断了，这里返回，不拉起界面
-//                    Log.i(TAG, "onHasPermission call isCancelled return");
-//                    return;
-//                }
                 //以视频电话拨打，切换到音频或重走这里，结束掉上一个，防止对方挂断后，下边还有一个通话界面
                 if (context instanceof CallSingleActivity) {
                     ((CallSingleActivity) context).finish();

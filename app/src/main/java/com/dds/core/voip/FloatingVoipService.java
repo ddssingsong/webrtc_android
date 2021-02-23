@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.blankj.utilcode.util.BarUtils;
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.dds.core.ui.event.MsgEvent;
@@ -56,7 +57,7 @@ import java.util.Objects;
 /**
  * 悬浮窗界面
  */
-class FloatingVoipService extends Service {
+public class FloatingVoipService extends Service {
     private CallSession session;
     private Intent resumeActivityIntent;
     private Handler handler = new Handler();
@@ -353,6 +354,7 @@ class FloatingVoipService extends Service {
         if (session == null) {
             return null;
         }
+        LogUtils.dTag(TAG, "getFloatingView session.isAudioOnly() = " + session.isAudioOnly());
         if (session.isAudioOnly()) {
             if (audioView == null) {
                 audioView = view.findViewById(R.id.audioLinearLayout);
@@ -386,10 +388,11 @@ class FloatingVoipService extends Service {
         newWakeLock();
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         floatingView = Objects.requireNonNull(getFloatingView());
+        floatingView.setVisibility(View.VISIBLE);
         View surfaceView = session.setupRemoteVideo(session.mTargetId, true);
         if (surfaceView != null) {
             if (surfaceView.getParent() != null) {
-                ((ViewGroup) (surfaceView)).removeView(surfaceView);
+                ((ViewGroup) (surfaceView.getParent())).removeView(surfaceView);
             }
             floatingView.removeAllViews();
             floatingView.addView(surfaceView);

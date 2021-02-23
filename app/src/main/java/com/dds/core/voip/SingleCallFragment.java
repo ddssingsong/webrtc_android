@@ -223,7 +223,8 @@ public abstract class SingleCallFragment extends Fragment {
         }
         incomingActionContainer.setVisibility(View.GONE);
         outgoingActionContainer.setVisibility(View.GONE);
-        connectedActionContainer.setVisibility(View.GONE);
+        if (connectedActionContainer != null)
+            connectedActionContainer.setVisibility(View.GONE);
         refreshMessage(false);
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (callSingleActivity != null) {
