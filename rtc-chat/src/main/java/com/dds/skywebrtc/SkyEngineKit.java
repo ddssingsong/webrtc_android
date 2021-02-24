@@ -15,6 +15,8 @@ public class SkyEngineKit {
     private static SkyEngineKit avEngineKit;
     private CallSession mCurrentCallSession;
     private ISkyEvent mEvent;
+    private boolean isAudioOnly = false;
+    private boolean isOutGoing = false;
 
 
     public static SkyEngineKit Instance() {
@@ -48,13 +50,13 @@ public class SkyEngineKit {
         }
     }
 
-    public void sendDisconnected(String room, String toId) {
+    public void sendDisconnected(String room, String toId, boolean isCrashed) {
         // 未初始化
         if (avEngineKit == null) {
             Log.e(TAG, "startOutCall error,please init first");
             return;
         }
-        avEngineKit.mEvent.sendDisConnect(room, toId);
+        avEngineKit.mEvent.sendDisConnect(room, toId, isCrashed);
     }
 
     // 拨打电话
@@ -70,6 +72,8 @@ public class SkyEngineKit {
             Log.i(TAG, "startCall error,currentCallSession is exist");
             return false;
         }
+        isAudioOnly = audioOnly;
+        isOutGoing = true;
         // 初始化会话
         mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
         mCurrentCallSession.setTargetId(targetId);
@@ -96,6 +100,8 @@ public class SkyEngineKit {
             mCurrentCallSession.sendBusyRefuse(room, targetId);
             return false;
         }
+		isOutGoing = false;
+		this.isAudioOnly = audioOnly;
         // 初始化会话
         mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
         mCurrentCallSession.setTargetId(targetId);
@@ -181,6 +187,16 @@ public class SkyEngineKit {
         }
     }
 
+    public void transferToAudio() {
+        isAudioOnly = true;
+    }
+    public boolean isOutGoing() {
+        return isOutGoing;
+    }
+
+    public boolean isAudioOnly() {
+        return isAudioOnly;
+    }
     // 获取对话实例
     public CallSession getCurrentSession() {
         return this.mCurrentCallSession;

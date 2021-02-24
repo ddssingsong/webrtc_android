@@ -54,7 +54,11 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     public PeerConnection createPeerConnection() {
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(mIceLis);
-        return mFactory.createPeerConnection(rtcConfig, this);
+        if (mFactory != null) {
+            return mFactory.createPeerConnection(rtcConfig, this);
+        } else {
+            return null;
+        }
     }
 
     public void setOffer(boolean isOffer) {
@@ -98,14 +102,19 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     }
 
     // 添加RemoteIceCandidate
-    public void addRemoteIceCandidate(final IceCandidate candidate) {
+    public synchronized void addRemoteIceCandidate(final IceCandidate candidate) {
         Log.d("dds_test", "addRemoteIceCandidate");
         if (pc != null) {
             if (queuedRemoteCandidates != null) {
-                Log.d("dds_test", "addRemoteIceCandidate  2222");
-                queuedRemoteCandidates.add(candidate);
+               Log.d("dds_test", "addRemoteIceCandidate  2222");
+                synchronized (Peer.class) {
+                    if (queuedRemoteCandidates != null) {
+                        queuedRemoteCandidates.add(candidate);
+                    }
+                }
+
             } else {
-                Log.d("dds_test", "addRemoteIceCandidate1111");
+               Log.d("dds_test", "addRemoteIceCandidate1111");
                 pc.addIceCandidate(candidate);
             }
         }
@@ -155,8 +164,14 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
             sink.setTarget(null);
         }
         if (pc != null) {
-            pc.close();
-            pc.dispose();
+            try {
+                pc.close();
+                pc.dispose();
+            } catch (Exception e) {
+
+            }
+
+
         }
 
 
@@ -170,6 +185,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
+        Log.i(TAG, "onIceConnectionChange: " + newState);
+        if (newState == PeerConnection.IceConnectionState.DISCONNECTED || newState == PeerConnection.IceConnectionState.FAILED) {
+            mEvent.onDisconnected(mUserId);
+        }
 
     }
 
@@ -293,12 +312,15 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     private void drainCandidates() {
         Log.i("dds_test", "drainCandidates");
-        if (queuedRemoteCandidates != null) {
-            Log.d(TAG, "Add " + queuedRemoteCandidates.size() + " remote candidates");
-            for (IceCandidate candidate : queuedRemoteCandidates) {
-                pc.addIceCandidate(candidate);
+        synchronized (Peer.class) {
+            if (queuedRemoteCandidates != null) {
+                Log.d(TAG, "Add " + queuedRemoteCandidates.size() + " remote candidates");
+                for (IceCandidate candidate : queuedRemoteCandidates) {
+                    pc.addIceCandidate(candidate);
+                }
+                queuedRemoteCandidates = null;
             }
-            queuedRemoteCandidates = null;
+
         }
     }
 
@@ -325,6 +347,9 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         void onRemoteStream(String userId, MediaStream stream);
 
         void onRemoveStream(String userId, MediaStream stream);
+
+
+        void onDisconnected(String userId);
     }
 
 }

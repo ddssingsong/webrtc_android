@@ -40,6 +40,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
     public static final String EXTRA_TARGET = "targetId";
     public static final String EXTRA_MO = "isOutGoing";
     public static final String EXTRA_AUDIO_ONLY = "audioOnly";
+    public static final String EXTRA_USER_NAME = "userName";
     public static final String EXTRA_FROM_FLOATING_VIEW = "fromFloatingView";
     private static final String TAG = "CallSingleActivity";
 
@@ -51,22 +52,32 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
 
     private SkyEngineKit gEngineKit;
 
-    private CallSession.CallSessionCallback currentFragment;
+    private SingleCallFragment currentFragment;
     private String room;
 
-
-    public static void openActivity(Context context, String targetId, boolean isOutgoing,
-                                    boolean isAudioOnly) {
+    public static Intent getCallIntent(Context context, String targetId, boolean isOutgoing, String inviteUserName,
+                                       boolean isAudioOnly, boolean isClearTop) {
         Intent voip = new Intent(context, CallSingleActivity.class);
         voip.putExtra(CallSingleActivity.EXTRA_MO, isOutgoing);
         voip.putExtra(CallSingleActivity.EXTRA_TARGET, targetId);
+        voip.putExtra(CallSingleActivity.EXTRA_USER_NAME, inviteUserName);
         voip.putExtra(CallSingleActivity.EXTRA_AUDIO_ONLY, isAudioOnly);
         voip.putExtra(CallSingleActivity.EXTRA_FROM_FLOATING_VIEW, false);
+        if (isClearTop) {
+            voip.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
+        return voip;
+    }
+
+
+    public static void openActivity(Context context, String targetId, boolean isOutgoing, String inviteUserName,
+                                    boolean isAudioOnly, boolean isClearTop) {
+        Intent intent = getCallIntent(context, targetId, isOutgoing, inviteUserName, isAudioOnly, isClearTop);
         if (context instanceof Activity) {
-            context.startActivity(voip);
+            context.startActivity(intent);
         } else {
-            voip.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(voip);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
         }
     }
 
@@ -79,7 +90,12 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
         try {
             gEngineKit = SkyEngineKit.Instance();
         } catch (NotInitializedException e) {
-            finish();
+            SkyEngineKit.init(new VoipEvent()); //重新初始化
+            try {
+                gEngineKit = SkyEngineKit.Instance();
+            } catch (NotInitializedException ex) {
+                finish();
+            }
         }
         final Intent intent = getIntent();
         targetId = intent.getStringExtra(EXTRA_TARGET);
@@ -107,7 +123,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
                 } else {
                     Toast.makeText(this, "权限被拒绝", Toast.LENGTH_SHORT).show();
                     // 权限拒绝
-                    CallSingleActivity.this.finish();
+                    finish();
                 }
             });
         }
@@ -130,14 +146,14 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
     }
 
     private void init(String targetId, boolean outgoing, boolean audioOnly, boolean isReplace) {
-        Fragment fragment;
+        SingleCallFragment fragment;
         if (audioOnly) {
             fragment = new FragmentAudio();
         } else {
             fragment = new FragmentVideo();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        currentFragment = (CallSession.CallSessionCallback) fragment;
+        currentFragment = fragment;
         if (isReplace) {
             fragmentManager.beginTransaction()
                     .replace(android.R.id.content, fragment)
@@ -147,7 +163,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
                     .add(android.R.id.content, fragment)
                     .commit();
         }
-        if (outgoing) {
+        if (outgoing && !isReplace) {
             // 创建会话
             room = UUID.randomUUID().toString() + System.currentTimeMillis();
             boolean b = gEngineKit.startOutCall(getApplicationContext(), room, targetId, audioOnly);
@@ -168,6 +184,10 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
             if (session == null) {
                 finish();
             } else {
+                if (session.isAudioOnly() && !audioOnly) { //这种情况是，对方切换成音频的时候，activity还没启动，这里启动后需要切换一下
+                    isAudioOnly = session.isAudioOnly();
+                    fragment.didChangeMode(true);
+                }
                 session.setSessionCallback(this);
             }
         }
@@ -212,6 +232,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
     // ======================================界面回调================================
     @Override
     public void didCallEndWithReason(EnumType.CallEndReason reason) {
+        App.getInstance().setOtherUserId("0");
         //交给fragment去finish
 //        finish();
         handler.post(() -> currentFragment.didCallEndWithReason(reason));
@@ -242,12 +263,18 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
 
     @Override
     public void didUserLeave(String userId) {
-
+        handler.post(() -> currentFragment.didUserLeave(userId));
     }
 
     @Override
     public void didError(String var1) {
-        finish();
+        handler.post(() -> currentFragment.didError(var1));
+//        finish();
+    }
+
+    @Override
+    public void didDisconnected(String userId) {
+        handler.post(() -> currentFragment.didDisconnected(userId));
     }
 
 

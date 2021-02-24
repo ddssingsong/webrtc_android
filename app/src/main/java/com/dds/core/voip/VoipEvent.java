@@ -44,7 +44,7 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void sendDisConnect(String room, String toId) {
+    public void sendDisConnect(String room, String toId, boolean isCrashed) {
         SocketManager.getInstance().sendDisconnect(room, toId);
     }
 
@@ -84,6 +84,11 @@ public class VoipEvent implements ISkyEvent {
     @Override
     public void sendIceCandidate(String userId, String id, int label, String candidate) {
         SocketManager.getInstance().sendIceCandidate(userId, id, label, candidate);
+    }
+
+    @Override
+    public void onRemoteRing() {
+
     }
 
 

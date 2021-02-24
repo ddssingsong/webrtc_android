@@ -110,5 +110,10 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
 
     }
 
+    @Override
+    public void didDisconnected(String userId) {
+
+    }
+
 
 }

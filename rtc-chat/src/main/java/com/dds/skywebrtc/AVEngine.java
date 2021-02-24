@@ -1,5 +1,6 @@
 package com.dds.skywebrtc;
 
+import android.util.Log;
 import android.view.View;
 
 import com.dds.skywebrtc.engine.EngineCallback;
@@ -8,7 +9,7 @@ import com.dds.skywebrtc.engine.IEngine;
 import java.util.List;
 
 public class AVEngine implements IEngine {
-
+    private static final String TAG = "AVEngine";
     private final IEngine iEngine;
     private static volatile AVEngine instance;
 
@@ -61,11 +62,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public void disconnected(String userId) {
+    public void disconnected(String userId, EnumType.CallEndReason reason) {
         if (iEngine == null) {
             return;
         }
-        iEngine.disconnected(userId);
+        iEngine.disconnected(userId, reason);
     }
 
     @Override
@@ -95,6 +96,7 @@ public class AVEngine implements IEngine {
 
     @Override
     public void leaveRoom(String userId) {
+        Log.d(TAG, "leaveRoom iEngine = " + iEngine);
         if (iEngine == null) {
             return;
         }
@@ -174,12 +176,20 @@ public class AVEngine implements IEngine {
         return iEngine.toggleSpeaker(enable);
     }
 
+    @Override
+    public boolean toggleHeadset(boolean isHeadset) {
+        if (iEngine == null) {
+            return false;
+        }
+        return iEngine.toggleHeadset(isHeadset);
+    }
 
     @Override
     public void release() {
         if (iEngine == null) {
             return;
         }
+         Log.d(TAG,"release");
         iEngine.release();
     }
 
