@@ -27,13 +27,13 @@ import java.util.List;
  */
 public class Peer implements SdpObserver, PeerConnection.Observer {
     private final static String TAG = "dds_Peer";
-    private PeerConnection pc;
-    private String mUserId;
+    private final PeerConnection pc;
+    private final String mUserId;
     private List<IceCandidate> queuedRemoteCandidates;
     private SessionDescription localSdp;
-    private PeerConnectionFactory mFactory;
-    private List<PeerConnection.IceServer> mIceLis;
-    private IPeerEvent mEvent;
+    private final PeerConnectionFactory mFactory;
+    private final List<PeerConnection.IceServer> mIceLis;
+    private final IPeerEvent mEvent;
     private boolean isOffer;
 
     public MediaStream _remoteStream;

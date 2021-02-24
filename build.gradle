@@ -16,9 +16,9 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            url 'https://dl.bintray.com/ddssingsong/maven'
-        }
+//        maven {
+//            url 'https://dl.bintray.com/ddssingsong/maven'
+//        }
         jcenter()
         mavenCentral()
         google()

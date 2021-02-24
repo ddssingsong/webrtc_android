@@ -25,7 +25,7 @@ import javax.net.ssl.X509TrustManager;
  */
 public class MyWebSocket extends WebSocketClient {
     private final static String TAG = "dds_WebSocket";
-    private IEvent iEvent;
+    private final IEvent iEvent;
     private boolean connectFlag = false;
 
 
@@ -75,9 +75,8 @@ public class MyWebSocket extends WebSocketClient {
         connectFlag = flag;
     }
 
-    /**
-     * ---------------------------------------处理接收消息-------------------------------------
-     */
+    // ---------------------------------------处理接收消息-------------------------------------
+
     private void handleMessage(String message) {
         Map map = JSON.parseObject(message, Map.class);
         String eventName = (String) map.get("eventName");
@@ -218,7 +217,7 @@ public class MyWebSocket extends WebSocketClient {
             String you = (String) data.get("you");
             String connections = (String) data.get("connections");
             int roomSize = (int) data.get("roomSize");
-            this.iEvent.onPeers(you, connections,roomSize);
+            this.iEvent.onPeers(you, connections, roomSize);
         }
     }
 
