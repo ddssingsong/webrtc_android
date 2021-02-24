@@ -20,6 +20,7 @@ public class EnumType {
     public enum CallEndReason {
         Busy,
         SignalError,
+        RemoteSignalError,
         Hangup,
         MediaError,
         RemoteHangup,

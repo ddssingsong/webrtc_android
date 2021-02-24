@@ -10,6 +10,7 @@ import com.dds.App;
 import com.dds.core.voip.Utils;
 import com.dds.core.voip.VoipReceiver;
 import com.dds.skywebrtc.CallSession;
+import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 
 import java.lang.ref.WeakReference;
@@ -329,7 +330,7 @@ public class SocketManager implements IEvent {
         handler.post(() -> {
             CallSession currentSession = SkyEngineKit.Instance().getCurrentSession();
             if (currentSession != null) {
-                currentSession.onDisConnect(userId);
+                currentSession.onDisConnect(userId, EnumType.CallEndReason.RemoteSignalError);
             }
         });
     }

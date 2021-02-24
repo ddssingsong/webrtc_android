@@ -2,6 +2,7 @@ package com.dds.core.util;
 
 import android.app.Activity;
 import android.app.Application;
+import android.util.Log;
 
 import androidx.collection.ArrayMap;
 
@@ -11,6 +12,7 @@ import androidx.collection.ArrayMap;
  * @author gong
  */
 public class ActivityStackManager {
+    private static final String TAG = "ActivityStackManager";
     private static volatile ActivityStackManager sInstance;
 
     private final ArrayMap<String, Activity> mActivitySet = new ArrayMap<>();
@@ -56,6 +58,19 @@ public class ActivityStackManager {
         finishAllActivities((Class<? extends Activity>) null);
     }
 
+
+    /**
+     * 获取栈底部的Activity
+     */
+    public Activity getBottomActivity() {
+        Log.d(TAG, "getBottomActivity mActivitySet.size() = " + mActivitySet.size());
+        if (mActivitySet.size() > 0) {
+            return mActivitySet.get(mActivitySet.keyAt(0));
+        } else {
+            return getTopActivity();
+        }
+
+    }
     /**
      * 销毁所有的 Activity，除这些 Class 之外的 Activity
      */

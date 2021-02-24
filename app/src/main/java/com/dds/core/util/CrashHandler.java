@@ -26,7 +26,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         if (session != null) {
             gEngineKit.endCall();
         } else {
-            gEngineKit.sendDisconnected(App.getInstance().getRoomId(), App.getInstance().getOtherUserId());
+            gEngineKit.sendDisconnected(App.getInstance().getRoomId(), App.getInstance().getOtherUserId(),true);
         }
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);

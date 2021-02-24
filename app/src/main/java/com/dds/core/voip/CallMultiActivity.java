@@ -173,6 +173,11 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
     }
 
     @Override
+    public void didDisconnected(String userId) {
+
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.meetingHangupImageView:

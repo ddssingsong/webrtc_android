@@ -1,6 +1,8 @@
 package com.dds.core.voip;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.PowerManager;
@@ -16,6 +18,7 @@ import java.util.LinkedList;
 public class AsyncPlayer {
     private static final int PLAY = 1;
     private static final int STOP = 2;
+    private AudioManager audioManager;
 
     private static final class Command {
         int code;
@@ -161,6 +164,24 @@ public class AsyncPlayer {
     private void releaseWakeLock() {
         if (mWakeLock != null) {
             mWakeLock.release();
+        }
+    }
+
+    private boolean isHeadphonesPlugged(Context context) {
+        if (audioManager == null) {
+            audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+            for (AudioDeviceInfo deviceInfo : audioDevices) {
+                if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+                        || deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return audioManager.isWiredHeadsetOn();
         }
     }
 }
