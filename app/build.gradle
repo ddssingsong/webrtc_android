@@ -59,9 +59,6 @@ dependencies {
     implementation 'com.lxj:xpopup:2.2.0'
     //eventbus
     implementation 'org.greenrobot:eventbus:3.1.1'
-
-    implementation 'com.blankj:utilcodex:1.30.5'
-
     //通知提示弹出库
     api 'com.tapadoo.android:alerter:6.2.1'
 }

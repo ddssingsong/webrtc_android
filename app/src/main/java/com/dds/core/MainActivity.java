@@ -4,13 +4,13 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.blankj.utilcode.util.LogUtils;
 import com.dds.App;
 import com.dds.LauncherActivity;
 import com.dds.core.base.BaseActivity;
@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity implements IUserState {
         // 设置登录状态回调
         SocketManager.getInstance().addUserStateCallback(this);
         isFromCall = getIntent().getBooleanExtra("isFromCall", false);
-        LogUtils.dTag(TAG, "onCreate isFromCall = " + isFromCall);
+        Log.d(TAG, "onCreate isFromCall = " + isFromCall);
         if (isFromCall) { //无权限，来电申请权限会走这里
             initCall();
         }
@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity implements IUserState {
     @Override
     protected void onStart() {
         super.onStart();
-        LogUtils.dTag(TAG, "onStart isFromCall = " + isFromCall);
+        Log.d(TAG, "onStart isFromCall = " + isFromCall);
     }
 
     @Override

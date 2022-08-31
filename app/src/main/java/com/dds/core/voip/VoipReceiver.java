@@ -9,18 +9,14 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import com.blankj.utilcode.util.LogUtils;
 import com.dds.App;
 import com.dds.core.base.BaseActivity;
 import com.dds.core.util.ActivityStackManager;
-import com.dds.permission.Consumer;
 import com.dds.permission.Permissions;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
-import com.lxj.xpopup.XPopup;
 import com.tapadoo.alerter.Alerter;
 
 import java.util.ArrayList;
@@ -104,7 +100,7 @@ public class VoipReceiver extends BroadcastReceiver {
             Context context, String room, ArrayList<String> list,
             String inviteId, Boolean audioOnly, String inviteUserName) {
         boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
-        LogUtils.dTag(TAG, "onBackgroundHasPermission b = " + b );
+        Log.d(TAG, "onBackgroundHasPermission b = " + b );
         if (b) {
             App.getInstance().setOtherUserId(inviteId);
             if (list.size() == 1) {
@@ -139,7 +135,7 @@ public class VoipReceiver extends BroadcastReceiver {
             per = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
         }
         boolean hasPermission = Permissions.has(activity, per);
-        LogUtils.dTag(TAG, "onForegroundOrBeforeVersionO hasPermission = " + hasPermission + ", isForeGround = " + isForeGround);
+        Log.d(TAG, "onForegroundOrBeforeVersionO hasPermission = " + hasPermission + ", isForeGround = " + isForeGround);
         if (hasPermission) {
             onHasPermission(activity, room, list, inviteId, audioOnly, inviteUserName);
         } else {
@@ -193,10 +189,10 @@ public class VoipReceiver extends BroadcastReceiver {
             String inviteId, Boolean audioOnly, String inviteUserName
     ) {
         boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
-        LogUtils.dTag(TAG, "onHasPermission b = " + b);
+        Log.d(TAG, "onHasPermission b = " + b);
         if (b) {
             App.getInstance().setOtherUserId(inviteId);
-            LogUtils.dTag(TAG, "onHasPermission list.size() = " + list.size());
+            Log.d(TAG, "onHasPermission list.size() = " + list.size());
             if (list.size() == 1) {
                 //以视频电话拨打，切换到音频或重走这里，结束掉上一个，防止对方挂断后，下边还有一个通话界面
                 if (context instanceof CallSingleActivity) {

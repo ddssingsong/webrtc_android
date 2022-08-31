@@ -1,5 +1,7 @@
 package com.dds.net.urlconn;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,9 +32,10 @@ import javax.net.ssl.X509TrustManager;
  * android_shuai@163.com
  */
 public class UrlConnUtils {
-    private static final String TAG = "dds_UrlConnUtils";
+    private static final String TAG = "UrlConnUtils";
 
     public static String sendPost(String serverUrl, String formBody) throws Exception {
+        Log.d(TAG, "sendPost: serverUrl = " + serverUrl + formBody);
         String result;
         DataOutputStream out;
         URL url = new URL(serverUrl);
@@ -66,6 +69,7 @@ public class UrlConnUtils {
     }
 
     public static String sendGet(String serverUrl, String param) throws Exception {
+        Log.d(TAG, "sendGet: serverUrl = " + serverUrl + ",param = " + param);
         String result;
         String reqUrl = serverUrl + (param == null ? "" : ("?" + param));
         URL url = new URL(reqUrl);

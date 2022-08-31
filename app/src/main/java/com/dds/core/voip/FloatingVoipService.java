@@ -34,11 +34,11 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.blankj.utilcode.util.BarUtils;
-import com.blankj.utilcode.util.LogUtils;
-import com.blankj.utilcode.util.ScreenUtils;
-import com.blankj.utilcode.util.SizeUtils;
+
 import com.dds.core.ui.event.MsgEvent;
+import com.dds.core.util.BarUtils;
+import com.dds.core.util.ScreenUtils;
+import com.dds.core.util.SizeUtils;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.CallSession.CallSessionCallback;
 import com.dds.skywebrtc.EnumType.CallEndReason;
@@ -354,7 +354,7 @@ public class FloatingVoipService extends Service {
         if (session == null) {
             return null;
         }
-        LogUtils.dTag(TAG, "getFloatingView session.isAudioOnly() = " + session.isAudioOnly());
+        Log.d(TAG, "getFloatingView session.isAudioOnly() = " + session.isAudioOnly());
         if (session.isAudioOnly()) {
             if (audioView == null) {
                 audioView = view.findViewById(R.id.audioLinearLayout);

@@ -6,15 +6,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.blankj.utilcode.util.BarUtils;
+
 import com.dds.App;
+import com.dds.core.util.BarUtils;
 import com.dds.core.util.OSUtils;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType.CallState;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 
-import org.webrtc.NetworkMonitor.NetworkObserver;
 
 /**
  * Created by dds on 2018/7/26.

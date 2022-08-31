@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
-import com.blankj.utilcode.util.BarUtils;
+import com.dds.core.util.BarUtils;
 import com.dds.core.util.OSUtils;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType.CallState;
