@@ -112,7 +112,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public void joinRoom(List<String> userIds) {
         for (String id : userIds) {
             // create Peer
-
             Peer peer = new Peer(_factory, iceServers, id, this);
             peer.setOffer(false);
             // add localStream
@@ -220,7 +219,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         }
        Log.d(TAG, "leaveRoom peers.size() = " + peers.size() + "; mCallback = " + mCallback);
         if (peers.size() <= 1) {
-
             if (mCallback != null) {
                 mCallback.exitRoom();
             }
@@ -236,7 +234,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public View startPreview(boolean isOverlay) {
+    public View setupLocalPreview(boolean isOverlay) {
         if (mRootEglBase == null) {
             return null;
         }
@@ -304,9 +302,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     }
 
-
     @Override
-    public View setupRemoteVideo(String userId, boolean isO) {
+    public View setupRemoteVideo(String userId, boolean isOverlay) {
         if (TextUtils.isEmpty(userId)) {
             Log.e(TAG, "setupRemoteVideo userId is null ");
             return null;
@@ -315,7 +312,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (peer == null) return null;
 
         if (peer.renderer == null) {
-            peer.createRender(mRootEglBase, mContext, isO);
+            peer.createRender(mRootEglBase, mContext, isOverlay);
         }
 
         return peer.renderer;
@@ -562,8 +559,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
      */
     private VideoCapturer createVideoCapture() {
         VideoCapturer videoCapturer;
-
-
         if (screencaptureEnabled) {
             return createScreenCapturer();
         }

@@ -7,7 +7,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.dds.App;
-import com.dds.core.voip.Utils;
+import com.dds.core.voip.Consts;
 import com.dds.core.voip.VoipReceiver;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
@@ -198,7 +198,7 @@ public class SocketManager implements IEvent {
         intent.putExtra("audioOnly", audioOnly);
         intent.putExtra("inviteId", inviteId);
         intent.putExtra("userList", userList);
-        intent.setAction(Utils.ACTION_VOIP_RECEIVER);
+        intent.setAction(Consts.ACTION_VOIP_RECEIVER);
         intent.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));
         // 发送广播
         App.getInstance().sendBroadcast(intent);

@@ -16,7 +16,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.dds.App;
@@ -47,7 +46,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
     private Handler handler = new Handler(Looper.getMainLooper());
     private boolean isOutgoing;
     private String targetId;
-    boolean isAudioOnly;
+    public boolean isAudioOnly;
     private boolean isFromFloatingView;
 
     private SkyEngineKit gEngineKit;

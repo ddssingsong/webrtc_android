@@ -360,9 +360,8 @@ public class CallSession implements EngineCallback {
     }
 
     public View setupLocalVideo(boolean isOverlay) {
-        return iEngine.startPreview(isOverlay);
+        return iEngine.setupLocalPreview(isOverlay);
     }
-
 
     public View setupRemoteVideo(String userId, boolean isOverlay) {
         return iEngine.setupRemoteVideo(userId, isOverlay);

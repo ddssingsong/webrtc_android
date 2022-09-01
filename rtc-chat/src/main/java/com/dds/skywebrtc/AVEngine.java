@@ -104,11 +104,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public View startPreview(boolean isO) {
+    public View setupLocalPreview(boolean isOverlay) {
         if (iEngine == null) {
             return null;
         }
-        return iEngine.startPreview(isO);
+        return iEngine.setupLocalPreview(isOverlay);
     }
 
     @Override

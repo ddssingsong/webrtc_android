@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.dds.core.voip.NineGridView
-        android:id="@+id/grid_view"
+    <!--小屏列表-->
+    <FrameLayout
+        android:id="@+id/multi_video_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

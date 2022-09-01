@@ -13,6 +13,8 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.dds.core.util.RomUtil;
+
 import java.lang.reflect.Method;
 
 /**

@@ -66,7 +66,7 @@ public interface IEngine {
     /**
      * 开启本地预览
      */
-    View startPreview(boolean isOverlay);
+    View setupLocalPreview(boolean isOverlay);
 
     /**
      * 关闭本地预览

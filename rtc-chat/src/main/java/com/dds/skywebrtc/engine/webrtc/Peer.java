@@ -97,7 +97,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     //添加本地流
     public void addLocalStream(MediaStream stream) {
         if (pc == null) return;
-        Log.d("dds_test", "addLocalStream" + mUserId);
+        Log.d("dds_test", "addLocalStream");
         pc.addStream(stream);
     }
 
@@ -106,7 +106,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         Log.d("dds_test", "addRemoteIceCandidate");
         if (pc != null) {
             if (queuedRemoteCandidates != null) {
-               Log.d("dds_test", "addRemoteIceCandidate  2222");
+                Log.d("dds_test", "addRemoteIceCandidate  2222");
                 synchronized (Peer.class) {
                     if (queuedRemoteCandidates != null) {
                         queuedRemoteCandidates.add(candidate);
@@ -114,7 +114,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                 }
 
             } else {
-               Log.d("dds_test", "addRemoteIceCandidate1111");
+                Log.d("dds_test", "addRemoteIceCandidate1111");
                 pc.addIceCandidate(candidate);
             }
         }
@@ -166,8 +166,8 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         if (pc != null) {
             try {
                 pc.close();
-                pc.dispose();
             } catch (Exception e) {
+                Log.e(TAG, "close: " + e);
 
             }
 
@@ -347,7 +347,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         void onRemoteStream(String userId, MediaStream stream);
 
         void onRemoveStream(String userId, MediaStream stream);
-
 
         void onDisconnected(String userId);
     }

@@ -8,8 +8,6 @@ import com.dds.LauncherActivity;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.SkyEngineKit;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -18,7 +16,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "MyUncaughtExceptionHand";
 
     @Override
-    public void uncaughtException(@NotNull Thread thread, @NotNull Throwable ex) {
+    public void uncaughtException( Thread thread, Throwable ex) {
         SkyEngineKit gEngineKit = SkyEngineKit.Instance();
         CallSession session = gEngineKit.getCurrentSession();
 

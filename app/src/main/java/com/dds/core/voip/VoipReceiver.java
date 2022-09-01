@@ -32,7 +32,7 @@ public class VoipReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (Utils.ACTION_VOIP_RECEIVER.equals(action)) {
+        if (Consts.ACTION_VOIP_RECEIVER.equals(action)) {
             String room = intent.getStringExtra("room");
             boolean audioOnly = intent.getBooleanExtra("audioOnly", true);
             String inviteId = intent.getStringExtra("inviteId");

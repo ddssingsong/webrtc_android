@@ -16,7 +16,7 @@ import com.dds.LauncherActivity;
 import com.dds.core.base.BaseActivity;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
-import com.dds.core.voip.Utils;
+import com.dds.core.voip.Consts;
 import com.dds.core.voip.VoipReceiver;
 import com.dds.webrtc.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -71,7 +71,7 @@ public class MainActivity extends BaseActivity implements IUserState {
         viop.putExtra("inviteUserName", intent.getStringExtra("inviteUserName"));
 //        viop.putExtra("msgId", intent.getLongExtra("msgId", 0));
         viop.putExtra("userList", intent.getStringExtra("userList"));
-        viop.setAction(Utils.ACTION_VOIP_RECEIVER);
+        viop.setAction(Consts.ACTION_VOIP_RECEIVER);
         viop.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));
         sendBroadcast(viop);
     }
