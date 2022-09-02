@@ -59,8 +59,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private AudioTrack _localAudioTrack;
     private VideoCapturer captureAndroid;
     private SurfaceTextureHelper surfaceTextureHelper;
-
-    private ProxyVideoSink localSink;
     private SurfaceViewRenderer localRenderer;
 
 
@@ -244,7 +242,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         localRenderer.setMirror(true);
         localRenderer.setZOrderMediaOverlay(isOverlay);
 
-        localSink = new ProxyVideoSink();
+        ProxyVideoSink localSink = new ProxyVideoSink();
         localSink.setTarget(localRenderer);
         if (_localStream.videoTracks.size() > 0) {
             _localStream.videoTracks.get(0).addSink(localSink);
@@ -254,10 +252,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void stopPreview() {
-        if (localSink != null) {
-            localSink.setTarget(null);
-            localSink = null;
-        }
         if (audioSource != null) {
             audioSource.dispose();
             audioSource = null;
@@ -283,10 +277,12 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             videoSource = null;
         }
         if (_localStream != null) {
+            _localStream.dispose();
             _localStream = null;
         }
         if (localRenderer != null) {
             localRenderer.release();
+            localRenderer = null;
         }
 
 

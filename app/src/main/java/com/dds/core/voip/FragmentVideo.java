@@ -159,7 +159,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
         Log.d(TAG, "didChangeState, state = " + state);
         runOnUiThread(() -> {
             if (state == CallState.Connected) {
-                handler.removeMessages(WHAT_DELAY_END_CALL);
+
                 incomingActionContainer.setVisibility(View.GONE);
                 outgoingActionContainer.setVisibility(View.GONE);
                 connectedActionContainer.setVisibility(View.VISIBLE);

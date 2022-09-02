@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 
-import com.dds.core.ui.event.MsgEvent;
 import com.dds.core.util.BarUtils;
 import com.dds.core.util.ScreenUtils;
 import com.dds.core.util.SizeUtils;
@@ -47,9 +46,6 @@ import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.BuildConfig;
 import com.dds.webrtc.R;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -60,7 +56,7 @@ import java.util.Objects;
 public class FloatingVoipService extends Service {
     private CallSession session;
     private Intent resumeActivityIntent;
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private WindowManager wm;
     private View view;
     private WindowManager.LayoutParams params;
@@ -82,9 +78,6 @@ public class FloatingVoipService extends Service {
     public void onCreate() {
         super.onCreate();
         touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
         headsetPlugReceiver = new HeadsetPlugReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_HEADSET_PLUG);
@@ -140,20 +133,10 @@ public class FloatingVoipService extends Service {
         return START_NOT_STICKY;
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MsgEvent<Object> messageEvent) {
-        int code = messageEvent.getCode();
-        if (code == MsgEvent.CODE_ON_CALL_ENDED) {
-            hideFloatBox();
-        }
-    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
         unregisterReceiver(headsetPlugReceiver);  //注销监听
         releaseWakeLock();
         super.onDestroy();
@@ -349,7 +332,6 @@ public class FloatingVoipService extends Service {
         handler.postDelayed(() -> refreshCallDurationInfo(timeView), 1000);
     }
 
-
     private ViewGroup getFloatingView() {
         if (session == null) {
             return null;
@@ -369,6 +351,7 @@ public class FloatingVoipService extends Service {
     }
 
     private void showAudioInfo() {
+        Log.d(TAG, "showAudioInfo: ");
         floatingView = Objects.requireNonNull(getFloatingView());
         FrameLayout remoteVideoFrameLayout = view.findViewById(R.id.remoteVideoFrameLayout);
         if (remoteVideoFrameLayout.getVisibility() == View.VISIBLE) {
@@ -385,6 +368,7 @@ public class FloatingVoipService extends Service {
     }
 
     private void showVideoInfo() {
+        Log.d(TAG, "showVideoInfo: ");
         newWakeLock();
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         floatingView = Objects.requireNonNull(getFloatingView());
@@ -395,22 +379,23 @@ public class FloatingVoipService extends Service {
                 ((ViewGroup) (surfaceView.getParent())).removeView(surfaceView);
             }
             floatingView.removeAllViews();
-            floatingView.addView(surfaceView);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            Log.d(TAG, "showVideoInfo: addView");
+            floatingView.addView(surfaceView,layoutParams);
         }
     }
 
 
     private void newWakeLock() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Log.i(TAG, "setScreenOff: 熄灭屏幕");
-            if (wakeLock == null) {
-                wakeLock = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(
-                        PowerManager.PARTIAL_WAKE_LOCK,
-                        "$TAG:mywakelocktag"
-                );
-            }
-            wakeLock.acquire(1200 * 60 * 1000L /*20 hours*/);
+        Log.i(TAG, "setScreenOff: 熄灭屏幕");
+        if (wakeLock == null) {
+            wakeLock = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK,
+                    "$TAG:mywakelocktag"
+            );
         }
+        wakeLock.acquire(1200 * 60 * 1000L /*20 hours*/);
     }
 
     private void releaseWakeLock() {

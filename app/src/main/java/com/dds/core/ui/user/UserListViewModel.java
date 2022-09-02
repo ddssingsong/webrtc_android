@@ -16,7 +16,7 @@ import java.util.List;
 public class UserListViewModel extends ViewModel {
 
     private MutableLiveData<List<UserBean>> mList;
-
+    private Thread thread;
     public LiveData<List<UserBean>> getUserList() {
         if (mList == null) {
             mList = new MutableLiveData<>();
@@ -28,7 +28,10 @@ public class UserListViewModel extends ViewModel {
 
     // 获取远程用户列表
     public void loadUsers() {
-        Thread thread = new Thread(() -> {
+        if (thread != null && thread.isAlive()) {
+            return;
+        }
+        thread = new Thread(() -> {
             String url = Urls.getUserList();
             HttpRequestPresenter.getInstance()
                     .get(url, null, new ICallback() {
@@ -46,8 +49,13 @@ public class UserListViewModel extends ViewModel {
                     });
         });
         thread.start();
-
-
     }
-
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if(thread!=null&&thread.isAlive()){
+            thread.interrupt();
+            thread = null;
+        }
+    }
 }

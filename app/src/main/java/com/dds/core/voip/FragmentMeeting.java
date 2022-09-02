@@ -3,6 +3,7 @@ package com.dds.core.voip;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -60,6 +61,13 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
         initView(view);
         init();
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        multi_video_view.removeAllViews();
+        super.onDestroyView();
+
     }
 
     private void initView(View view) {
@@ -138,7 +146,6 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
     public void didDisconnected(String userId) {
 
     }
-
 
     private void refreshView(){
         int size = videoViews.size();

@@ -60,7 +60,7 @@ public class FragmentAudio extends SingleCallFragment implements View.OnClickLis
         CallSession currentSession = gEngineKit.getCurrentSession();
         currentState = currentSession.getState();
         // 如果已经接通
-        if (currentSession != null && currentState == CallState.Connected) {
+        if (currentState == CallState.Connected) {
             descTextView.setVisibility(View.GONE); // 提示语
             outgoingActionContainer.setVisibility(View.VISIBLE);
             durationTextView.setVisibility(View.VISIBLE);
@@ -82,11 +82,9 @@ public class FragmentAudio extends SingleCallFragment implements View.OnClickLis
 
     @Override
     public void didChangeState(CallState state) {
-
         currentState = state;
         runOnUiThread(() -> {
             if (state == CallState.Connected) {
-                handler.removeMessages(WHAT_DELAY_END_CALL);
                 incomingActionContainer.setVisibility(View.GONE);
                 outgoingActionContainer.setVisibility(View.VISIBLE);
                 minimizeImageView.setVisibility(View.VISIBLE);

@@ -158,7 +158,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     public void close() {
         if (renderer != null) {
             renderer.release();
-            renderer = null;
         }
         if (sink != null) {
             sink.setTarget(null);

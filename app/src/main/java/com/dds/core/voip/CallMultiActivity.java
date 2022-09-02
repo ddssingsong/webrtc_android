@@ -59,7 +59,10 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
         initData();
     }
 
+    @Override
+    public void onBackPressed() {
 
+    }
     private void initView() {
         meetingHangupImageView = findViewById(R.id.meetingHangupImageView);
         Fragment fragment = new FragmentMeeting();
@@ -105,7 +108,7 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
                     "room-" + UUID.randomUUID().toString().substring(0, 16));
         } else {
             // 加入房间
-            gEngineKit.joinRoom(this, room);
+            gEngineKit.joinRoom(getApplicationContext(), room);
         }
 
 

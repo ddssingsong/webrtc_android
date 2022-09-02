@@ -29,6 +29,9 @@ public class RoomViewModel extends ViewModel {
     }
 
     public void loadRooms() {
+        if (thread != null && thread.isAlive()) {
+            return;
+        }
         thread = new Thread(() -> {
             String url = Urls.getRoomList();
             HttpRequestPresenter.getInstance().get(url, null, new ICallback() {
@@ -47,4 +50,14 @@ public class RoomViewModel extends ViewModel {
         });
         thread.start();
     }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if(thread!=null&&thread.isAlive()){
+            thread.interrupt();
+            thread = null;
+        }
+    }
+
 }

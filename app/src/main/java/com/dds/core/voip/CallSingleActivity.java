@@ -3,8 +3,10 @@ package com.dds.core.voip;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,7 +45,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
     public static final String EXTRA_FROM_FLOATING_VIEW = "fromFloatingView";
     private static final String TAG = "CallSingleActivity";
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isOutgoing;
     private String targetId;
     public boolean isAudioOnly;
@@ -53,6 +55,9 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
 
     private SingleCallFragment currentFragment;
     private String room;
+    // 监听耳机广播 （todo 还有些问题）
+    protected HeadsetPlugReceiver headsetPlugReceiver;
+
 
     public static Intent getCallIntent(Context context, String targetId, boolean isOutgoing, String inviteUserName,
                                        boolean isAudioOnly, boolean isClearTop) {
@@ -126,8 +131,17 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
                 }
             });
         }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_HEADSET_PLUG);
+        headsetPlugReceiver = new HeadsetPlugReceiver();
+        registerReceiver(headsetPlugReceiver, filter);
+    }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(headsetPlugReceiver);  //注销监听
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -268,7 +282,6 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
     @Override
     public void didError(String var1) {
         handler.post(() -> currentFragment.didError(var1));
-//        finish();
     }
 
     @Override
@@ -332,8 +345,22 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+
+    static class HeadsetPlugReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.hasExtra("state")) {
+                CallSession session = SkyEngineKit.Instance().getCurrentSession();
+                if (session == null) {
+                    return;
+                }
+                if (intent.getIntExtra("state", 0) == 0) { //拔出耳机
+                    session.toggleHeadset(false);
+                } else if (intent.getIntExtra("state", 0) == 1) { //插入耳机
+                    session.toggleHeadset(true);
+                }
+            }
+        }
     }
 }

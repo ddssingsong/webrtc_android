@@ -46,6 +46,10 @@ public class RoomFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
 
     private void initView(View root) {
         setHasOptionsMenu(true);
@@ -61,6 +65,10 @@ public class RoomFragment extends Fragment {
         list.setLayoutManager(new LinearLayoutManager(getContext()));
 
         roomViewModel.getRoomList().observe(getViewLifecycleOwner(), roomInfos -> {
+            if (getActivity() == null) return;
+            if (getActivity().isFinishing()) {
+                return;
+            }
             if (roomInfos.size() > 0) {
                 no_data.setVisibility(View.GONE);
             } else {

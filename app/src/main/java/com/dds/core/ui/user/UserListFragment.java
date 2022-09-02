@@ -57,6 +57,10 @@ public class UserListFragment extends Fragment {
         list.setHasFixedSize(true);
 
         homeViewModel.getUserList().observe(getViewLifecycleOwner(), userBeans -> {
+            if (getActivity() == null) return;
+            if (getActivity().isFinishing()) {
+                return;
+            }
             if (userBeans.size() == 0) {
                 no_data.setVisibility(View.VISIBLE);
             } else {
@@ -131,11 +135,11 @@ public class UserListFragment extends Fragment {
 
     }
 
-    private class Holder extends RecyclerView.ViewHolder {
+    private static class Holder extends RecyclerView.ViewHolder {
 
         private final TextView text;
-        private Button item_call_audio;
-        private Button item_call_video;
+        private final Button item_call_audio;
+        private final Button item_call_video;
 
         Holder(View itemView) {
             super(itemView);
