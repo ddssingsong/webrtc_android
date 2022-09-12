@@ -35,10 +35,9 @@ java      https://github.com/ddssingsong/webrtc_server_java         for branch:m
   6. The whole process of calling, ringing and dialing
 
 - In progress
-  1. Various optimization
-  2. 2.0.0_preview in dev
-
-
+  1. Ability to reconnect after disconnection
+  2. Beauty function
+  
 
 ## Effect
 

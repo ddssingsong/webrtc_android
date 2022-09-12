@@ -198,6 +198,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceGatheringChange(PeerConnection.IceGatheringState newState) {
+        // 检测本地ice状态
         Log.i(TAG, "onIceGatheringChange:" + newState.toString());
     }
 
