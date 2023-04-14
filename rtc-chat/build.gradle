@@ -1,11 +1,12 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+}
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk rootProject.ext.minSdkVersion
+        targetSdk rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.android.SDK_VERSION_CODE
         versionName rootProject.ext.android.SDK_VERSION
 
@@ -33,8 +34,6 @@ dependencies {
     api project(path: ':libwebrtc')
 }
 
-// upload
-apply from: 'bintray.gradle'
 
 
 

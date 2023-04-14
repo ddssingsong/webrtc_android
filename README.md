@@ -113,8 +113,9 @@ Copyright (c) 2019 哒哒瑟
 
 QQ Group：webrtc技术交流群
 
-QQ 群   号：601332720（1群）  619413989  （2群）    707717173  （3群）
+QQ Group ID：601332720（1）  619413989  （2） 
 
+Now: please add WeChat friends: ddssingsong007
 
 加入群一起探讨webrtc，分享好的开源项目
 
