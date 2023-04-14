@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">p2pChat</string>
+    <string name="app_name">VideoChat</string>
     <string name="action_settings">Settings</string>
     <string name="action_create_room">Create Room</string>
 

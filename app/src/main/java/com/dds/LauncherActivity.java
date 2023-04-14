@@ -19,9 +19,7 @@ import com.dds.core.socket.SocketManager;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends BaseActivity implements IUserState {
-    private Toolbar toolbar;
     private EditText etUser;
-    private Button button8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,30 +35,10 @@ public class LauncherActivity extends BaseActivity implements IUserState {
     }
 
     private void initView() {
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar = findViewById(R.id.toolbar);
         etUser = findViewById(R.id.et_user);
-        button8 = findViewById(R.id.button8);
-
         etUser.setText(App.getInstance().getUsername());
-    }
-
-    public void java(View view) {
-        String username = etUser.getText().toString().trim();
-        if (TextUtils.isEmpty(username)) {
-            Toast.makeText(this, "please input your name", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // 设置用户名
-        App.getInstance().setUsername(username);
-        // 添加登录回调
-        SocketManager.getInstance().addUserStateCallback(this);
-        // 连接socket:登录
-        SocketManager.getInstance().connect(Urls.WS, username, 0);
-
-
     }
 
     @Override
@@ -74,13 +52,18 @@ public class LauncherActivity extends BaseActivity implements IUserState {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            finishAfterTransition();
-        } else {
-            super.onBackPressed();
+    public void enter(View view) {
+        String username = etUser.getText().toString().trim();
+        if (TextUtils.isEmpty(username)) {
+            Toast.makeText(this, "please input your name", Toast.LENGTH_LONG).show();
+            return;
         }
+        // 设置用户名
+        App.getInstance().setUsername(username);
+        // 添加登录回调
+        SocketManager.getInstance().addUserStateCallback(this);
+        // 连接socket:登录
+        SocketManager.getInstance().connect(Urls.WS, username, 0);
 
     }
 }

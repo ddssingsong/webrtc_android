@@ -1,8 +1,7 @@
 ext {
     minSdkVersion = 21
-    targetSdkVersion = 29
-    compileSdkVersion = 29
-    buildToolsVersion = "28.0.3"
+    targetSdkVersion = 33
+    compileSdkVersion = 33
 
     android = [
             SDK_BASENAME    : "rtc-chat",
