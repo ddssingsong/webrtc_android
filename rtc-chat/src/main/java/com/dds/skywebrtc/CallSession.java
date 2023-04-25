@@ -469,11 +469,6 @@ public class CallSession implements EngineCallback {
     public void onSendIceCandidate(String userId, IceCandidate candidate) {
         executor.execute(() -> {
             if (mEvent != null) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 Log.d("dds_test", "onSendIceCandidate");
                 mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
             }
