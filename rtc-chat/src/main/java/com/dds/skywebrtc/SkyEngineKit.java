@@ -7,11 +7,11 @@ import com.dds.skywebrtc.except.NotInitializedException;
 import com.dds.skywebrtc.inter.ISkyEvent;
 
 /**
- * 主控类
+ * main control class
  * Created by dds on 2019/8/19.
  */
 public class SkyEngineKit {
-    private final static String TAG = "dds_AVEngineKit";
+    private final static String TAG = "AVEngineKit";
     private static SkyEngineKit avEngineKit;
     private CallSession mCurrentCallSession;
     private ISkyEvent mEvent;
@@ -28,7 +28,10 @@ public class SkyEngineKit {
         }
     }
 
-    // 初始化
+    /**
+     * init Engine
+     * @param iSocketEvent
+     */
     public static void init(ISkyEvent iSocketEvent) {
         if (avEngineKit == null) {
             avEngineKit = new SkyEngineKit();
@@ -100,8 +103,8 @@ public class SkyEngineKit {
             mCurrentCallSession.sendBusyRefuse(room, targetId);
             return false;
         }
-		isOutGoing = false;
-		this.isAudioOnly = audioOnly;
+        isOutGoing = false;
+        this.isAudioOnly = audioOnly;
         // 初始化会话
         mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
         mCurrentCallSession.setTargetId(targetId);
@@ -190,6 +193,7 @@ public class SkyEngineKit {
     public void transferToAudio() {
         isAudioOnly = true;
     }
+
     public boolean isOutGoing() {
         return isOutGoing;
     }
@@ -197,6 +201,7 @@ public class SkyEngineKit {
     public boolean isAudioOnly() {
         return isAudioOnly;
     }
+
     // 获取对话实例
     public CallSession getCurrentSession() {
         return this.mCurrentCallSession;

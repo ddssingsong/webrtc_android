@@ -29,8 +29,8 @@ import java.util.concurrent.Executors;
 public class CallSession implements EngineCallback {
     private static final String TAG = "CallSession";
     private WeakReference<CallSessionCallback> sessionCallback;
-    private ExecutorService executor;
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private final ExecutorService executor;
+    private final Handler handler = new Handler(Looper.getMainLooper());
     // session参数
     private boolean mIsAudioOnly;
     // 房间人列表
@@ -48,8 +48,8 @@ public class CallSession implements EngineCallback {
     private EnumType.CallState _callState = EnumType.CallState.Idle;
     private long startTime;
 
-    private AVEngine iEngine;
-    private ISkyEvent mEvent;
+    private final AVEngine iEngine;
+    private final ISkyEvent mEvent;
 
     public CallSession(Context context, String roomId, boolean audioOnly, ISkyEvent event) {
         executor = Executors.newSingleThreadExecutor();

@@ -8,7 +8,14 @@ import java.util.List;
  */
 public interface ISkyEvent {
 
-    // 创建房间
+    /**
+     * create room
+     * Every net call must create a room
+     * @param room room tag
+     * @param roomSize room size
+     *                 single call size == 2
+     *                 multi call size >= 2
+     */
     void createRoom(String room, int roomSize);
 
     // 发送单人邀请
