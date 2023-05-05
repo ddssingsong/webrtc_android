@@ -3,7 +3,7 @@ package com.dds.skywebrtc;
 import android.content.Context;
 import android.util.Log;
 
-import com.dds.skywebrtc.except.NotInitializedException;
+import com.dds.skywebrtc.exception.NotInitializedException;
 import com.dds.skywebrtc.inter.ISkyEvent;
 
 /**

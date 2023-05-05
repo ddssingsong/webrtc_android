@@ -1,8 +1,8 @@
 package com.dds.skywebrtc.model;
 
 /**
+ * UserInfo
  * Created by dds on 2020/4/11.
- * 用户信息
  */
 public class UserInfo {
 

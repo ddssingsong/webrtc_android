@@ -1,5 +1,6 @@
 package com.dds.core.voip;
 
+import android.media.AsyncPlayer;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.util.Log;
@@ -95,13 +96,13 @@ public class VoipEvent implements ISkyEvent {
     //==============================================================================
     @Override
     public void shouldStartRing(boolean isComing) {
+        Uri uri;
         if (isComing) {
-            Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.incoming_call_ring);
-            ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
+            uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.incoming_call_ring);
         } else {
-            Uri uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.wr_ringback);
-            ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
+            uri = Uri.parse("android.resource://" + App.getInstance().getPackageName() + "/" + R.raw.wr_ringback);
         }
+        ringPlayer.play(App.getInstance(), uri, true, AudioManager.STREAM_RING);
     }
 
     @Override

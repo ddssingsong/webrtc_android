@@ -26,7 +26,7 @@ import com.dds.permission.Permissions;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
-import com.dds.skywebrtc.except.NotInitializedException;
+import com.dds.skywebrtc.exception.NotInitializedException;
 import com.dds.webrtc.R;
 
 import java.util.UUID;
