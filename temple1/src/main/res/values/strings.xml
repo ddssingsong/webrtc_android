@@ -1,0 +1,5 @@
+<resources>
+
+    <string name="temple1_hint_text">please input address : 192.168.1.168</string>
+    <string name="temple_btn_text">Connect</string>
+</resources>

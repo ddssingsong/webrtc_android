@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 }
 include ':app', ':rtc-chat'
 include ':libwebrtc'
+include ':temple1'

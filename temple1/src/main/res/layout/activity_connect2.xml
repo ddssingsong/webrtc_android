@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConnectActivity">
+
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/full_surface_render"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
+
+    <FrameLayout
+        android:id="@+id/pip_surface_render"
+        android:layout_width="100dp"
+        android:layout_height="140dp"
+        android:layout_gravity="top|end"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp" />
+
+</FrameLayout>
