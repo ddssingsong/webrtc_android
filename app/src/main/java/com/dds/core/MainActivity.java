@@ -69,7 +69,6 @@ public class MainActivity extends BaseActivity implements IUserState {
         viop.putExtra("audioOnly", intent.getBooleanExtra("audioOnly", false));
         viop.putExtra("inviteId", intent.getStringExtra("inviteId"));
         viop.putExtra("inviteUserName", intent.getStringExtra("inviteUserName"));
-//        viop.putExtra("msgId", intent.getLongExtra("msgId", 0));
         viop.putExtra("userList", intent.getStringExtra("userList"));
         viop.setAction(Consts.ACTION_VOIP_RECEIVER);
         viop.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));

@@ -4,10 +4,14 @@
     <application>
         <activity
             android:name=".ConnectActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="ConnectActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Temple1Activity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="ConnectActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

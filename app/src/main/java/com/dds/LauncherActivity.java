@@ -16,6 +16,7 @@ import com.dds.core.base.BaseActivity;
 import com.dds.core.consts.Urls;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
+import com.dds.temple.Temple1Activity;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends BaseActivity implements IUserState {
@@ -25,7 +26,6 @@ public class LauncherActivity extends BaseActivity implements IUserState {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launcher);
-
         initView();
 
         if (SocketManager.getInstance().getUserState() == 1) {
@@ -35,8 +35,6 @@ public class LauncherActivity extends BaseActivity implements IUserState {
     }
 
     private void initView() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         etUser = findViewById(R.id.et_user);
         etUser.setText(App.getInstance().getUsername());
     }
@@ -52,7 +50,7 @@ public class LauncherActivity extends BaseActivity implements IUserState {
 
     }
 
-    public void enter(View view) {
+    public void login(View view) {
         String username = etUser.getText().toString().trim();
         if (TextUtils.isEmpty(username)) {
             Toast.makeText(this, "please input your name", Toast.LENGTH_LONG).show();
@@ -64,6 +62,10 @@ public class LauncherActivity extends BaseActivity implements IUserState {
         SocketManager.getInstance().addUserStateCallback(this);
         // 连接socket:登录
         SocketManager.getInstance().connect(Urls.WS, username, 0);
+    }
 
+
+    public void temple1(View view) {
+        startActivity(new Intent(this, Temple1Activity.class));
     }
 }

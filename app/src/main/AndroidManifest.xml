@@ -19,7 +19,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> <!-- 悬浮窗显示 -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
         android:name="com.dds.App"
@@ -34,7 +34,6 @@
 
         <activity
             android:name="com.dds.LauncherActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,12 +49,12 @@
         <!-- ======================java====================== -->
         <activity
             android:name="com.dds.core.voip.CallSingleActivity"
+            android:exported="true"
             android:screenOrientation="fullSensor"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:theme="@style/AppTheme.NoActionBar"
-            tools:ignore="UnusedAttribute"
-            android:exported="true">
+            tools:ignore="UnusedAttribute">
             <intent-filter>
                 <action android:name="${applicationId}.kit.voip.single" />
 
@@ -69,7 +68,8 @@
             android:showOnLockScreen="true"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <receiver android:name="com.dds.core.voip.VoipReceiver"
+        <receiver
+            android:name="com.dds.core.voip.VoipReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
