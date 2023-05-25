@@ -2,38 +2,70 @@ package com.dds.temple.rtc;
 
 import android.util.Log;
 
+import org.webrtc.AudioTrack;
 import org.webrtc.DataChannel;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
+import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RTCStatsReport;
 import org.webrtc.RtpReceiver;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
+import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     private static final String TAG = "RTCPeer";
-    private final PeerConnection pc;
+    private final PeerConnectionFactory mFactory;
+    private PeerConnection pc;
     private List<IceCandidate> queuedRemoteCandidates;
+    private SessionDescription localDescription;
+    private ExecutorService mExecutor;
+    private boolean isInitiator;
+    private PeerConnectionEvents mEvents;
+    private boolean isError;
 
-    public RTCPeer(PeerConnection pc) {
-        this.pc = pc;
+    public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events) {
+        this.mFactory = factory;
+        mExecutor = executor;
+        mEvents = events;
+        pc = createPeerConnection();
         queuedRemoteCandidates = new ArrayList<>();
+        isInitiator = false;
     }
+
+    public PeerConnection createPeerConnection() {
+        return mFactory.createPeerConnection(new ArrayList<>(), this);
+    }
+
 
     public void createOffer() {
         if (pc == null) return;
+        isInitiator = true;
         pc.createOffer(this, offerOrAnswerConstraint());
     }
 
     public void createAnswer() {
         if (pc == null) return;
+        isInitiator = false;
         pc.createAnswer(this, offerOrAnswerConstraint());
 
+    }
+
+    public void addVideoTrack(VideoTrack videoTrack, List<String> mediaStreamLabels) {
+        if (pc == null) return;
+        pc.addTrack(videoTrack, mediaStreamLabels);
+    }
+
+    public void addVideoTrack(AudioTrack audioTrack, List<String> mediaStreamLabels) {
+        if (pc == null) return;
+        pc.addTrack(audioTrack, mediaStreamLabels);
     }
 
     public void setRemoteDescription(SessionDescription sdp) {
@@ -81,23 +113,58 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     // region ------------------------------SdpObserver------------------------
     @Override
-    public void onCreateSuccess(SessionDescription sdp) {
-
+    public void onCreateSuccess(SessionDescription desc) {
+        if (localDescription != null) {
+            Log.d(TAG, "onCreateSuccess: Multiple SDP create.");
+            return;
+        }
+        String sdp = desc.description;
+        final SessionDescription newDesc = new SessionDescription(desc.type, sdp);
+        localDescription = newDesc;
+        mExecutor.execute(() -> {
+            if (pc == null || isError) {
+                return;
+            }
+            pc.setLocalDescription(RTCPeer.this, newDesc);
+        });
     }
 
     @Override
     public void onSetSuccess() {
+        mExecutor.execute(() -> {
+            if (pc == null || isError) {
+                return;
+            }
+            if (isInitiator) {
+                if (pc.getRemoteDescription() == null) {
+                    Log.d(TAG, "onSetSuccess Local SDP set successfully");
+                    mEvents.onLocalDescription(localDescription);
+                } else {
+                    Log.d(TAG, "onSetSuccess Remote SDP set successfully");
+                    drainCandidates();
+                }
+            } else {
+                if (pc.getLocalDescription() != null) {
+                    Log.d(TAG, "onSetSuccess Local SDP set successfully");
+                    mEvents.onLocalDescription(localDescription);
+                    drainCandidates();
+                } else {
+                    Log.d(TAG, "onSetSuccess Remote SDP set successfully");
+                }
+            }
+
+        });
 
     }
 
     @Override
     public void onCreateFailure(String error) {
-
+        reportError("createSDP error: " + error);
     }
 
     @Override
     public void onSetFailure(String error) {
-
+        reportError("setSDP error: " + error);
     }
 
     // endregion
@@ -170,4 +237,72 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     }
 
     // endregion
+
+
+    public interface PeerConnectionEvents {
+        /**
+         * Callback fired once local SDP is created and set.
+         */
+        void onLocalDescription(final SessionDescription sdp);
+
+        /**
+         * Callback fired once local Ice candidate is generated.
+         */
+        void onIceCandidate(final IceCandidate candidate);
+
+        /**
+         * Callback fired once local ICE candidates are removed.
+         */
+        void onIceCandidatesRemoved(final IceCandidate[] candidates);
+
+        /**
+         * Callback fired once connection is established (IceConnectionState is
+         * CONNECTED).
+         */
+        void onIceConnected();
+
+        /**
+         * Callback fired once connection is disconnected (IceConnectionState is
+         * DISCONNECTED).
+         */
+        void onIceDisconnected();
+
+        /**
+         * Callback fired once DTLS connection is established (PeerConnectionState
+         * is CONNECTED).
+         */
+        void onConnected();
+
+        /**
+         * Callback fired once DTLS connection is disconnected (PeerConnectionState
+         * is DISCONNECTED).
+         */
+        void onDisconnected();
+
+        /**
+         * Callback fired once peer connection is closed.
+         */
+        void onPeerConnectionClosed();
+
+        /**
+         * Callback fired once peer connection statistics is ready.
+         */
+        void onPeerConnectionStatsReady(final RTCStatsReport report);
+
+        /**
+         * Callback fired once peer connection error happened.
+         */
+        void onPeerConnectionError(final String description);
+    }
+
+    private void reportError(final String errorMessage) {
+        Log.e(TAG, "reportError error: " + errorMessage);
+        mExecutor.execute(() -> {
+            if (!isError) {
+                mEvents.onPeerConnectionError(errorMessage);
+                isError = true;
+            }
+        });
+    }
+
 }

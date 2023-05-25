@@ -16,6 +16,12 @@ dependencyResolutionManagement {
 
     }
 }
-include ':app', ':rtc-chat'
-include ':libwebrtc'
+include ':base'
+include ':app'
+include ':rtc-chat'
+include ':libwebrtc_m74'
+include ':libwebrtc5776'
+// temple
 include ':temple1'
+
+

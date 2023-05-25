@@ -21,9 +21,9 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentManager;
 
 import com.dds.App;
+import com.dds.base.permission.Permissions;
 import com.dds.core.base.BaseActivity;
-import com.dds.permission.Permissions;
-import com.dds.skywebrtc.CallSession;
+ import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.exception.NotInitializedException;

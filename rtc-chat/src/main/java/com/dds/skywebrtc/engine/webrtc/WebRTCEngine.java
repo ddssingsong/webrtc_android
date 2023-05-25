@@ -67,7 +67,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public static final String VIDEO_CODEC_H264 = "H264";
     private static final int VIDEO_RESOLUTION_WIDTH = 640;
     private static final int VIDEO_RESOLUTION_HEIGHT = 480;
-    private static final int FPS = 20;
+    private static final int FPS = 30;
 
     // 对话实例列表
     private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
@@ -215,7 +215,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peer.close();
             peers.remove(userId);
         }
-       Log.d(TAG, "leaveRoom peers.size() = " + peers.size() + "; mCallback = " + mCallback);
+        Log.d(TAG, "leaveRoom peers.size() = " + peers.size() + "; mCallback = " + mCallback);
         if (peers.size() <= 1) {
             if (mCallback != null) {
                 mCallback.exitRoom();
@@ -674,10 +674,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void onDisconnected(String userId) {
         if (mCallback != null) {
-           Log.d(TAG, "onDisconnected mCallback != null");
+            Log.d(TAG, "onDisconnected mCallback != null");
             mCallback.onDisconnected(userId);
         } else {
-           Log.d(TAG, "onDisconnected mCallback == null");
+            Log.d(TAG, "onDisconnected mCallback == null");
         }
     }
 

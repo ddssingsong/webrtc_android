@@ -15,8 +15,8 @@ import android.widget.ImageView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.dds.base.permission.Permissions;
 import com.dds.core.base.BaseActivity;
-import com.dds.permission.Permissions;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
@@ -63,6 +63,7 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
     public void onBackPressed() {
 
     }
+
     private void initView() {
         meetingHangupImageView = findViewById(R.id.meetingHangupImageView);
         Fragment fragment = new FragmentMeeting();

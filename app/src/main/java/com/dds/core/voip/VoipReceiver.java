@@ -13,9 +13,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.dds.App;
+import com.dds.base.permission.Permissions;
 import com.dds.core.base.BaseActivity;
 import com.dds.core.util.ActivityStackManager;
-import com.dds.permission.Permissions;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.webrtc.R;
 import com.tapadoo.alerter.Alerter;
@@ -101,7 +101,7 @@ public class VoipReceiver extends BroadcastReceiver {
             Context context, String room, ArrayList<String> list,
             String inviteId, Boolean audioOnly, String inviteUserName) {
         boolean b = SkyEngineKit.Instance().startInCall(App.getInstance(), room, inviteId, audioOnly);
-        Log.d(TAG, "onBackgroundHasPermission b = " + b );
+        Log.d(TAG, "onBackgroundHasPermission b = " + b);
         if (b) {
             App.getInstance().setOtherUserId(inviteId);
             if (list.size() == 1) {

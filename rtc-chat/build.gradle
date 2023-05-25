@@ -29,7 +29,7 @@ dependencies {
     // 官方库
 //    api group: 'org.webrtc', name: 'google-webrtc', version: '1.0.32006'
     // 自己编译的库
-    api project(path: ':libwebrtc')
+    api project(path: ':libwebrtc5776')
 }
 
 
