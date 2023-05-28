@@ -28,7 +28,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     private SessionDescription localDescription;
     private ExecutorService mExecutor;
     private boolean isInitiator;
-    private PeerConnectionEvents mEvents;
+    private final PeerConnectionEvents mEvents;
     private boolean isError;
 
     public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events) {
@@ -90,6 +90,12 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         drainCandidates();
         pc.removeIceCandidates(candidates);
     }
+
+    public void dispose() {
+        if (pc == null) return;
+        pc.dispose();
+    }
+
 
     private MediaConstraints offerOrAnswerConstraint() {
         MediaConstraints mediaConstraints = new MediaConstraints();
@@ -173,17 +179,35 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onSignalingChange(PeerConnection.SignalingState newState) {
-
+        Log.d(TAG, "onSignalingChange: " + newState);
     }
 
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState newState) {
-
+        mExecutor.execute(() -> {
+            Log.d(TAG, "IceConnectionState: " + newState);
+            if (newState == PeerConnection.IceConnectionState.CONNECTED) {
+                mEvents.onIceConnected();
+            } else if (newState == PeerConnection.IceConnectionState.DISCONNECTED) {
+                mEvents.onIceDisconnected();
+            } else if (newState == PeerConnection.IceConnectionState.FAILED) {
+                reportError("ICE connection failed.");
+            }
+        });
     }
 
     @Override
     public void onConnectionChange(PeerConnection.PeerConnectionState newState) {
-        PeerConnection.Observer.super.onConnectionChange(newState);
+        mExecutor.execute(() -> {
+            Log.d(TAG, "PeerConnectionState: " + newState);
+            if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
+                mEvents.onConnected();
+            } else if (newState == PeerConnection.PeerConnectionState.DISCONNECTED) {
+                mEvents.onDisconnected();
+            } else if (newState == PeerConnection.PeerConnectionState.FAILED) {
+                reportError("DTLS connection failed.");
+            }
+        });
     }
 
     @Override
@@ -198,12 +222,13 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceCandidate(IceCandidate candidate) {
+        mExecutor.execute(() -> mEvents.onIceCandidate(candidate));
 
     }
 
     @Override
     public void onIceCandidatesRemoved(IceCandidate[] candidates) {
-
+        mExecutor.execute(() -> mEvents.onIceCandidatesRemoved(candidates));
     }
 
     @Override
@@ -235,6 +260,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     public void onTrack(RtpTransceiver transceiver) {
         PeerConnection.Observer.super.onTrack(transceiver);
     }
+
 
     // endregion
 

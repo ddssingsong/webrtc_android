@@ -1,8 +1,5 @@
 package com.dds.temple;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,6 +12,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.dds.temple.rtc.ProxyVideoSink;
 import com.dds.temple.rtc.RTCEngine;
@@ -69,6 +68,25 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         initSocket();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        disconnect();
+        if (logToast != null) {
+            logToast.cancel();
+        }
+        super.onDestroy();
+    }
+
     private void initView() {
         mFullView = findViewById(R.id.full_surface_render);
         mPipView = findViewById(R.id.pip_surface_render);
@@ -104,6 +122,28 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         }
     }
 
+    private void disconnect() {
+        remoteProxyRenderer.setTarget(null);
+        localProxyVideoSink.setTarget(null);
+        if (mDirectRTCClient != null) {
+            mDirectRTCClient.disconnectFromRoom();
+            mDirectRTCClient = null;
+        }
+        if (mPipView != null) {
+            mPipView.release();
+            mPipView = null;
+        }
+        if (mFullView != null) {
+            mFullView.release();
+            mFullView = null;
+        }
+        if (mRtcEngine != null) {
+            mRtcEngine.close();
+            mRtcEngine = null;
+        }
+        finish();
+    }
+
 
     // region -------------------------------socket event-------------------------------------------
     @Override
@@ -128,31 +168,58 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
 
     @Override
     public void onRemoteDescription(SessionDescription sdp) {
+        final long delta = System.currentTimeMillis() - callStartedTimeMs;
+        runOnUiThread(() -> {
+            if (mRtcEngine == null) {
+                Log.e(TAG, "Received remote SDP for non-initialized peer connection.");
+                return;
+            }
+            mRtcEngine.setRemoteDescription(sdp);
+            if (!mIsServer) {
+                logAndToast("Creating ANSWER...");
+                mRtcEngine.createAnswer();
+            }
+        });
 
     }
 
     @Override
     public void onRemoteIceCandidate(IceCandidate candidate) {
-
+        runOnUiThread(() -> {
+            if (mRtcEngine == null) {
+                Log.e(TAG, "Received ICE candidate for a non-initialized peer connection.");
+                return;
+            }
+            mRtcEngine.addRemoteIceCandidate(candidate);
+        });
     }
 
     @Override
     public void onRemoteIceCandidatesRemoved(IceCandidate[] candidates) {
-
+        runOnUiThread(() -> {
+            if (mRtcEngine == null) {
+                Log.e(TAG, "Received ICE candidate removals for a non-initialized peer connection.");
+                return;
+            }
+            mRtcEngine.removeRemoteIceCandidates(candidates);
+        });
     }
 
     @Override
     public void onChannelClose() {
-
+        runOnUiThread(() -> {
+            logAndToast("Remote end hung up; dropping PeerConnection");
+            disconnect();
+        });
     }
 
     @Override
     public void onChannelError(String description) {
+        runOnUiThread(() -> logAndToast(description));
 
     }
 
     // endregion
-
 
     // region -------------------------------connection event---------------------------------------
 
@@ -161,56 +228,73 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         final long delta = System.currentTimeMillis() - callStartedTimeMs;
         runOnUiThread(() -> {
             logAndToast("Sending " + desc.type + ", delay=" + delta + "ms");
-
-
-
+            if (mIsServer) {
+                mDirectRTCClient.sendOfferSdp(desc);
+            } else {
+                mDirectRTCClient.sendAnswerSdp(desc);
+            }
         });
 
     }
 
     @Override
     public void onIceCandidate(IceCandidate candidate) {
+        runOnUiThread(() -> {
+            if (mDirectRTCClient != null) {
+                mDirectRTCClient.sendLocalIceCandidate(candidate);
+            }
+
+        });
 
     }
 
     @Override
     public void onIceCandidatesRemoved(IceCandidate[] candidates) {
-
+        runOnUiThread(() -> {
+            if (mDirectRTCClient != null) {
+                mDirectRTCClient.sendLocalIceCandidateRemovals(candidates);
+            }
+        });
     }
 
     @Override
     public void onIceConnected() {
-
+        final long delta = System.currentTimeMillis() - callStartedTimeMs;
+        runOnUiThread(() -> logAndToast("ICE connected, delay=" + delta + "ms"));
     }
 
     @Override
     public void onIceDisconnected() {
-
+        runOnUiThread(() -> logAndToast("ICE disconnected"));
     }
 
     @Override
     public void onConnected() {
-
+        final long delta = System.currentTimeMillis() - callStartedTimeMs;
+        runOnUiThread(() -> logAndToast("DTLS connected, delay=" + delta + "ms"));
     }
 
     @Override
     public void onDisconnected() {
-
+        runOnUiThread(() -> {
+            logAndToast("DTLS disconnected");
+            disconnect();
+        });
     }
 
     @Override
     public void onPeerConnectionClosed() {
-
+        Log.d(TAG, "onPeerConnectionClosed:");
     }
 
     @Override
     public void onPeerConnectionStatsReady(RTCStatsReport report) {
-
+        Log.d(TAG, "onPeerConnectionStatsReady: ");
     }
 
     @Override
     public void onPeerConnectionError(String description) {
-
+        logAndToast(description);
     }
 
     //endregion

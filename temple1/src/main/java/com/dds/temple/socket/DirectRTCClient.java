@@ -136,51 +136,42 @@ public class DirectRTCClient implements AppRTCClient, TCPChannelClient.TCPChanne
 
     @Override
     public void sendOfferSdp(final SessionDescription sdp) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (roomState != ConnectionState.CONNECTED) {
-                    reportError("Sending offer SDP in non connected state.");
-                    return;
-                }
-                JSONObject json = new JSONObject();
-                jsonPut(json, "sdp", sdp.description);
-                jsonPut(json, "type", "offer");
-                sendMessage(json.toString());
+        executor.execute(() -> {
+            if (roomState != ConnectionState.CONNECTED) {
+                reportError("Sending offer SDP in non connected state.");
+                return;
             }
+            JSONObject json = new JSONObject();
+            jsonPut(json, "sdp", sdp.description);
+            jsonPut(json, "type", "offer");
+            sendMessage(json.toString());
         });
     }
 
     @Override
     public void sendAnswerSdp(final SessionDescription sdp) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                JSONObject json = new JSONObject();
-                jsonPut(json, "sdp", sdp.description);
-                jsonPut(json, "type", "answer");
-                sendMessage(json.toString());
-            }
+        executor.execute(() -> {
+            JSONObject json = new JSONObject();
+            jsonPut(json, "sdp", sdp.description);
+            jsonPut(json, "type", "answer");
+            sendMessage(json.toString());
         });
     }
 
     @Override
     public void sendLocalIceCandidate(final IceCandidate candidate) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                JSONObject json = new JSONObject();
-                jsonPut(json, "type", "candidate");
-                jsonPut(json, "label", candidate.sdpMLineIndex);
-                jsonPut(json, "id", candidate.sdpMid);
-                jsonPut(json, "candidate", candidate.sdp);
+        executor.execute(() -> {
+            JSONObject json = new JSONObject();
+            jsonPut(json, "type", "candidate");
+            jsonPut(json, "label", candidate.sdpMLineIndex);
+            jsonPut(json, "id", candidate.sdpMid);
+            jsonPut(json, "candidate", candidate.sdp);
 
-                if (roomState != ConnectionState.CONNECTED) {
-                    reportError("Sending ICE candidate in non connected state.");
-                    return;
-                }
-                sendMessage(json.toString());
+            if (roomState != ConnectionState.CONNECTED) {
+                reportError("Sending ICE candidate in non connected state.");
+                return;
             }
+            sendMessage(json.toString());
         });
     }
 
@@ -189,23 +180,20 @@ public class DirectRTCClient implements AppRTCClient, TCPChannelClient.TCPChanne
      */
     @Override
     public void sendLocalIceCandidateRemovals(final IceCandidate[] candidates) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                JSONObject json = new JSONObject();
-                jsonPut(json, "type", "remove-candidates");
-                JSONArray jsonArray = new JSONArray();
-                for (final IceCandidate candidate : candidates) {
-                    jsonArray.put(toJsonCandidate(candidate));
-                }
-                jsonPut(json, "candidates", jsonArray);
-
-                if (roomState != ConnectionState.CONNECTED) {
-                    reportError("Sending ICE candidate removals in non connected state.");
-                    return;
-                }
-                sendMessage(json.toString());
+        executor.execute(() -> {
+            JSONObject json = new JSONObject();
+            jsonPut(json, "type", "remove-candidates");
+            JSONArray jsonArray = new JSONArray();
+            for (final IceCandidate candidate : candidates) {
+                jsonArray.put(toJsonCandidate(candidate));
             }
+            jsonPut(json, "candidates", jsonArray);
+
+            if (roomState != ConnectionState.CONNECTED) {
+                reportError("Sending ICE candidate removals in non connected state.");
+                return;
+            }
+            sendMessage(json.toString());
         });
     }
 
@@ -299,12 +287,7 @@ public class DirectRTCClient implements AppRTCClient, TCPChannelClient.TCPChanne
     }
 
     private void sendMessage(final String message) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                tcpClient.send(message);
-            }
-        });
+        executor.execute(() -> tcpClient.send(message));
     }
 
     // Put a `key`->`value` mapping in `json`.

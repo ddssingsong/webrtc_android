@@ -10,9 +10,10 @@ import org.webrtc.CameraEnumerator;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
+import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
-import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
@@ -22,7 +23,6 @@ import org.webrtc.VideoTrack;
 import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -157,7 +157,7 @@ public class RTCEngine {
 
     public void createPeerConnection(RTCPeer.PeerConnectionEvents events) {
         executor.execute(() -> {
-            mPeer = new RTCPeer(mConnectionFactory,executor,events);
+            mPeer = new RTCPeer(mConnectionFactory, executor, events);
             List<String> mediaStreamLabels = Collections.singletonList("ARDAMS");
             if (mVideoTrack != null) {
                 mPeer.addVideoTrack(mVideoTrack, mediaStreamLabels);
@@ -179,6 +179,72 @@ public class RTCEngine {
             mPeer.createAnswer();
         }
     }
+
+    public void setRemoteDescription(SessionDescription sdp) {
+        if (mPeer != null) {
+            mPeer.setRemoteDescription(sdp);
+        }
+    }
+
+    public void addRemoteIceCandidate(IceCandidate candidate) {
+        if (mPeer != null) {
+            mPeer.addRemoteIceCandidate(candidate);
+        }
+    }
+    public void removeRemoteIceCandidates(IceCandidate[] candidates) {
+        if (mPeer != null) {
+            mPeer.removeRemoteIceCandidates(candidates);
+        }
+    }
+
+    public void close() {
+        executor.execute(this::closeInternal);
+    }
+
+    private boolean videoCapturerStopped;
+
+    private void closeInternal() {
+        Log.d(TAG, "Closing peer connection.");
+        if (mPeer != null) {
+            mPeer.dispose();
+            mPeer = null;
+        }
+        Log.d(TAG, "Closing audio source.");
+        if (mAudioSource != null) {
+            mAudioSource.dispose();
+            mAudioSource = null;
+        }
+        Log.d(TAG, "Stopping capture.");
+        if (mVideoCapturer != null) {
+            try {
+                mVideoCapturer.stopCapture();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            videoCapturerStopped = true;
+            mVideoCapturer.dispose();
+            mVideoCapturer = null;
+        }
+
+        Log.d(TAG, "Closing video source.");
+        if (mVideoSource != null) {
+            mVideoSource.dispose();
+            mVideoSource = null;
+        }
+        if (mSurfaceTextureHelper != null) {
+            mSurfaceTextureHelper.dispose();
+            mSurfaceTextureHelper = null;
+        }
+
+        Log.d(TAG, "Closing peer connection factory.");
+        if (mConnectionFactory != null) {
+            mConnectionFactory.dispose();
+            mConnectionFactory = null;
+        }
+        mRootEglBase.release();
+
+    }
+
 
 
 }
