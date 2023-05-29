@@ -105,7 +105,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         localProxyVideoSink.setTarget(mPipView);
         remoteProxyRenderer.setTarget(mFullView);
 
-        mRtcEngine = new RTCEngine(this, eglBase);
+        mRtcEngine = new RTCEngine(this, eglBase, localProxyVideoSink);
     }
 
     private void initSocket() {
@@ -115,11 +115,8 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         mDirectRTCClient.connectToRoom(parameters);
     }
 
-
     public void hungUp(View view) {
-        if (mDirectRTCClient != null) {
-            mDirectRTCClient.disconnectFromRoom();
-        }
+        disconnect();
     }
 
     private void disconnect() {
@@ -150,13 +147,14 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     public void onConnectedToRoom(AppRTCClient.SignalingParameters params) {
         runOnUiThread(() -> {
             boolean initiator = params.initiator;
-            mRtcEngine.createPeerConnection(this);
+            mRtcEngine.createPeerConnection(this, remoteProxyRenderer);
             if (initiator) {
                 // create offer
                 mMainHandler.post(() -> logAndToast("create offer"));
                 mRtcEngine.createOffer();
             } else {
                 if (params.offerSdp != null) {
+                    mRtcEngine.setRemoteDescription(params.offerSdp);
                     // create answer
                     mMainHandler.post(() -> logAndToast("create answer"));
                     mRtcEngine.createAnswer();

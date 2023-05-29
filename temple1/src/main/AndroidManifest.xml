@@ -5,7 +5,7 @@
         <activity
             android:name=".ConnectActivity"
             android:exported="false"
-            android:label="ConnectActivity"
+            android:label="local network"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Temple1Activity"

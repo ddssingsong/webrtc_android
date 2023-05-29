@@ -91,6 +91,11 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         pc.removeIceCandidates(candidates);
     }
 
+    public List<RtpTransceiver>  getTransceivers() {
+        return pc.getTransceivers();
+    }
+
+
     public void dispose() {
         if (pc == null) return;
         pc.dispose();
@@ -131,6 +136,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
             if (pc == null || isError) {
                 return;
             }
+            Log.d(TAG, "onCreateSuccess: setLocalDescription");
             pc.setLocalDescription(RTCPeer.this, newDesc);
         });
     }
@@ -260,7 +266,6 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     public void onTrack(RtpTransceiver transceiver) {
         PeerConnection.Observer.super.onTrack(transceiver);
     }
-
 
     // endregion
 

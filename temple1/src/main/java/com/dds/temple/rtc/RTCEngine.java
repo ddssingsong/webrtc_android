@@ -3,6 +3,8 @@ package com.dds.temple.rtc;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.Camera2Enumerator;
@@ -12,12 +14,15 @@ import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
+import org.webrtc.MediaStreamTrack;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RtpTransceiver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
+import org.webrtc.VideoSink;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 import org.webrtc.audio.AudioDeviceModule;
@@ -37,6 +42,8 @@ public class RTCEngine {
     private VideoSource mVideoSource;
     private VideoCapturer mVideoCapturer;
     private SurfaceTextureHelper mSurfaceTextureHelper;
+    private VideoTrack mRemoteVideoTrack;
+
     // audio
     private AudioTrack mAudioTrack;
     private AudioSource mAudioSource;
@@ -55,11 +62,11 @@ public class RTCEngine {
 
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public RTCEngine(Context context, EglBase eglBase) {
+    public RTCEngine(Context context, EglBase eglBase, VideoSink localSink) {
         mRootEglBase = eglBase;
         executor.execute(() -> {
             mConnectionFactory = createConnectionFactory(context);
-            mVideoTrack = createVideoTrack(context);
+            mVideoTrack = createVideoTrack(context, localSink);
             mAudioTrack = createAudioTrack();
         });
 
@@ -88,7 +95,7 @@ public class RTCEngine {
         return builder1.createPeerConnectionFactory();
     }
 
-    private VideoTrack createVideoTrack(Context context) {
+    private VideoTrack createVideoTrack(Context context, VideoSink localSink) {
 
         // 1. create video source
         mVideoSource = mConnectionFactory.createVideoSource(false);
@@ -101,6 +108,7 @@ public class RTCEngine {
         // 4. create videoTrack
         VideoTrack videoTrack = mConnectionFactory.createVideoTrack(VIDEO_TRACK_ID, mVideoSource);
         videoTrack.setEnabled(true);
+        videoTrack.addSink(localSink);
         return videoTrack;
     }
 
@@ -155,7 +163,7 @@ public class RTCEngine {
         return audioConstraints;
     }
 
-    public void createPeerConnection(RTCPeer.PeerConnectionEvents events) {
+    public void createPeerConnection(RTCPeer.PeerConnectionEvents events, VideoSink remoteSink) {
         executor.execute(() -> {
             mPeer = new RTCPeer(mConnectionFactory, executor, events);
             List<String> mediaStreamLabels = Collections.singletonList("ARDAMS");
@@ -165,36 +173,67 @@ public class RTCEngine {
             if (mAudioTrack != null) {
                 mPeer.addVideoTrack(mAudioTrack, mediaStreamLabels);
             }
+            mRemoteVideoTrack = getRemoteVideoTrack();
+            if (mRemoteVideoTrack != null) {
+                mRemoteVideoTrack.setEnabled(true);
+                mRemoteVideoTrack.addSink(remoteSink);
+            }
         });
     }
 
-    public void createOffer() {
-        if (mPeer != null) {
-            mPeer.createOffer();
+    private @Nullable VideoTrack getRemoteVideoTrack() {
+        for (RtpTransceiver transceiver : mPeer.getTransceivers()) {
+            MediaStreamTrack track = transceiver.getReceiver().track();
+            if (track instanceof VideoTrack) {
+                return (VideoTrack) track;
+            }
         }
+        return null;
+    }
+
+    public void createOffer() {
+        executor.execute(() -> {
+            if (mPeer != null) {
+                mPeer.createOffer();
+            }
+        });
+
     }
 
     public void createAnswer() {
-        if (mPeer != null) {
-            mPeer.createAnswer();
-        }
+        executor.execute(() -> {
+            if (mPeer != null) {
+                mPeer.createAnswer();
+            }
+        });
+
     }
 
     public void setRemoteDescription(SessionDescription sdp) {
-        if (mPeer != null) {
-            mPeer.setRemoteDescription(sdp);
-        }
+        executor.execute(() -> {
+            if (mPeer != null) {
+                mPeer.setRemoteDescription(sdp);
+            }
+        });
+
     }
 
     public void addRemoteIceCandidate(IceCandidate candidate) {
-        if (mPeer != null) {
-            mPeer.addRemoteIceCandidate(candidate);
-        }
+        executor.execute(() -> {
+            if (mPeer != null) {
+                mPeer.addRemoteIceCandidate(candidate);
+            }
+        });
+
     }
+
     public void removeRemoteIceCandidates(IceCandidate[] candidates) {
-        if (mPeer != null) {
-            mPeer.removeRemoteIceCandidates(candidates);
-        }
+        executor.execute(() -> {
+            if (mPeer != null) {
+                mPeer.removeRemoteIceCandidates(candidates);
+            }
+        });
+
     }
 
     public void close() {
@@ -244,7 +283,6 @@ public class RTCEngine {
         mRootEglBase.release();
 
     }
-
 
 
 }
