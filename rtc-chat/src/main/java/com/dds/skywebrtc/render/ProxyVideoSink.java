@@ -9,7 +9,7 @@ import org.webrtc.VideoSink;
  * android_shuai@163.com
  */
 public class ProxyVideoSink implements VideoSink {
-    private static final String TAG = "dds_ProxyVideoSink";
+    private static final String TAG = "ProxyVideoSink";
     private VideoSink target;
 
     @Override

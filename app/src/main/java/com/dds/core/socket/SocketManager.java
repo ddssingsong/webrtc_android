@@ -12,6 +12,7 @@ import com.dds.core.voip.VoipReceiver;
 import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
+import com.dds.skywebrtc.log.SkyLog;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -28,7 +29,7 @@ import javax.net.ssl.TrustManager;
  * ddssignsong@163.com
  */
 public class SocketManager implements IEvent {
-    private final static String TAG = "dds_SocketManager";
+    private final static String TAG = SkyLog.createTag("SocketManager");
     private MyWebSocket webSocket;
     private int userState;
     private String myId;

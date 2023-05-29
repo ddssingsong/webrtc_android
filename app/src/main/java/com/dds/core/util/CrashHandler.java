@@ -3,6 +3,8 @@ package com.dds.core.util;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.dds.App;
 import com.dds.LauncherActivity;
 import com.dds.skywebrtc.CallSession;
@@ -16,7 +18,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "MyUncaughtExceptionHand";
 
     @Override
-    public void uncaughtException( Thread thread, Throwable ex) {
+    public void uncaughtException(@NonNull Thread thread, @NonNull Throwable ex) {
         SkyEngineKit gEngineKit = SkyEngineKit.Instance();
         CallSession session = gEngineKit.getCurrentSession();
 
@@ -24,19 +26,17 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         if (session != null) {
             gEngineKit.endCall();
         } else {
-            gEngineKit.sendDisconnected(App.getInstance().getRoomId(), App.getInstance().getOtherUserId(),true);
+            gEngineKit.sendDisconnected(App.getInstance().getRoomId(), App.getInstance().getOtherUserId(), true);
         }
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);
-        //如果异常时在AsyncTask里面的后台线程抛出的
-        //那么实际的异常仍然可以通过getCause获得
         Throwable cause = ex;
         while (null != cause) {
             cause.printStackTrace(printWriter);
             cause = cause.getCause();
         }
-        //stacktraceAsString就是获取的carsh堆栈信息
         final String stacktraceAsString = result.toString();
+        Log.e(TAG, "uncaughtException: " + stacktraceAsString);
         printWriter.close();
         restartApp();
     }

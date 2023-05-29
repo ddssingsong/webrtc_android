@@ -6,6 +6,7 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dds.core.util.StringUtil;
+import com.dds.skywebrtc.log.SkyLog;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -24,7 +25,7 @@ import javax.net.ssl.X509TrustManager;
  * android_shuai@163.com
  */
 public class MyWebSocket extends WebSocketClient {
-    private final static String TAG = "dds_WebSocket";
+    private final static String TAG = SkyLog.createTag("WebSocket");
     private final IEvent iEvent;
     private boolean connectFlag = false;
 

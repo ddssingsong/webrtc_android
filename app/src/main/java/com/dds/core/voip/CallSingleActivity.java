@@ -23,7 +23,7 @@ import androidx.fragment.app.FragmentManager;
 import com.dds.App;
 import com.dds.base.permission.Permissions;
 import com.dds.core.base.BaseActivity;
- import com.dds.skywebrtc.CallSession;
+import com.dds.skywebrtc.CallSession;
 import com.dds.skywebrtc.EnumType;
 import com.dds.skywebrtc.SkyEngineKit;
 import com.dds.skywebrtc.exception.NotInitializedException;
@@ -94,7 +94,7 @@ public class CallSingleActivity extends BaseActivity implements CallSession.Call
         try {
             gEngineKit = SkyEngineKit.Instance();
         } catch (NotInitializedException e) {
-            SkyEngineKit.init(new VoipEvent()); //重新初始化
+            SkyEngineKit.init(new VoipEvent());
             try {
                 gEngineKit = SkyEngineKit.Instance();
             } catch (NotInitializedException ex) {

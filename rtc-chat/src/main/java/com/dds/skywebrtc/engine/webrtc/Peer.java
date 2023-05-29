@@ -3,8 +3,10 @@ package com.dds.skywebrtc.engine.webrtc;
 import android.content.Context;
 import android.util.Log;
 
+import com.dds.skywebrtc.log.SkyLog;
 import com.dds.skywebrtc.render.ProxyVideoSink;
 
+import org.webrtc.AudioTrack;
 import org.webrtc.DataChannel;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
@@ -17,6 +19,7 @@ import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceViewRenderer;
+import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +29,10 @@ import java.util.List;
  * android_shuai@163.com
  */
 public class Peer implements SdpObserver, PeerConnection.Observer {
-    private final static String TAG = "dds_Peer";
+    private final static String TAG = SkyLog.createTag(Peer.class.getSimpleName());
     private final PeerConnection pc;
     private final String mUserId;
-    private List<IceCandidate> queuedRemoteCandidates;
+    private volatile List<IceCandidate> queuedRemoteCandidates;
     private SessionDescription localSdp;
     private final PeerConnectionFactory mFactory;
     private final List<PeerConnection.IceServer> mIceLis;
@@ -48,17 +51,12 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         mUserId = userId;
         queuedRemoteCandidates = new ArrayList<>();
         this.pc = createPeerConnection();
-        Log.d("dds_test", "create Peer:" + mUserId);
+        Log.d(TAG, "create Peer:" + mUserId + ",this.pc = " + this.pc);
 
     }
 
     public PeerConnection createPeerConnection() {
-        PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(mIceLis);
-        if (mFactory != null) {
-            return mFactory.createPeerConnection(rtcConfig, this);
-        } else {
-            return null;
-        }
+        return mFactory.createPeerConnection(mIceLis, this);
     }
 
     public void setOffer(boolean isOffer) {
@@ -68,21 +66,21 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     // 创建offer
     public void createOffer() {
         if (pc == null) return;
-        Log.d("dds_test", "createOffer");
+        Log.d(TAG, "createOffer");
         pc.createOffer(this, offerOrAnswerConstraint());
     }
 
     // 创建answer
     public void createAnswer() {
         if (pc == null) return;
-        Log.d("dds_test", "createAnswer");
+        Log.d(TAG, "createAnswer");
         pc.createAnswer(this, offerOrAnswerConstraint());
 
     }
 
     // 设置LocalDescription
     public void setLocalDescription(SessionDescription sdp) {
-        Log.d("dds_test", "setLocalDescription");
+        Log.d(TAG, "setLocalDescription");
         if (pc == null) return;
         pc.setLocalDescription(this, sdp);
     }
@@ -90,23 +88,33 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     // 设置RemoteDescription
     public void setRemoteDescription(SessionDescription sdp) {
         if (pc == null) return;
-        Log.d("dds_test", "setRemoteDescription");
+        Log.d(TAG, "setRemoteDescription");
         pc.setRemoteDescription(this, sdp);
     }
 
     //添加本地流
+    @Deprecated
     public void addLocalStream(MediaStream stream) {
         if (pc == null) return;
-        Log.d("dds_test", "addLocalStream");
+        Log.d(TAG, "addLocalStream");
         pc.addStream(stream);
+    }
+
+    public void addVideoTrack(VideoTrack videoTrack, List<String> mediaStreamLabels) {
+        if (pc == null) return;
+        pc.addTrack(videoTrack, mediaStreamLabels);
+    }
+
+    public void addAudioTrack(AudioTrack audioTrack, List<String> mediaStreamLabels) {
+        if (pc == null) return;
+        pc.addTrack(audioTrack, mediaStreamLabels);
     }
 
     // 添加RemoteIceCandidate
     public synchronized void addRemoteIceCandidate(final IceCandidate candidate) {
-        Log.d("dds_test", "addRemoteIceCandidate");
+        Log.d(TAG, "addRemoteIceCandidate");
         if (pc != null) {
             if (queuedRemoteCandidates != null) {
-                Log.d("dds_test", "addRemoteIceCandidate  2222");
                 synchronized (Peer.class) {
                     if (queuedRemoteCandidates != null) {
                         queuedRemoteCandidates.add(candidate);
@@ -114,7 +122,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                 }
 
             } else {
-                Log.d("dds_test", "addRemoteIceCandidate1111");
                 pc.addIceCandidate(candidate);
             }
         }
@@ -169,11 +176,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                 Log.e(TAG, "close: " + e);
 
             }
-
-
         }
-
-
     }
 
     //------------------------------Observer-------------------------------------
@@ -311,7 +314,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
 
     private void drainCandidates() {
-        Log.i("dds_test", "drainCandidates");
+        Log.i(TAG, "drainCandidates");
         synchronized (Peer.class) {
             if (queuedRemoteCandidates != null) {
                 Log.d(TAG, "Add " + queuedRemoteCandidates.size() + " remote candidates");

@@ -10,6 +10,7 @@ import android.view.View;
 import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.webrtc.WebRTCEngine;
 import com.dds.skywebrtc.inter.ISkyEvent;
+import com.dds.skywebrtc.log.SkyLog;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
@@ -24,10 +25,9 @@ import java.util.concurrent.Executors;
 /**
  * 会话层
  * Created by dds on 2019/8/19.
- *
  */
 public class CallSession implements EngineCallback {
-    private static final String TAG = "CallSession";
+    private static final String TAG = SkyLog.createTag(CallSession.class.getSimpleName());
     private WeakReference<CallSessionCallback> sessionCallback;
     private final ExecutorService executor;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -77,7 +77,7 @@ public class CallSession implements EngineCallback {
     public void joinHome(String roomId) {
         executor.execute(() -> {
             _callState = EnumType.CallState.Connecting;
-             Log.d(TAG, "joinHome mEvent = " + mEvent);
+            Log.d(TAG, "joinHome mEvent = " + mEvent);
             setIsComing(true);
             if (mEvent != null) {
                 mEvent.sendJoin(roomId);
@@ -118,7 +118,7 @@ public class CallSession implements EngineCallback {
                 mEvent.sendRefuse(mRoomId, mTargetId, EnumType.RefuseType.Hangup.ordinal());
             }
         });
-		release(EnumType.CallEndReason.Hangup);
+        release(EnumType.CallEndReason.Hangup);
     }
 
     // 发送忙时拒绝
@@ -129,7 +129,7 @@ public class CallSession implements EngineCallback {
                 mEvent.sendRefuse(room, targetId, EnumType.RefuseType.Busy.ordinal());
             }
         });
-		release(EnumType.CallEndReason.Hangup);
+        release(EnumType.CallEndReason.Hangup);
 
     }
 
@@ -143,7 +143,7 @@ public class CallSession implements EngineCallback {
                 mEvent.sendCancel(mRoomId, list);
             }
         });
-		release(EnumType.CallEndReason.Hangup);
+        release(EnumType.CallEndReason.Hangup);
 
     }
 
@@ -214,8 +214,8 @@ public class CallSession implements EngineCallback {
             if (sessionCallback != null && sessionCallback.get() != null) {
                 sessionCallback.get().didCallEndWithReason(reason);
             } else {
-				//TODO 结束会话
-			}
+                //TODO 结束会话
+            }
         });
     }
 
@@ -469,7 +469,7 @@ public class CallSession implements EngineCallback {
     public void onSendIceCandidate(String userId, IceCandidate candidate) {
         executor.execute(() -> {
             if (mEvent != null) {
-                Log.d("dds_test", "onSendIceCandidate");
+                Log.d(TAG, "onSendIceCandidate");
                 mEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
             }
         });
@@ -480,7 +480,7 @@ public class CallSession implements EngineCallback {
     public void onSendOffer(String userId, SessionDescription description) {
         executor.execute(() -> {
             if (mEvent != null) {
-                Log.d("dds_test", "onSendOffer");
+                Log.d(TAG, "onSendOffer");
                 mEvent.sendOffer(userId, description.description);
             }
         });
@@ -491,7 +491,7 @@ public class CallSession implements EngineCallback {
     public void onSendAnswer(String userId, SessionDescription description) {
         executor.execute(() -> {
             if (mEvent != null) {
-                Log.d("dds_test", "onSendAnswer");
+                Log.d(TAG, "onSendAnswer");
                 mEvent.sendAnswer(userId, description.description);
             }
         });
@@ -502,7 +502,7 @@ public class CallSession implements EngineCallback {
     public void onRemoteStream(String userId) {
         // 画面预览
         if (sessionCallback != null && sessionCallback.get() != null) {
-           Log.d(TAG, "onRemoteStream sessionCallback.get() != null ");
+            Log.d(TAG, "onRemoteStream sessionCallback.get() != null ");
             sessionCallback.get().didReceiveRemoteVideoTrack(userId);
         } else {
             Log.d(TAG, "onRemoteStream sessionCallback.get() == null ");
@@ -513,7 +513,7 @@ public class CallSession implements EngineCallback {
     public void onDisconnected(String userId) {
         //断线了，需要关闭通话界面
         if (sessionCallback != null && sessionCallback.get() != null) {
-           Log.d(TAG, "onDisconnected sessionCallback.get() != null ");
+            Log.d(TAG, "onDisconnected sessionCallback.get() != null ");
             sessionCallback.get().didDisconnected(userId);
         } else {
             Log.d(TAG, "onDisconnected sessionCallback.get() == null ");

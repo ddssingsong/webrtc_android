@@ -29,8 +29,7 @@ public class SkyEngineKit {
     }
 
     /**
-     * init Engine
-     * @param iSocketEvent
+     * SDK Enter init Engine
      */
     public static void init(ISkyEvent iSocketEvent) {
         if (avEngineKit == null) {
@@ -38,7 +37,6 @@ public class SkyEngineKit {
             avEngineKit.mEvent = iSocketEvent;
         }
     }
-
 
     public void sendRefuseOnPermissionDenied(String room, String inviteId) {
         // 未初始化

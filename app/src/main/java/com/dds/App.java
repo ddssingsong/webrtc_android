@@ -24,9 +24,9 @@ public class App extends Application {
         super.onCreate();
         app = this;
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler());
-        // 初始化网络请求
+        // init http request
         HttpRequestPresenter.init(new UrlConnRequest());
-        // 初始化信令
+        // init SkyEngineKit
         SkyEngineKit.init(new VoipEvent());
 
     }

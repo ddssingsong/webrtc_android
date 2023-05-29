@@ -191,7 +191,7 @@ public class RTCEngine {
                 mPeer.addVideoTrack(mVideoTrack, mediaStreamLabels);
             }
             if (mAudioTrack != null) {
-                mPeer.addVideoTrack(mAudioTrack, mediaStreamLabels);
+                mPeer.addAudioTrack(mAudioTrack, mediaStreamLabels);
             }
             mRemoteVideoTrack = getRemoteVideoTrack();
             if (mRemoteVideoTrack != null) {

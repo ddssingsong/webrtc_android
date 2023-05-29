@@ -62,7 +62,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         pc.addTrack(videoTrack, mediaStreamLabels);
     }
 
-    public void addVideoTrack(AudioTrack audioTrack, List<String> mediaStreamLabels) {
+    public void addAudioTrack(AudioTrack audioTrack, List<String> mediaStreamLabels) {
         if (pc == null) return;
         pc.addTrack(audioTrack, mediaStreamLabels);
     }

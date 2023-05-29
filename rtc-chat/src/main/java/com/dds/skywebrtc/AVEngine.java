@@ -5,11 +5,12 @@ import android.view.View;
 
 import com.dds.skywebrtc.engine.EngineCallback;
 import com.dds.skywebrtc.engine.IEngine;
+import com.dds.skywebrtc.log.SkyLog;
 
 import java.util.List;
 
 public class AVEngine implements IEngine {
-    private static final String TAG = "AVEngine";
+    private static final String TAG = SkyLog.createTag("AVEngine");
     private final IEngine iEngine;
     private static volatile AVEngine instance;
 
@@ -189,7 +190,7 @@ public class AVEngine implements IEngine {
         if (iEngine == null) {
             return;
         }
-         Log.d(TAG,"release");
+        Log.d(TAG, "release");
         iEngine.release();
     }
 

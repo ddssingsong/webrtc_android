@@ -13,7 +13,7 @@ import com.dds.net.ICallback;
 import java.util.List;
 
 public class RoomViewModel extends ViewModel {
-
+    private static final String TAG = "RoomViewModel";
     private MutableLiveData<List<RoomInfo>> mList;
     private Thread thread;
 
@@ -37,14 +37,14 @@ public class RoomViewModel extends ViewModel {
             HttpRequestPresenter.getInstance().get(url, null, new ICallback() {
                 @Override
                 public void onSuccess(String result) {
-                    Log.d("dds_test", result);
+                    Log.d(TAG, result);
                     List<RoomInfo> roomInfos = JSON.parseArray(result, RoomInfo.class);
                     mList.postValue(roomInfos);
                 }
 
                 @Override
                 public void onFailure(int code, Throwable t) {
-                    Log.d("dds_test", "code:" + code + ",msg:" + t.toString());
+                    Log.d(TAG, "code:" + code + ",msg:" + t.toString());
                 }
             });
         });
@@ -54,7 +54,7 @@ public class RoomViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        if(thread!=null&&thread.isAlive()){
+        if (thread != null && thread.isAlive()) {
             thread.interrupt();
             thread = null;
         }
