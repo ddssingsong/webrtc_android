@@ -26,7 +26,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     private PeerConnection pc;
     private List<IceCandidate> queuedRemoteCandidates;
     private SessionDescription localDescription;
-    private ExecutorService mExecutor;
+    private final ExecutorService mExecutor;
     private boolean isInitiator;
     private final PeerConnectionEvents mEvents;
     private boolean isError;
@@ -43,7 +43,6 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     public PeerConnection createPeerConnection() {
         return mFactory.createPeerConnection(new ArrayList<>(), this);
     }
-
 
     public void createOffer() {
         if (pc == null) return;

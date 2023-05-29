@@ -35,7 +35,7 @@ import java.util.concurrent.Executors;
 
 public class RTCEngine {
     private static final String TAG = "RTCEngine";
-    private EglBase mRootEglBase;
+    private final EglBase mRootEglBase;
     private PeerConnectionFactory mConnectionFactory;
     // video
     private VideoTrack mVideoTrack;
@@ -52,13 +52,18 @@ public class RTCEngine {
     // config
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
-    private static final int VIDEO_RESOLUTION_WIDTH = 720;
-    private static final int VIDEO_RESOLUTION_HEIGHT = 1280;
+    private static final int VIDEO_RESOLUTION_WIDTH = 1920;
+    private static final int VIDEO_RESOLUTION_HEIGHT = 1080;
     private static final int FPS = 30;
     private static final String AUDIO_ECHO_CANCELLATION_CONSTRAINT = "googEchoCancellation";
     private static final String AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT = "googAutoGainControl";
     private static final String AUDIO_HIGH_PASS_FILTER_CONSTRAINT = "googHighpassFilter";
     private static final String AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression";
+
+    private static final String VIDEO_FLEXFEC_FIELDTRIAL =
+            "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/";
+    private static final String DISABLE_WEBRTC_AGC_FIELDTRIAL =
+            "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/";
 
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -74,7 +79,9 @@ public class RTCEngine {
 
     private PeerConnectionFactory createConnectionFactory(Context context) {
         // 1. init factory
+        final String fieldTrials = getFieldTrials();
         PeerConnectionFactory.InitializationOptions.Builder builder = PeerConnectionFactory.InitializationOptions.builder(context);
+        builder.setFieldTrials(fieldTrials);
         PeerConnectionFactory.InitializationOptions initializationOptions = builder.createInitializationOptions();
         PeerConnectionFactory.initialize(initializationOptions);
 
@@ -93,6 +100,19 @@ public class RTCEngine {
                 .setVideoEncoderFactory(encoderFactory)
                 .setVideoDecoderFactory(decoderFactory);
         return builder1.createPeerConnectionFactory();
+    }
+
+    private String getFieldTrials() {
+        String fieldTrials = "";
+        if (true) {
+            fieldTrials += VIDEO_FLEXFEC_FIELDTRIAL;
+            Log.d(TAG, "Enable FlexFEC field trial.");
+        }
+        if (true) {
+            fieldTrials += DISABLE_WEBRTC_AGC_FIELDTRIAL;
+            Log.d(TAG, "Disable WebRTC AGC field trial.");
+        }
+        return fieldTrials;
     }
 
     private VideoTrack createVideoTrack(Context context, VideoSink localSink) {
@@ -240,8 +260,6 @@ public class RTCEngine {
         executor.execute(this::closeInternal);
     }
 
-    private boolean videoCapturerStopped;
-
     private void closeInternal() {
         Log.d(TAG, "Closing peer connection.");
         if (mPeer != null) {
@@ -260,7 +278,6 @@ public class RTCEngine {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            videoCapturerStopped = true;
             mVideoCapturer.dispose();
             mVideoCapturer = null;
         }
