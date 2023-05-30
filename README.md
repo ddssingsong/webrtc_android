@@ -1,27 +1,21 @@
 ![logo](art/logo1.png)
 
-# Sky p2p metting (p2p视频会议)
+# RTC VideoChat
 
 > [中文文档](<https://github.com/ddssingsong/webrtc_android/blob/master/README-zh.md>)
 
 
-
-A set of voice and video systems based on  [webrtc](https://webrtc.googlesource.com/) can be developed for single or multiple channels.
-
+A system developed based on WebRTC that can perform single-channel or multi-channel voice and video
 
 
-Through this project, you can get a clearer understanding of the whole call process of webrtc. This project is just for learning webrtc. If you feel it meets your needs, just download the source code and start your performance.
-
+This is a great WebRTC entry project to help you deeply understand the entire process of webRTC calls, just for learning
 
 
 ## Server 
 
-You can find the server-side code from here. 
+You can find the server-side code from here.
 
-NodeJs    https://github.com/ddssingsong/webrtc_server_node   for branch:branch_nodejs
-
-java      https://github.com/ddssingsong/webrtc_server_java         for branch:master
-
+java server：  https://github.com/ddssingsong/webrtc_server_java       branch:master
 
 
 ## Features
@@ -50,32 +44,6 @@ java      https://github.com/ddssingsong/webrtc_server_java         for branch:m
 2. Multi-person conversation
 
    ![process](art/image5.jpg)
-
-
-
-
-
-## CHANGELOG
-
-**2.0.0**
-
-Various optimization
-
-**v1.2.0:** 
-
- move to androidx
-
-**v1.1.2:**   
-
-release base on android support
-
-**v1.1.1:**   
-
-This version has implemented the basic functions.
-
-**v1.1.0**  
-
-Complete Basic Video Conferences
 
 
 # Android demo
@@ -109,15 +77,16 @@ Copyright (c) 2019 哒哒瑟
 
 
 
-## QQ
+## Explore together
 
 QQ Group：webrtc技术交流群
 
 QQ Group ID：601332720（1）  619413989  （2） 
 
-Now: please add WeChat friends: ddssingsong007
+wechat: please add WeChat friends: ddssingsong007
 
-加入群一起探讨webrtc，分享好的开源项目
+email: ddssingsong@163.com
+ 
 
 
 

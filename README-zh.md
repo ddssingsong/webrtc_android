@@ -1,22 +1,17 @@
-# video conference
+
 ![logo](https://github.com/ddssingsong/webrtc_android/blob/master/art/logo1.png)
 
-## 概述
+# RTC 视频通话
 
 > [English Documents](<https://github.com/ddssingsong/webrtc_android/blob/master/README.md>)
 
-基于 [webrtc](https://webrtc.googlesource.com/) 开发的一套可以进行**单路**或者**多路**语音、视频的系统。高仿微信九宫格显示，最多可支持 **9** 路视频。
 
+基于 WebRTC 开发的一套可以进行**单路**或者**多路**语音、视频的系统。仿微信九宫格显示，最多可支持 **9** 路视频。
 
-
-通过这个项目，你可以深刻学习并理解webrtc通话的整个流程。这个项目只是作为学习使用，是一个很好的webrtc入门项目，如果你感兴趣的话，赶紧开始吧
-
-
+这是一个很棒的WebRTC入门项目，帮助你深刻理解webRTC通话的整个流程，仅仅作为学习使用
+ 
 
 ## 服务器搭建
-
-
-nodejs：https://github.com/ddssingsong/webrtc_server_node    for branch:branch_nodejs(会议)
 
 java： https://github.com/ddssingsong/webrtc_server_java     for branch:master
 
@@ -57,32 +52,6 @@ https://blog.csdn.net/u011077027/article/details/86225524  （csdn）
    ![process](/art/image5.jpg)
 
 
-
-## 更新日志
-
-**2.0.0**
-
-重构代码
-
-**v1.2.0**
-
-使用androidx
-
-**v1.1.2** 
-
- 新增功能：
-
-1. 仿微信九宫格
-2. 会议添加扬声器和关闭摄像头功能
-
-**v1.1.1** 
-
-保存代码，便于后续的开发
-
-**v1.1.0**  
-
-完成基本视频会议
-
 # demo测试
 
 apk:[Android端测试](app/release/app-release.apk)
@@ -120,4 +89,4 @@ QQ群   号：601332720
 
 Now:请加微信号好友：ddssingsong007
 
-加入群一起探讨webrtc，分享好的开源项目
+email: ddssingsong@163.com
