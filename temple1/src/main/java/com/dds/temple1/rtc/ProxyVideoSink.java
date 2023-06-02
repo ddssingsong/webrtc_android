@@ -1,4 +1,4 @@
-package com.dds.temple.rtc;
+package com.dds.temple1.rtc;
 
 import org.webrtc.Logging;
 import org.webrtc.VideoFrame;

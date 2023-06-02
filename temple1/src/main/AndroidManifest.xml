@@ -3,12 +3,12 @@
 
     <application>
         <activity
-            android:name=".ConnectActivity"
+            android:name="com.dds.temple1.ConnectActivity"
             android:exported="false"
             android:label="local network"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".Temple1Activity"
+            android:name="com.dds.temple1.Temple1Activity"
             android:exported="false"
             android:label="ConnectActivity"
             android:screenOrientation="portrait" />

@@ -25,3 +25,4 @@ include ':libwebrtc5776'
 include ':temple1'
 
 
+include ':temple2'

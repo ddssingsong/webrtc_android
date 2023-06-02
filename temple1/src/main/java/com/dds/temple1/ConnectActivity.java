@@ -1,4 +1,4 @@
-package com.dds.temple;
+package com.dds.temple1;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,15 +11,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.dds.temple.rtc.ProxyVideoSink;
-import com.dds.temple.rtc.RTCEngine;
-import com.dds.temple.rtc.RTCPeer;
-import com.dds.temple.socket.AppRTCClient;
-import com.dds.temple.socket.DirectRTCClient;
+import com.dds.temple.R;
+import com.dds.temple1.rtc.ProxyVideoSink;
+import com.dds.temple1.rtc.RTCEngine;
+import com.dds.temple1.rtc.RTCPeer;
+import com.dds.temple1.socket.AppRTCClient;
+import com.dds.temple1.socket.DirectRTCClient;
+import com.dds.temple1.utils.StatsReportUtil;
 
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
@@ -32,6 +35,8 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     private static final String TAG = "ConnectActivity";
     private SurfaceViewRenderer mFullView;
     private SurfaceViewRenderer mPipView;
+    private TextView callStatsView;
+
     private String mIpAddress;
     private DirectRTCClient mDirectRTCClient;
     private boolean mIsServer;
@@ -46,6 +51,8 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     public static final int TYPE_SERVER = 0;
     public static final int TYPE_CLIENT = 1;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+
+    private StatsReportUtil statsReportUtil;
 
     public static void launchActivity(Activity activity, int roleType, String ip) {
         Intent intent = new Intent(activity, ConnectActivity.class);
@@ -90,6 +97,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     private void initView() {
         mFullView = findViewById(R.id.full_surface_render);
         mPipView = findViewById(R.id.pip_surface_render);
+        callStatsView = findViewById(R.id.callStats);
     }
 
     private void initRTC() {
@@ -99,13 +107,26 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         mFullView.init(eglBase.getEglBaseContext(), null);
         mFullView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
         // pip
-        mPipView.init(eglBase.getEglBaseContext(), null);
+        mPipView.init(eglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
+            @Override
+            public void onFirstFrameRendered() {
+
+            }
+
+            @Override
+            public void onFrameResolutionChanged(int videoWidth, int videoHeight, int rotation) {
+
+            }
+        });
         mPipView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
+        mPipView.setOnClickListener(v -> setSwappedFeeds(!isSwappedFeeds));
 
         localProxyVideoSink.setTarget(mPipView);
         remoteProxyRenderer.setTarget(mFullView);
 
-        mRtcEngine = new RTCEngine(this, eglBase, localProxyVideoSink);
+        mRtcEngine = new RTCEngine(getApplicationContext(), eglBase, localProxyVideoSink);
+
+        statsReportUtil = new StatsReportUtil();
     }
 
     private void initSocket() {
@@ -115,8 +136,16 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         mDirectRTCClient.connectToRoom(parameters);
     }
 
-    public void hungUp(View view) {
+    public void onHungUp(View view) {
         disconnect();
+    }
+
+    public void OnMicrophone(View view) {
+        Log.d(TAG, "OnMicrophone: no impl");
+    }
+
+    public void OnSwitchCamera(View view) {
+        Log.d(TAG, "OnSwitchCamera: no impl");
     }
 
     private void disconnect() {
@@ -139,6 +168,16 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
             mRtcEngine = null;
         }
         finish();
+    }
+
+    private boolean isSwappedFeeds;
+
+    private void setSwappedFeeds(boolean isSwappedFeeds) {
+        this.isSwappedFeeds = isSwappedFeeds;
+        localProxyVideoSink.setTarget(isSwappedFeeds ? mFullView : mPipView);
+        remoteProxyRenderer.setTarget(isSwappedFeeds ? mPipView : mFullView);
+        mFullView.setMirror(isSwappedFeeds);
+        mPipView.setMirror(!isSwappedFeeds);
     }
 
 
@@ -269,7 +308,11 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     @Override
     public void onConnected() {
         final long delta = System.currentTimeMillis() - callStartedTimeMs;
-        runOnUiThread(() -> logAndToast("DTLS connected, delay=" + delta + "ms"));
+        runOnUiThread(() -> {
+            logAndToast("DTLS connected, delay=" + delta + "ms");
+            mRtcEngine.enableStatsEvents(true, 1000);
+        });
+
     }
 
     @Override
@@ -281,18 +324,15 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     }
 
     @Override
-    public void onPeerConnectionClosed() {
-        Log.d(TAG, "onPeerConnectionClosed:");
+    public void onPeerConnectionError(String description) {
+        logAndToast(description);
     }
 
     @Override
     public void onPeerConnectionStatsReady(RTCStatsReport report) {
-        Log.d(TAG, "onPeerConnectionStatsReady: ");
-    }
-
-    @Override
-    public void onPeerConnectionError(String description) {
-        logAndToast(description);
+        Log.d(TAG, "onPeerConnectionStatsReady: " + report);
+        String statsReport = statsReportUtil.getStatsReport(report);
+        runOnUiThread(() -> callStatsView.setText(statsReport));
     }
 
     //endregion

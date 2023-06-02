@@ -1,4 +1,4 @@
-package com.dds.temple.socket;
+package com.dds.temple1.socket;
 
 import android.util.Log;
 

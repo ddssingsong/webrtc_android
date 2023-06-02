@@ -1,4 +1,4 @@
-package com.dds.temple;
+package com.dds.temple1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.dds.base.permission.Permissions;
+import com.dds.temple.R;
 
 
 public class Temple1Activity extends AppCompatActivity {

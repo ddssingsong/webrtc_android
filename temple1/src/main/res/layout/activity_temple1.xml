@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".Temple1Activity">
+    tools:context="com.dds.temple1.Temple1Activity">
 
     <TextView
         android:id="@+id/textView"
@@ -19,7 +19,6 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/temple1_hint_text"
-        android:text="192.168.123.23"
         android:inputType="text" />
 
     <Button

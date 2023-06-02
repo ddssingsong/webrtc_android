@@ -1,9 +1,11 @@
-package com.dds.temple.rtc;
+package com.dds.temple1.rtc;
 
 import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import com.dds.temple1.filter.FilterProcessor;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -30,6 +32,8 @@ import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -99,7 +103,9 @@ public class RTCEngine {
                 .setAudioDeviceModule(audioDeviceModule)
                 .setVideoEncoderFactory(encoderFactory)
                 .setVideoDecoderFactory(decoderFactory);
-        return builder1.createPeerConnectionFactory();
+        PeerConnectionFactory peerConnectionFactory = builder1.createPeerConnectionFactory();
+        audioDeviceModule.release();
+        return peerConnectionFactory;
     }
 
     private String getFieldTrials() {
@@ -119,6 +125,9 @@ public class RTCEngine {
 
         // 1. create video source
         mVideoSource = mConnectionFactory.createVideoSource(false);
+        // add video effects
+        mVideoSource.setVideoProcessor(new FilterProcessor());
+
         // 2. create video capture
         mVideoCapturer = createVideoCapture(context);
         // 3. start capture
@@ -300,6 +309,34 @@ public class RTCEngine {
         mRootEglBase.release();
 
     }
+
+
+    private final Timer statsTimer = new Timer();
+
+    public void enableStatsEvents(boolean enable, int periodMs) {
+        if (enable) {
+            try {
+                statsTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        executor.execute(() -> getStats());
+                    }
+                }, 0, periodMs);
+            } catch (Exception e) {
+                Log.e(TAG, "Can not schedule statistics timer", e);
+            }
+        } else {
+            statsTimer.cancel();
+        }
+    }
+
+    private void getStats() {
+        if (mPeer == null) {
+            return;
+        }
+        mPeer.getStats();
+    }
+
 
 
 }

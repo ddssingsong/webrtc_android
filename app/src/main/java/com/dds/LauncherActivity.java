@@ -1,22 +1,18 @@
 package com.dds;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import androidx.appcompat.widget.Toolbar;
 
 import com.dds.core.MainActivity;
 import com.dds.core.base.BaseActivity;
 import com.dds.core.consts.Urls;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
-import com.dds.temple.Temple1Activity;
+import com.dds.temple1.Temple1Activity;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends BaseActivity implements IUserState {

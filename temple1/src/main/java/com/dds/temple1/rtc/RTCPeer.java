@@ -1,4 +1,4 @@
-package com.dds.temple.rtc;
+package com.dds.temple1.rtc;
 
 import android.util.Log;
 
@@ -17,6 +17,7 @@ import org.webrtc.SessionDescription;
 import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -90,7 +91,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         pc.removeIceCandidates(candidates);
     }
 
-    public List<RtpTransceiver>  getTransceivers() {
+    public List<RtpTransceiver> getTransceivers() {
         return pc.getTransceivers();
     }
 
@@ -119,6 +120,12 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
             queuedRemoteCandidates = null;
         }
     }
+
+    public void getStats() {
+        Log.d(TAG, "getStats: ");
+        pc.getStats(mEvents::onPeerConnectionStatsReady);
+    }
+
 
 
     // region ------------------------------SdpObserver------------------------
@@ -217,12 +224,12 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onIceConnectionReceivingChange(boolean receiving) {
-
+        Log.d(TAG, "onIceConnectionReceivingChange: " + receiving);
     }
 
     @Override
     public void onIceGatheringChange(PeerConnection.IceGatheringState newState) {
-
+        Log.d(TAG, "onIceGatheringChange: " + newState);
     }
 
     @Override
@@ -238,16 +245,17 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onAddStream(MediaStream stream) {
-
+        Log.d(TAG, "onAddStream: " + stream);
     }
 
     @Override
     public void onRemoveStream(MediaStream stream) {
-
+        Log.d(TAG, "onRemoveStream: " + stream);
     }
 
     @Override
     public void onDataChannel(DataChannel dataChannel) {
+        Log.d(TAG, "onDataChannel: " + dataChannel);
 
     }
 
@@ -258,13 +266,16 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onAddTrack(RtpReceiver receiver, MediaStream[] mediaStreams) {
-
+        Log.d(TAG, "onAddTrack: RtpReceiver = " + receiver + ", MediaStream[] = " + Arrays.toString(mediaStreams));
     }
 
     @Override
     public void onTrack(RtpTransceiver transceiver) {
         PeerConnection.Observer.super.onTrack(transceiver);
+        Log.d(TAG, "onTrack: " + transceiver);
     }
+
+
 
     // endregion
 
@@ -310,19 +321,14 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         void onDisconnected();
 
         /**
-         * Callback fired once peer connection is closed.
+         * Callback fired once peer connection error happened.
          */
-        void onPeerConnectionClosed();
+        void onPeerConnectionError(final String description);
 
         /**
          * Callback fired once peer connection statistics is ready.
          */
-        void onPeerConnectionStatsReady(final RTCStatsReport report);
-
-        /**
-         * Callback fired once peer connection error happened.
-         */
-        void onPeerConnectionError(final String description);
+        void onPeerConnectionStatsReady(RTCStatsReport report);
     }
 
     private void reportError(final String errorMessage) {
