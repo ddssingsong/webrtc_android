@@ -90,10 +90,11 @@ public class TCPChannelClient {
         socket.send(message);
     }
 
-
     private void reportError(final String message) {
         Log.e(TAG, "TCP Error: " + message);
-        executor.execute(() -> eventListener.onTCPError(message));
+        if (!executor.isShutdown() && !executor.isTerminated()) {
+            executor.execute(() -> eventListener.onTCPError(message));
+        }
     }
 
     private abstract class TCPSocket extends Thread {

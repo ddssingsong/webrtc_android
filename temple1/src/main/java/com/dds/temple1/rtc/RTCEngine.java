@@ -5,12 +5,14 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.dds.temple1.filter.FilterProcessor;
+import com.dds.temple1.effect.VideoEffectProcessor;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
+import org.webrtc.Camera1Enumerator;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
+import org.webrtc.CameraVideoCapturer;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
@@ -47,6 +49,8 @@ public class RTCEngine {
     private VideoCapturer mVideoCapturer;
     private SurfaceTextureHelper mSurfaceTextureHelper;
     private VideoTrack mRemoteVideoTrack;
+
+    private VideoEffectProcessor mVideoEffectProcessor;
 
     // audio
     private AudioTrack mAudioTrack;
@@ -125,9 +129,6 @@ public class RTCEngine {
 
         // 1. create video source
         mVideoSource = mConnectionFactory.createVideoSource(false);
-        // add video effects
-        mVideoSource.setVideoProcessor(new FilterProcessor());
-
         // 2. create video capture
         mVideoCapturer = createVideoCapture(context);
         // 3. start capture
@@ -138,11 +139,14 @@ public class RTCEngine {
         VideoTrack videoTrack = mConnectionFactory.createVideoTrack(VIDEO_TRACK_ID, mVideoSource);
         videoTrack.setEnabled(true);
         videoTrack.addSink(localSink);
+        // add video effects
+        mVideoEffectProcessor = new VideoEffectProcessor(mSurfaceTextureHelper);
+        mVideoSource.setVideoProcessor(mVideoEffectProcessor);
         return videoTrack;
     }
 
     private VideoCapturer createVideoCapture(Context context) {
-        VideoCapturer videoCapturer = createCameraCapture(new Camera2Enumerator(context));
+        VideoCapturer videoCapturer = createCameraCapture(new Camera1Enumerator(false));
         Log.d(TAG, "createVideoCapture: " + videoCapturer);
         // You can implement various captures here, such as screen recording and file recording
         return videoCapturer;
@@ -296,6 +300,9 @@ public class RTCEngine {
             mVideoSource.dispose();
             mVideoSource = null;
         }
+        if (mVideoEffectProcessor != null) {
+            mVideoEffectProcessor.dispose();
+        }
         if (mSurfaceTextureHelper != null) {
             mSurfaceTextureHelper.dispose();
             mSurfaceTextureHelper = null;
@@ -308,6 +315,16 @@ public class RTCEngine {
         }
         mRootEglBase.release();
 
+    }
+
+    public void switchCamera() {
+        executor.execute(this::switchCameraInternal);
+    }
+
+    private void switchCameraInternal() {
+        Log.d(TAG, "Switch camera");
+        CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) mVideoCapturer;
+        cameraVideoCapturer.switchCamera(null);
     }
 
 
@@ -336,7 +353,6 @@ public class RTCEngine {
         }
         mPeer.getStats();
     }
-
 
 
 }

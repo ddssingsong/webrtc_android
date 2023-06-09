@@ -52,7 +52,7 @@ public class GlUtil {
    * Generate texture with standard parameters.
    */
   public static int generateTexture(int target) {
-    final int textureArray[] = new int[1];
+    final int[] textureArray = new int[1];
     GLES20.glGenTextures(1, textureArray, 0);
     final int textureId = textureArray[0];
     GLES20.glBindTexture(target, textureId);

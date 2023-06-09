@@ -146,6 +146,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
 
     public void OnSwitchCamera(View view) {
         Log.d(TAG, "OnSwitchCamera: no impl");
+        mRtcEngine.switchCamera();
     }
 
     private void disconnect() {
