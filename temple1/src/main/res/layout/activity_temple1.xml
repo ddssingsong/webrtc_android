@@ -13,20 +13,19 @@
         android:layout_height="wrap_content"
         android:text="Client" />
 
-    <EditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/editTextText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/temple1_hint_text"
-        android:text="192.168.123.24"
         android:inputType="text" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
-        android:onClick="client"
         android:layout_height="wrap_content"
+        android:onClick="client"
         android:text="@string/temple_btn_text" />
 
     <TextView

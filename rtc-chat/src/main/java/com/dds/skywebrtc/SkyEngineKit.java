@@ -16,8 +16,6 @@ public class SkyEngineKit {
     private CallSession mCurrentCallSession;
     private ISkyEvent mEvent;
     private boolean isAudioOnly = false;
-    private boolean isOutGoing = false;
-
 
     public static SkyEngineKit Instance() {
         SkyEngineKit var;
@@ -74,7 +72,6 @@ public class SkyEngineKit {
             return false;
         }
         isAudioOnly = audioOnly;
-        isOutGoing = true;
         // 初始化会话
         mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
         mCurrentCallSession.setTargetId(targetId);
@@ -101,7 +98,6 @@ public class SkyEngineKit {
             mCurrentCallSession.sendBusyRefuse(room, targetId);
             return false;
         }
-        isOutGoing = false;
         this.isAudioOnly = audioOnly;
         // 初始化会话
         mCurrentCallSession = new CallSession(context, room, audioOnly, mEvent);
@@ -186,14 +182,6 @@ public class SkyEngineKit {
             mCurrentCallSession.leave();
             mCurrentCallSession.setCallState(EnumType.CallState.Idle);
         }
-    }
-
-    public void transferToAudio() {
-        isAudioOnly = true;
-    }
-
-    public boolean isOutGoing() {
-        return isOutGoing;
     }
 
     public boolean isAudioOnly() {

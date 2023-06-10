@@ -1,6 +1,5 @@
 package com.dds.temple1.effect;
 
-import android.media.effect.EffectFactory;
 import android.os.Handler;
 import android.util.Log;
 
@@ -13,15 +12,6 @@ import org.webrtc.ThreadUtils;
 import org.webrtc.VideoFrame;
 import org.webrtc.VideoProcessor;
 import org.webrtc.VideoSink;
-
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageAlphaBlendFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageHueFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImagePosterizeFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageSepiaToneFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageSketchFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageToonFilter;
 
 public class VideoEffectProcessor implements VideoProcessor {
     private static final String TAG = "FilterProcessor";
@@ -64,6 +54,12 @@ public class VideoEffectProcessor implements VideoProcessor {
 
 
     private VideoFrame addVideoFilter(VideoFrame frame) {
+        VideoFrame.Buffer buffer = frame.getBuffer();
+        if (buffer instanceof VideoFrame.TextureBuffer) {
+            Log.d(TAG, "addVideoFilter: TextureBuffer");
+        }else if(buffer instanceof VideoFrame.I420Buffer){
+            Log.d(TAG, "addVideoFilter: I420Buffer");
+        }
         if (rtcVideoEffector.needToProcessFrame()) {
             VideoFrame.I420Buffer originalI420Buffer = frame.getBuffer().toI420();
             VideoFrame.I420Buffer effectedI420Buffer = rtcVideoEffector.processByteBufferFrame(originalI420Buffer, frame.getRotation(), frame.getTimestampNs());

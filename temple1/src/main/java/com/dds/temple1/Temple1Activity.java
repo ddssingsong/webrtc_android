@@ -1,16 +1,16 @@
 package com.dds.temple1;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.dds.base.permission.Permissions;
 import com.dds.temple.R;
+import com.google.android.material.textfield.TextInputEditText;
 
 
 public class Temple1Activity extends AppCompatActivity {
@@ -31,10 +31,13 @@ public class Temple1Activity extends AppCompatActivity {
 
     // client start
     public void client(View view) {
-        EditText editText = findViewById(R.id.editTextText);
+        TextInputEditText editText = findViewById(R.id.editTextText);
         Editable text = editText.getText();
-        String ip = text.toString();
-        ConnectActivity.launchActivity(this, ConnectActivity.TYPE_CLIENT, ip);
+        if (text != null) {
+            String ip = text.toString();
+            ConnectActivity.launchActivity(this, ConnectActivity.TYPE_CLIENT, ip);
+        }
+
     }
 
     // server start

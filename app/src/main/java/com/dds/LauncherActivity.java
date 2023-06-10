@@ -13,6 +13,7 @@ import com.dds.core.consts.Urls;
 import com.dds.core.socket.IUserState;
 import com.dds.core.socket.SocketManager;
 import com.dds.temple1.Temple1Activity;
+import com.dds.temple2.Temple2Activity;
 import com.dds.webrtc.R;
 
 public class LauncherActivity extends BaseActivity implements IUserState {
@@ -63,5 +64,10 @@ public class LauncherActivity extends BaseActivity implements IUserState {
 
     public void temple1(View view) {
         startActivity(new Intent(this, Temple1Activity.class));
+    }
+
+    public void temple2(View view) {
+        startActivity(new Intent(this, Temple2Activity.class));
+
     }
 }

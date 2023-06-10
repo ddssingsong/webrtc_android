@@ -57,4 +57,5 @@ dependencies {
     implementation project(path: ':base')
 
     implementation project(path: ':temple1')
+    implementation project(path: ':temple2')
 }

@@ -1,14 +1,14 @@
 plugins {
     id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
     namespace 'com.dds.temple2'
-    compileSdk 33
-
+    compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        minSdk 24
-        targetSdk 33
+        minSdk rootProject.ext.minSdkVersion
+        targetSdk rootProject.ext.targetSdkVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -36,6 +36,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // webrtc
-    api project(path: ':libwebrtc5776')
-    api project(path: ':base')
+    implementation project(path: ':libwebrtc5776')
+    implementation project(path: ':base')
 }
