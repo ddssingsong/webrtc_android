@@ -50,6 +50,13 @@
             android:onClick="OnSwitchCamera"
             android:text="@string/switch_camera"
             tools:ignore="UsingOnClickInXml" />
+        <Button
+            android:id="@+id/btn_beauty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="OnToggleBeauty"
+            android:text="@string/beauty"
+            tools:ignore="UsingOnClickInXml" />
     </LinearLayout>
 
     <TextView

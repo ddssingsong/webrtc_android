@@ -72,12 +72,13 @@ class GlGenericDrawer implements RendererCommon.GlDrawer {
 
   // Vertex coordinates in Normalized Device Coordinates, i.e. (-1, -1) is bottom-left and (1, 1)
   // is top-right.
-  private static final FloatBuffer FULL_RECTANGLE_BUFFER = GlUtil.createFloatBuffer(new float[] {
-      -1.0f, -1.0f, // Bottom left.
-      1.0f, -1.0f, // Bottom right.
-      -1.0f, 1.0f, // Top left.
-      1.0f, 1.0f, // Top right.
-  });
+  private static final FloatBuffer FULL_RECTANGLE_BUFFER =
+          GlUtil.createFloatBuffer(new float[]{
+                  -1.0f, -1.0f, // Bottom left.
+                  1.0f, -1.0f, // Bottom right.
+                  -1.0f, 1.0f, // Top left.
+                  1.0f, 1.0f, // Top right.
+          });
 
   // Texture coordinates - (0, 0) is bottom-left and (1, 1) is top-right.
   private static final FloatBuffer FULL_RECTANGLE_TEXTURE_BUFFER =

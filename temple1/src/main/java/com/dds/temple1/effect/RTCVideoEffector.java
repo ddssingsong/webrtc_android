@@ -149,10 +149,8 @@ public class RTCVideoEffector {
                     return true;
                 }
             }
-            return false;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public void dispose() {

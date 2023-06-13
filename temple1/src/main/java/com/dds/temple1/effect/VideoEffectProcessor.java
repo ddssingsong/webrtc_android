@@ -5,8 +5,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.dds.temple1.effect.filter.GPUImageBeautyFilter;
-
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.ThreadUtils;
 import org.webrtc.VideoFrame;
@@ -16,14 +14,11 @@ import org.webrtc.VideoSink;
 public class VideoEffectProcessor implements VideoProcessor {
     private static final String TAG = "FilterProcessor";
     private VideoSink mSink;
-    private final RTCVideoEffector rtcVideoEffector;
+    private RTCVideoEffector rtcVideoEffector;
 
 
-    public VideoEffectProcessor(SurfaceTextureHelper helper) {
-        rtcVideoEffector = new RTCVideoEffector();
-//        rtcVideoEffector.addMediaEffectFilter(EffectFactory.EFFECT_FILLLIGHT);
-        rtcVideoEffector.addGPUImageFilter(new GPUImageBeautyFilter());
-//        rtcVideoEffector.addGPUImageFilter(new GPUImageGrayscaleFilter());
+    public VideoEffectProcessor(SurfaceTextureHelper helper, RTCVideoEffector rtcVideoEffector) {
+        this.rtcVideoEffector = rtcVideoEffector;
         final Handler handler = helper.getHandler();
         ThreadUtils.invokeAtFrontUninterruptibly(handler, () -> {
             rtcVideoEffector.init(helper);
@@ -43,7 +38,7 @@ public class VideoEffectProcessor implements VideoProcessor {
 
     @Override
     public void onFrameCaptured(VideoFrame frame) {
-        VideoFrame newFrame = addVideoFilter(frame);
+        VideoFrame newFrame = handleVideoFilter(frame);
         mSink.onFrame(newFrame);
     }
 
@@ -53,27 +48,25 @@ public class VideoEffectProcessor implements VideoProcessor {
     }
 
 
-    private VideoFrame addVideoFilter(VideoFrame frame) {
+    private VideoFrame handleVideoFilter(VideoFrame frame) {
         VideoFrame.Buffer buffer = frame.getBuffer();
         if (buffer instanceof VideoFrame.TextureBuffer) {
-            Log.d(TAG, "addVideoFilter: TextureBuffer");
-        }else if(buffer instanceof VideoFrame.I420Buffer){
-            Log.d(TAG, "addVideoFilter: I420Buffer");
-        }
-        if (rtcVideoEffector.needToProcessFrame()) {
-            VideoFrame.I420Buffer originalI420Buffer = frame.getBuffer().toI420();
-            VideoFrame.I420Buffer effectedI420Buffer = rtcVideoEffector.processByteBufferFrame(originalI420Buffer, frame.getRotation(), frame.getTimestampNs());
-            VideoFrame effectedVideoFrame = new VideoFrame(
-                    effectedI420Buffer, frame.getRotation(), frame.getTimestampNs());
-            if (originalI420Buffer != null) {
-                originalI420Buffer.release();
+            Log.d(TAG, "handleVideoFilter: TextureBuffer");
+        } else if (buffer instanceof VideoFrame.I420Buffer) {
+            Log.d(TAG, "handleVideoFilter: I420Buffer");
+            if (rtcVideoEffector.needToProcessFrame()) {
+                VideoFrame.I420Buffer originalI420Buffer = frame.getBuffer().toI420();
+                VideoFrame.I420Buffer effectedI420Buffer = rtcVideoEffector.processByteBufferFrame(originalI420Buffer, frame.getRotation(), frame.getTimestampNs());
+                VideoFrame effectedVideoFrame = new VideoFrame(
+                        effectedI420Buffer, frame.getRotation(), frame.getTimestampNs());
+                if (originalI420Buffer != null) {
+                    originalI420Buffer.release();
+                }
+                return effectedVideoFrame;
             }
-            return effectedVideoFrame;
         }
         return frame;
-
     }
-
 
     public void dispose() {
         if (rtcVideoEffector != null) {

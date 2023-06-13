@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
 
 import com.dds.base.permission.Permissions;
 import com.dds.temple.R;
@@ -31,7 +32,7 @@ public class Temple1Activity extends AppCompatActivity {
 
     // client start
     public void client(View view) {
-        TextInputEditText editText = findViewById(R.id.editTextText);
+        AppCompatEditText editText = findViewById(R.id.editTextText);
         Editable text = editText.getText();
         if (text != null) {
             String ip = text.toString();

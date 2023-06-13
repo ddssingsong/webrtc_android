@@ -5,7 +5,9 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.dds.temple1.effect.RTCVideoEffector;
 import com.dds.temple1.effect.VideoEffectProcessor;
+import com.dds.temple1.effect.filter.GPUImageBeautyFilter;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -49,9 +51,9 @@ public class RTCEngine {
     private VideoCapturer mVideoCapturer;
     private SurfaceTextureHelper mSurfaceTextureHelper;
     private VideoTrack mRemoteVideoTrack;
-
     private VideoEffectProcessor mVideoEffectProcessor;
-
+    private RTCVideoEffector rtcVideoEffector;
+    private GPUImageBeautyFilter gpuImageBeautyFilter;
     // audio
     private AudioTrack mAudioTrack;
     private AudioSource mAudioSource;
@@ -140,7 +142,10 @@ public class RTCEngine {
         videoTrack.setEnabled(true);
         videoTrack.addSink(localSink);
         // add video effects
-        mVideoEffectProcessor = new VideoEffectProcessor(mSurfaceTextureHelper);
+        rtcVideoEffector = new RTCVideoEffector();
+        gpuImageBeautyFilter = new GPUImageBeautyFilter();
+        rtcVideoEffector.addGPUImageFilter(gpuImageBeautyFilter);
+        mVideoEffectProcessor = new VideoEffectProcessor(mSurfaceTextureHelper, rtcVideoEffector);
         mVideoSource.setVideoProcessor(mVideoEffectProcessor);
         return videoTrack;
     }
@@ -327,6 +332,18 @@ public class RTCEngine {
         cameraVideoCapturer.switchCamera(null);
     }
 
+    public void toggleBeautyEffect() {
+        executor.execute(() -> {
+            if (rtcVideoEffector != null) {
+                if (rtcVideoEffector.isEnabled()) {
+                    rtcVideoEffector.disable();
+                } else {
+                    rtcVideoEffector.enable();
+                }
+
+            }
+        });
+    }
 
     private final Timer statsTimer = new Timer();
 
