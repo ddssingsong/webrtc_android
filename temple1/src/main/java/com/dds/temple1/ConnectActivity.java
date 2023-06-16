@@ -191,6 +191,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         runOnUiThread(() -> {
             boolean initiator = params.initiator;
             mRtcEngine.createPeerConnection(this, remoteProxyRenderer);
+            mRtcEngine.setVideoCodecType(RTCPeer.VIDEO_CODEC_H264);
             if (initiator) {
                 // create offer
                 mMainHandler.post(() -> logAndToast("create offer"));
@@ -315,6 +316,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         runOnUiThread(() -> {
             logAndToast("DTLS connected, delay=" + delta + "ms");
             mRtcEngine.enableStatsEvents(true, 1000);
+            mRtcEngine.setBitrateRange(500, 2000);
         });
 
     }
@@ -355,9 +357,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     private static int getSystemUiVisibility() {
         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN |
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
+        flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         return flags;
     }
 

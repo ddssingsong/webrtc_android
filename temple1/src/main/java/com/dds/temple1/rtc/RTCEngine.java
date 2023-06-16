@@ -12,7 +12,6 @@ import com.dds.temple1.effect.filter.GPUImageBeautyFilter;
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.Camera1Enumerator;
-import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
 import org.webrtc.DefaultVideoDecoderFactory;
@@ -22,6 +21,8 @@ import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStreamTrack;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RtpParameters;
+import org.webrtc.RtpSender;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
@@ -74,6 +75,9 @@ public class RTCEngine {
             "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/";
     private static final String DISABLE_WEBRTC_AGC_FIELDTRIAL =
             "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/";
+
+    private static final int BPS_IN_KBPS = 1000;
+
 
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -343,6 +347,43 @@ public class RTCEngine {
 
             }
         });
+    }
+
+    public void setBitrateRange(int minBitrate, int maxBitrate) {
+        executor.execute(() -> {
+            if (mPeer != null) {
+                if (minBitrate > maxBitrate) {
+                    Log.w(TAG, "minBitrate must < maxBitrate.");
+                    return;
+                }
+                RtpSender videoSender = mPeer.findVideoSender();
+                if (videoSender == null) {
+                    Log.w(TAG, "RtpSender are not ready.");
+                    return;
+                }
+                RtpParameters parameters = videoSender.getParameters();
+                if (parameters.encodings.size() == 0) {
+                    Log.w(TAG, "RtpParameters are not ready.");
+                    return;
+                }
+                for (RtpParameters.Encoding encoding : parameters.encodings) {
+                    // Null value means no limit.
+                    encoding.maxBitrateBps = maxBitrate == 0 ? null : maxBitrate * BPS_IN_KBPS;
+                    encoding.minBitrateBps = Math.max(minBitrate, 300) * BPS_IN_KBPS;
+                }
+            }
+        });
+
+
+    }
+
+    public void setVideoCodecType(@RTCPeer.VideoCodeType String videoCodecType) {
+        executor.execute(() -> {
+            if (mPeer != null) {
+                mPeer.setVideoCodecType(videoCodecType);
+            }
+        });
+
     }
 
     private final Timer statsTimer = new Timer();
