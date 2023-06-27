@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:text="192.168.123.24"
+        android:text="192.168."
         android:hint="@string/temple1_hint_text"
         android:inputType="text" />
 

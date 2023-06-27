@@ -96,11 +96,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
                 pipRenderer.setLayoutParams(params2);
             });
         }
-//        if(isOutgoing){ //测试崩溃对方是否会停止
-//            lytParent.postDelayed(() -> {
-//                int i = 1 / 0;
-//            }, 10000);
-//        }
+
 
     }
 

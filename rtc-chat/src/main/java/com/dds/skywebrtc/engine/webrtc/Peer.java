@@ -151,7 +151,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
             }
         });
         renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
-        renderer.setMirror(true);
+        renderer.setMirror(false);
         renderer.setZOrderMediaOverlay(isOverlay);
         sink = new ProxyVideoSink();
         sink.setTarget(renderer);
