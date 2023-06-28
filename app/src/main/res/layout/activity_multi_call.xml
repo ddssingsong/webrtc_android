@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.dds.core.voip.CallMultiActivity">
+    tools:context="com.dds.rtc_demo.core.voip.CallMultiActivity">
 
     <FrameLayout
         android:id="@+id/meeting_container"

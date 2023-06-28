@@ -26,7 +26,7 @@
         android:required="true" />
 
     <application
-        android:name="com.dds.App"
+        android:name="com.dds.rtc_demo.App"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -36,7 +36,7 @@
         tools:ignore="DataExtractionRules,UnusedAttribute">
 
         <activity
-            android:name="com.dds.LauncherActivity"
+            android:name="com.dds.rtc_demo.LauncherActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,11 +47,11 @@
         </activity>
 
 
-        <activity android:name="com.dds.core.MainActivity" />
+        <activity android:name="com.dds.rtc_demo.ui.MainActivity" />
 
         <!-- ======================java====================== -->
         <activity
-            android:name="com.dds.core.voip.CallSingleActivity"
+            android:name="com.dds.rtc_demo.core.voip.CallSingleActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:showOnLockScreen="true"
@@ -66,13 +66,13 @@
         </activity>
 
         <activity
-            android:name="com.dds.core.voip.CallMultiActivity"
+            android:name="com.dds.rtc_demo.core.voip.CallMultiActivity"
             android:screenOrientation="portrait"
             android:showOnLockScreen="true"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver
-            android:name="com.dds.core.voip.VoipReceiver"
+            android:name="com.dds.rtc_demo.core.voip.VoipReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
@@ -81,7 +81,7 @@
 
         <!-- 悬浮窗 -->
         <service
-            android:name="com.dds.core.voip.FloatingVoipService"
+            android:name="com.dds.rtc_demo.core.voip.FloatingVoipService"
             android:enabled="true"
             android:exported="true" />
     </application>
