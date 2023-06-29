@@ -1,3 +1,3 @@
 ## local demo 
 
-Implementation of an online video call
+Simple implementation of a LAN video call
