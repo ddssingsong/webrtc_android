@@ -7,11 +7,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.dds.rtc_demo.ui.MainActivity;
 import com.dds.rtc_demo.base.BaseActivity;
 import com.dds.rtc_demo.core.consts.Urls;
 import com.dds.rtc_demo.core.socket.IUserState;
 import com.dds.rtc_demo.core.socket.SocketManager;
+import com.dds.rtc_demo.ui.MainActivity;
 import com.dds.temple1.Temple1Activity;
 import com.dds.temple2.Temple2Activity;
 import com.dds.webrtc.R;

@@ -51,11 +51,11 @@ dependencies {
     implementation 'com.alibaba:fastjson:1.2.83'
     // alerter
     implementation 'com.github.tapadoo:alerter:7.0.0'
+    implementation project(path: ':rtc_chat')
 
     // --av chat--
-    implementation project(path: ':rtc-chat')
     implementation project(path: ':base')
+    implementation project(path: ':temp1')
+    implementation project(path: ':temp2')
 
-    implementation project(path: ':temple1')
-    implementation project(path: ':temple2')
 }

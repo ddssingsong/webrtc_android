@@ -12,7 +12,7 @@ import com.dds.rtc_demo.core.voip.VoipReceiver;
 import com.dds.rtc_chat.CallSession;
 import com.dds.rtc_chat.EnumType;
 import com.dds.rtc_chat.SkyEngineKit;
-import com.dds.rtc_chat.log.SkyLog;
+import com.dds.rtc_chat.log.RTCLog;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -29,7 +29,7 @@ import javax.net.ssl.TrustManager;
  * ddssignsong@163.com
  */
 public class SocketManager implements IEvent {
-    private final static String TAG = SkyLog.createTag("SocketManager");
+    private final static String TAG = RTCLog.createTag("SocketManager");
     private MyWebSocket webSocket;
     private int userState;
     private String myId;
