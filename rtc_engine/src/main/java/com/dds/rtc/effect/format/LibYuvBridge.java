@@ -1,4 +1,4 @@
-package com.dds.temple1.effect.format;
+package com.dds.rtc.effect.format;
 
 import java.nio.ByteBuffer;
 

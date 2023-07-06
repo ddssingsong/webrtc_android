@@ -1,12 +1,12 @@
-package com.dds.temple1.effect;
+package com.dds.rtc.effect;
 
-import android.util.Log;
 
-import com.dds.temple1.effect.filter.FrameImageFilter;
-import com.dds.temple1.effect.filter.GPUImageFilterWrapper;
-import com.dds.temple1.effect.filter.MediaEffectFilter;
-import com.dds.temple1.effect.format.YuvByteBufferDumper;
-import com.dds.temple1.effect.format.YuvByteBufferReader;
+import com.dds.rtc.effect.filter.FrameImageFilter;
+import com.dds.rtc.effect.filter.GPUImageFilter;
+import com.dds.rtc.effect.filter.GPUImageFilterWrapper;
+import com.dds.rtc.effect.filter.MediaEffectFilter;
+import com.dds.rtc.effect.format.YuvByteBufferDumper;
+import com.dds.rtc.effect.format.YuvByteBufferReader;
 
 import org.webrtc.GlUtil;
 import org.webrtc.SurfaceTextureHelper;
@@ -16,7 +16,7 @@ import org.webrtc.VideoFrame;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
+
 
 public class RTCVideoEffector {
 

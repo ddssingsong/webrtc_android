@@ -1,13 +1,14 @@
-package com.dds.temple1.rtc;
+package com.dds.rtc;
 
 import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.dds.temple1.effect.RTCVideoEffector;
-import com.dds.temple1.effect.VideoEffectProcessor;
-import com.dds.temple1.effect.filter.GPUImageBeautyFilter;
+
+import com.dds.rtc.effect.RTCVideoEffector;
+import com.dds.rtc.effect.VideoEffectProcessor;
+import com.dds.rtc.effect.filter.GPUImageBeautyFilter;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;

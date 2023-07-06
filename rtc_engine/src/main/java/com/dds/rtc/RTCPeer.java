@@ -1,4 +1,4 @@
-package com.dds.temple1.rtc;
+package com.dds.rtc;
 
 import android.util.Log;
 
@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     private static final String TAG = "RTCPeer";
     private final PeerConnectionFactory mFactory;
-    private PeerConnection pc;
+    private final PeerConnection pc;
     private List<IceCandidate> queuedRemoteCandidates;
     private SessionDescription localDescription;
     private final ExecutorService mExecutor;

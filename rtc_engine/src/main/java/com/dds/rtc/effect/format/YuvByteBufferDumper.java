@@ -1,4 +1,4 @@
-package com.dds.temple1.effect.format;
+package com.dds.rtc.effect.format;
 
 // Dump YUV formatted bytes from RGB texture
 
@@ -6,7 +6,6 @@ import android.opengl.GLES20;
 
 import org.webrtc.JavaI420Buffer;
 import org.webrtc.VideoFrame;
-import org.webrtc.YuvConverter;
 
 import java.nio.ByteBuffer;
 

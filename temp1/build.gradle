@@ -13,15 +13,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-        externalNativeBuild {
-            cmake {
-                arguments '-DANDROID_TOOLCHAIN=clang'
-            }
-        }
-        ndk {
-            // 设置支持的SO库架构
-            abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
-        }
     }
 
     buildTypes {
@@ -35,16 +26,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['src/main/cpp/libyuv/libs']
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path 'src/main/cpp/CMakeLists.txt'
-        }
-    }
+
 }
 
 dependencies {
@@ -55,8 +37,9 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation project(path: ':libwebrtc:webrtc_5776')
+
     // webrtc
+
     implementation project(path: ':base')
-    implementation 'jp.co.cyberagent.android:gpuimage:2.1.0'
+    implementation project(path: ':rtc_engine')
 }

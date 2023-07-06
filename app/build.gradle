@@ -45,16 +45,18 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     // leakcanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
-    // websocket
-    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
-    // json
-    implementation 'com.alibaba:fastjson:1.2.83'
+
     // alerter
     implementation 'com.github.tapadoo:alerter:7.0.0'
-    implementation project(path: ':rtc_chat')
 
+
+    implementation project(path: ':rtc_chat')
+    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
+    implementation 'com.alibaba:fastjson:1.2.83'
     // --av chat--
+
     implementation project(path: ':base')
+    implementation project(path: ':temp0')
     implementation project(path: ':temp1')
     implementation project(path: ':temp2')
 

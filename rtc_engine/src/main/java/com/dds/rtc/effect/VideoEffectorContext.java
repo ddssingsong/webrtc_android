@@ -1,4 +1,4 @@
-package com.dds.temple1.effect;
+package com.dds.rtc.effect;
 
 public class VideoEffectorContext {
 

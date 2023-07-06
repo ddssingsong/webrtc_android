@@ -1,8 +1,6 @@
-package com.dds.temple1.effect.filter;
+package com.dds.rtc.effect.filter;
 
 import android.opengl.GLES20;
-
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 
 public class GPUImageBeautyFilter extends GPUImageFilter {
     public static final String BILATERAL_FRAGMENT_SHADER = "" +

@@ -13,11 +13,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dds.base.utils.StatusBarUtils;
+import com.dds.rtc.ProxyVideoSink;
+import com.dds.rtc.RTCEngine;
+import com.dds.rtc.RTCPeer;
 import com.dds.temple.R;
-import com.dds.temple1.rtc.ProxyVideoSink;
-import com.dds.temple1.rtc.RTCEngine;
-import com.dds.temple1.rtc.RTCPeer;
-import com.dds.temple1.socket.AppRTCClient;
+
+ import com.dds.temple1.socket.AppRTCClient;
 import com.dds.temple1.socket.DirectRTCClient;
 import com.dds.temple1.utils.StatsReportUtil;
 

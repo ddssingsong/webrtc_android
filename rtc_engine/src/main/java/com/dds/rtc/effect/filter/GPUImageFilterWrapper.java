@@ -1,15 +1,15 @@
-package com.dds.temple1.effect.filter;
+package com.dds.rtc.effect.filter;
 
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.dds.temple1.effect.VideoEffectorContext;
+
+import com.dds.rtc.effect.VideoEffectorContext;
 
 import org.webrtc.GlUtil;
 
 import java.nio.FloatBuffer;
 
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
 
 public class GPUImageFilterWrapper extends FrameImageFilter {
     private static final String TAG = "GPUImageFilterWrapper";

@@ -1,12 +1,12 @@
-package com.dds.temple1.effect.filter;
+package com.dds.rtc.effect.filter;
 
 import android.media.effect.Effect;
 import android.media.effect.EffectContext;
 import android.media.effect.EffectFactory;
 import android.opengl.GLES20;
 
-import com.dds.temple1.effect.VideoEffectorContext;
-import com.dds.temple1.effect.VideoEffectorLogger;
+import com.dds.rtc.effect.VideoEffectorContext;
+import com.dds.rtc.effect.VideoEffectorLogger;
 
 
 public class MediaEffectFilter extends FrameImageFilter {
