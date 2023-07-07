@@ -4,8 +4,8 @@ import android.app.Application;
 
 import com.dds.rtc_demo.core.util.CrashHandler;
 import com.dds.rtc_demo.core.voip.VoipEvent;
-import com.dds.rtc_demo.net.HttpRequestPresenter;
-import com.dds.rtc_demo.net.urlconn.UrlConnRequest;
+import com.dds.base.net.HttpRequestPresenter;
+import com.dds.base.net.urlconn.UrlConnRequest;
 import com.dds.rtc_chat.SkyEngineKit;
 
 /**

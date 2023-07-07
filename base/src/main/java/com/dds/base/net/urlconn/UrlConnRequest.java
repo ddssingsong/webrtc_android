@@ -1,8 +1,8 @@
-package com.dds.rtc_demo.net.urlconn;
+package com.dds.base.net.urlconn;
 
 
-import com.dds.rtc_demo.net.HttpRequest;
-import com.dds.rtc_demo.net.ICallback;
+import com.dds.base.net.HttpRequest;
+import com.dds.base.net.ICallback;
 
 import java.io.InputStream;
 import java.util.Map;

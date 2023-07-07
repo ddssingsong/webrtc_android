@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.alibaba.fastjson.JSON;
 import com.dds.rtc_demo.core.consts.Urls;
-import com.dds.rtc_demo.net.HttpRequestPresenter;
-import com.dds.rtc_demo.net.ICallback;
+import com.dds.base.net.HttpRequestPresenter;
+import com.dds.base.net.ICallback;
 
 import java.util.List;
 

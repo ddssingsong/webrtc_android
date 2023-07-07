@@ -57,6 +57,8 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     private String videoCodecType = VIDEO_CODEC_VP8;
 
+    private String remotePeerId;
+
 
     public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events) {
         this.mFactory = factory;
