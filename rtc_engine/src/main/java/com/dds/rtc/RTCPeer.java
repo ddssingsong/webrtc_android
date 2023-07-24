@@ -59,14 +59,18 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     private String remotePeerId;
 
-
     public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events) {
+        this(factory, executor, events, null);
+    }
+
+    public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events, String remoteId) {
         this.mFactory = factory;
         mExecutor = executor;
         mEvents = events;
         pc = createPeerConnection();
         queuedRemoteCandidates = new ArrayList<>();
         isInitiator = false;
+        remotePeerId = remoteId;
     }
 
     public PeerConnection createPeerConnection() {
@@ -137,7 +141,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
         keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
         mediaConstraints.mandatory.addAll(keyValuePairs);
-        mediaConstraints.optional.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement","true"));
+        mediaConstraints.optional.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
         return mediaConstraints;
     }
 
@@ -171,6 +175,10 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     public void setVideoCodecType(@VideoCodeType String videoCodecType) {
         this.videoCodecType = videoCodecType;
+    }
+
+    public String getRemotePeerId() {
+        return remotePeerId;
     }
 
     private static String preferCodec(String sdp, String codec, boolean isAudio) {

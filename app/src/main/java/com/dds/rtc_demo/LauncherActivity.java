@@ -12,6 +12,7 @@ import com.dds.rtc_demo.core.consts.Urls;
 import com.dds.rtc_demo.core.socket.IUserState;
 import com.dds.rtc_demo.core.socket.SocketManager;
 import com.dds.rtc_demo.ui.MainActivity;
+import com.dds.temple0.Temple0Activity;
 import com.dds.temple1.Temple1Activity;
 import com.dds.temple2.Temple2Activity;
 import com.dds.webrtc.R;
@@ -47,6 +48,7 @@ public class LauncherActivity extends BaseActivity implements IUserState {
 
     }
 
+    // ---------------------------------------------------------------------------------------------
     public void login(View view) {
         String username = etUser.getText().toString().trim();
         if (TextUtils.isEmpty(username)) {
@@ -60,7 +62,9 @@ public class LauncherActivity extends BaseActivity implements IUserState {
         // 连接socket:登录
         SocketManager.getInstance().connect(Urls.WS, username, 0);
     }
-
+    public void temple0(View view) {
+        startActivity(new Intent(this, Temple0Activity.class));
+    }
 
     public void temple1(View view) {
         startActivity(new Intent(this, Temple1Activity.class));
@@ -70,4 +74,6 @@ public class LauncherActivity extends BaseActivity implements IUserState {
         startActivity(new Intent(this, Temple2Activity.class));
 
     }
+
+
 }

@@ -36,9 +36,9 @@ import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -59,9 +59,7 @@ public class RTCEngine2 {
     private AudioTrack mAudioTrack;
     private AudioSource mAudioSource;
 
-    private RTCPeer mPeer;
-
-
+    private final Map<String, RTCPeer> peers = new HashMap<>();
 
     // config
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
@@ -208,9 +206,9 @@ public class RTCEngine2 {
         return audioConstraints;
     }
 
-    public void createPeerConnection(RTCPeer.PeerConnectionEvents events, VideoSink remoteSink) {
+    public void createPeerConnection(RTCPeer.PeerConnectionEvents events, VideoSink remoteSink, String remoteId) {
         executor.execute(() -> {
-            mPeer = new RTCPeer(mConnectionFactory, executor, events);
+            RTCPeer mPeer = new RTCPeer(mConnectionFactory, executor, events, remoteId);
             List<String> mediaStreamLabels = Collections.singletonList("ARDAMS");
             if (mVideoTrack != null) {
                 mPeer.addVideoTrack(mVideoTrack, mediaStreamLabels);
@@ -218,15 +216,16 @@ public class RTCEngine2 {
             if (mAudioTrack != null) {
                 mPeer.addAudioTrack(mAudioTrack, mediaStreamLabels);
             }
-            mRemoteVideoTrack = getRemoteVideoTrack();
+            mRemoteVideoTrack = getRemoteVideoTrack(mPeer);
             if (mRemoteVideoTrack != null) {
                 mRemoteVideoTrack.setEnabled(true);
                 mRemoteVideoTrack.addSink(remoteSink);
             }
+            peers.put(remoteId, mPeer);
         });
     }
 
-    private @Nullable VideoTrack getRemoteVideoTrack() {
+    private @Nullable VideoTrack getRemoteVideoTrack(RTCPeer mPeer) {
         for (RtpTransceiver transceiver : mPeer.getTransceivers()) {
             MediaStreamTrack track = transceiver.getReceiver().track();
             if (track instanceof VideoTrack) {
@@ -236,46 +235,51 @@ public class RTCEngine2 {
         return null;
     }
 
-    public void createOffer() {
+    public void createOffer(String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.createOffer();
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.createOffer();
             }
         });
 
     }
 
-    public void createAnswer() {
+    public void createAnswer(String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.createAnswer();
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.createAnswer();
             }
         });
 
     }
 
-    public void setRemoteDescription(SessionDescription sdp) {
+    public void setRemoteDescription(SessionDescription sdp, String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.setRemoteDescription(sdp);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.setRemoteDescription(sdp);
             }
         });
 
     }
 
-    public void addRemoteIceCandidate(IceCandidate candidate) {
+    public void addRemoteIceCandidate(IceCandidate candidate, String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.addRemoteIceCandidate(candidate);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.addRemoteIceCandidate(candidate);
             }
         });
 
     }
 
-    public void removeRemoteIceCandidates(IceCandidate[] candidates) {
+    public void removeRemoteIceCandidates(IceCandidate[] candidates, String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.removeRemoteIceCandidates(candidates);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.removeRemoteIceCandidates(candidates);
             }
         });
 
@@ -287,10 +291,12 @@ public class RTCEngine2 {
 
     private void closeInternal() {
         Log.d(TAG, "Closing peer connection.");
-        if (mPeer != null) {
-            mPeer.dispose();
-            mPeer = null;
+        for (RTCPeer peer : peers.values()) {
+            if (peer != null) {
+                peer.dispose();
+            }
         }
+        peers.clear();
         Log.d(TAG, "Closing audio source.");
         if (mAudioSource != null) {
             mAudioSource.dispose();
@@ -352,14 +358,15 @@ public class RTCEngine2 {
         });
     }
 
-    public void setBitrateRange(int minBitrate, int maxBitrate) {
+    public void setBitrateRange(int minBitrate, int maxBitrate, String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
                 if (minBitrate > maxBitrate) {
                     Log.w(TAG, "minBitrate must < maxBitrate.");
                     return;
                 }
-                RtpSender videoSender = mPeer.findVideoSender();
+                RtpSender videoSender = rtcPeer.findVideoSender();
                 if (videoSender == null) {
                     Log.w(TAG, "RtpSender are not ready.");
                     return;
@@ -380,39 +387,14 @@ public class RTCEngine2 {
 
     }
 
-    public void setVideoCodecType(@RTCPeer.VideoCodeType String videoCodecType) {
+    public void setVideoCodecType(@RTCPeer.VideoCodeType String videoCodecType, String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.setVideoCodecType(videoCodecType);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.setVideoCodecType(videoCodecType);
             }
         });
 
-    }
-
-    private final Timer statsTimer = new Timer();
-
-    public void enableStatsEvents(boolean enable, int periodMs) {
-        if (enable) {
-            try {
-                statsTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        executor.execute(() -> getStats());
-                    }
-                }, 0, periodMs);
-            } catch (Exception e) {
-                Log.e(TAG, "Can not schedule statistics timer", e);
-            }
-        } else {
-            statsTimer.cancel();
-        }
-    }
-
-    private void getStats() {
-        if (mPeer == null) {
-            return;
-        }
-        mPeer.getStats();
     }
 
 

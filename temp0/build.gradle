@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -30,6 +31,7 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     // test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -39,5 +41,5 @@ dependencies {
     implementation project(path: ':base')
     implementation project(path: ':rtc_engine')
     // websocket
-    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.1'
 }

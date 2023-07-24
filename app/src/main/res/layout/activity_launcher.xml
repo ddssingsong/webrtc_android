@@ -42,6 +42,14 @@
                     android:onClick="login"
                     android:text="connect to server"
                     android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/button9"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="temple0"
+                    android:text="temple0:WLAN Video chat"
+                    android:textAllCaps="false" />
             </LinearLayout>
         </LinearLayout>
 
@@ -62,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="temple1"
-                android:text="temple1: LAN Video Chat"
+                android:text="temp1: LAN Video Chat"
                 android:textAllCaps="false" />
 
             <Button
@@ -70,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="temple2"
-                android:text="temple2: LAN Multi Video Chat"
+                android:text="temp2: LAN Multi Video Chat"
                 android:textAllCaps="false" />
 
         </LinearLayout>
