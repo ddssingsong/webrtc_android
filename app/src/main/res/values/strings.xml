@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">VideoChat</string>
+
+
     <string name="action_settings">Settings</string>
     <string name="action_create_room">Create Room</string>
 
@@ -8,8 +10,8 @@
     <string name="av_audio_invite">邀请你进行语音通话</string>
     <string name="av_video_invite">邀请你进行视频通话</string>
 
-    <string name="title_user">User</string>
-    <string name="title_room">Room</string>
-    <string name="title_setting">Setting</string>
+    <string name="temp0_title_user">User</string>
+    <string name="temp0_title_room">Room</string>
+    <string name="temp0_title_setting">Setting</string>
 
 </resources>

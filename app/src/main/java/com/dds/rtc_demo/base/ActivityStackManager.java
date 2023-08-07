@@ -71,6 +71,7 @@ public class ActivityStackManager {
         }
 
     }
+
     /**
      * 销毁所有的 Activity，除这些 Class 之外的 Activity
      */

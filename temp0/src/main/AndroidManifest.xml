@@ -4,6 +4,10 @@
     <application>
         <activity
             android:name=".Temple0Activity"
+            android:exported="false"
+            android:label="Login" />
+        <activity
+            android:name="com.dds.temple0.ui.UserHomeActivity"
             android:exported="false" />
     </application>
 

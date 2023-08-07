@@ -59,7 +59,7 @@ public class RTCEngine2 {
     private AudioTrack mAudioTrack;
     private AudioSource mAudioSource;
 
-    private final Map<String, RTCPeer> peers = new HashMap<>();
+    private final HashMap<String, RTCPeer> peers = new HashMap<>();
 
     // config
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";

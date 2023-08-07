@@ -1,1 +1,6 @@
-<resources></resources>
+<resources>
+    <string name="temp0_title_user">User</string>
+    <string name="temp0_title_room">Room</string>
+    <string name="temp0_title_setting">Setting</string>
+
+</resources>

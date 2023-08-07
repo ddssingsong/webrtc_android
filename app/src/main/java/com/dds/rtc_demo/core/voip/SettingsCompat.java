@@ -173,11 +173,9 @@ public class SettingsCompat {
     // 华为
     private static boolean manageDrawOverlaysForEmui(Context context) {
         Intent intent = new Intent();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            intent.setClassName(HUAWEI_PACKAGE, "com.huawei.systemmanager.addviewmonitor.AddViewMonitorActivity");
-            if (startSafely(context, intent)) {
-                return true;
-            }
+        intent.setClassName(HUAWEI_PACKAGE, "com.huawei.systemmanager.addviewmonitor.AddViewMonitorActivity");
+        if (startSafely(context, intent)) {
+            return true;
         }
         // Huawei Honor P6|4.4.4|3.0
         intent.setClassName(HUAWEI_PACKAGE, "com.huawei.notificationmanager.ui.NotificationManagmentActivity");
@@ -185,18 +183,15 @@ public class SettingsCompat {
         if (startSafely(context, intent)) {
             return true;
         }
-        intent.setClassName(HUAWEI_PACKAGE, "com.huawei.permissionmanager.ui.MainActivity");
-        if (startSafely(context, intent)) {
-            return true;
-        }
-        return false;
+        intent.setClassName(HUAWEI_PACKAGE, "com.huawei.permissionmanager.ui.UserHomeActivity");
+        return startSafely(context, intent);
     }
 
     // VIVO
     private static boolean manageDrawOverlaysForVivo(Context context) {
         // 不支持直接到达悬浮窗设置页，只能到 i管家 首页
         Intent intent = new Intent("com.iqoo.secure");
-        intent.setClassName("com.iqoo.secure", "com.iqoo.secure.MainActivity");
+        intent.setClassName("com.iqoo.secure", "com.iqoo.secure.UserHomeActivity");
         // com.iqoo.secure.ui.phoneoptimize.SoftwareManagerActivity
         // com.iqoo.secure.ui.phoneoptimize.FloatWindowManager
         return startSafely(context, intent);
@@ -260,7 +255,7 @@ public class SettingsCompat {
             intent.putExtra("permission", new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW});
 
             //        Intent intent = new Intent("com.smartisanos.security.action.MAIN");
-            //        intent.setClassName("com.smartisanos.security", "com.smartisanos.security.MainActivity");
+            //        intent.setClassName("com.smartisanos.security", "com.smartisanos.security.UserHomeActivity");
             return startSafely(context, intent);
         }
     }

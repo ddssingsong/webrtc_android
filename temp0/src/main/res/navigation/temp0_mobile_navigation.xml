@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_user"
-        android:name="com.dds.rtc_demo.ui.user.UserListFragment"
+        android:name="com.dds.temple0.ui.user.UserListFragment"
         android:label="@string/temp0_title_user"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/temp0_fragment_user" />
 
     <fragment
         android:id="@+id/navigation_room"
-        android:name="com.dds.rtc_demo.ui.room.RoomFragment"
+        android:name="com.dds.temple0.ui.room.RoomFragment"
         android:label="@string/temp0_title_room"
         tools:layout="@layout/temp0_fragment_room" />
 
     <fragment
         android:id="@+id/navigation_setting"
-        android:name="com.dds.rtc_demo.ui.setting.SettingFragment"
+        android:name="com.dds.temple0.ui.setting.SettingFragment"
         android:label="@string/temp0_title_setting"
         tools:layout="@layout/temp0_fragment_setting" />
 </navigation>

@@ -83,14 +83,4 @@ public class MainActivity extends BaseActivity implements IUserState {
             this.finish();
         }
     }
-
-    @Override
-    public void onBackPressed() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            finishAfterTransition();
-        } else {
-            super.onBackPressed();
-        }
-
-    }
 }

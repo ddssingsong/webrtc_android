@@ -48,7 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="temple0"
-                    android:text="temple0:WLAN Video chat"
+                    android:text="temp0:WLAN Video chat"
                     android:textAllCaps="false" />
             </LinearLayout>
         </LinearLayout>
