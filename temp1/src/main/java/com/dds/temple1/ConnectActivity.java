@@ -37,6 +37,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
 
     private String mIpAddress;
     private DirectRTCClient mDirectRTCClient;
+
     private boolean mIsServer;
 
     private RTCEngine mRtcEngine;

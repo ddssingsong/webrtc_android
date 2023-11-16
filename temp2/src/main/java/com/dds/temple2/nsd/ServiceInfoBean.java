@@ -15,7 +15,6 @@ public class ServiceInfoBean {
 
             jsonObject.put("time", this.time);
             jsonObject.put("uuid", this.uuid);
-
             jsonObject.put("v", this.v);
             return jsonObject.toString();
         } catch (JSONException e) {

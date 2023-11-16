@@ -1,4 +1,4 @@
-package com.dds.rtc_demo.base;
+package com.dds.base.activity;
 
 import android.app.Activity;
 import android.app.Application;
@@ -57,7 +57,6 @@ public class ActivityStackManager {
     public void finishAllActivities() {
         finishAllActivities((Class<? extends Activity>) null);
     }
-
 
     /**
      * 获取栈底部的Activity

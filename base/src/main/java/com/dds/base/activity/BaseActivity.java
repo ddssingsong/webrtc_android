@@ -1,4 +1,4 @@
-package com.dds.rtc_demo.base;
+package com.dds.base.activity;
 
 import android.os.Bundle;
 
@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        // 添加Activity到堆栈
         ActivityStackManager.getInstance().onCreated(this);
         super.onCreate(savedInstanceState);
     }

@@ -9,3 +9,4 @@
 .externalNativeBuild
 .project
 /.settings
+/rtc_chat/

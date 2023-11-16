@@ -11,11 +11,6 @@ android {
         targetSdk rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.android.SDK_VERSION_CODE
         versionName rootProject.ext.android.SDK_VERSION
-
-        ndk {
-            // 设置支持的SO库架构
-            abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
-        }
     }
 
     buildTypes {
@@ -36,24 +31,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-    implementation 'androidx.navigation:navigation-fragment:2.6.0'
-    implementation 'androidx.navigation:navigation-ui:2.6.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'com.google.android.material:material:1.9.0'
     // leakcanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
-
-    // alerter
-    implementation 'com.github.tapadoo:alerter:7.0.0'
-
-
-    implementation project(path: ':rtc_chat')
-    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
-    implementation 'com.alibaba:fastjson:1.2.83'
-    // --av chat--
 
     implementation project(path: ':base')
     implementation project(path: ':temp0')

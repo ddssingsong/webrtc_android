@@ -39,7 +39,6 @@ public class Temple1Activity extends AppCompatActivity {
             String ip = text.toString();
             ConnectActivity.launchActivity(this, ConnectActivity.TYPE_CLIENT, ip);
         }
-
     }
 
     // server start
