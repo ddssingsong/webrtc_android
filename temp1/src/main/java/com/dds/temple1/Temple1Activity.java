@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 
 import com.dds.base.permission.Permissions;
+import com.dds.base.utils.NetworkUtils;
 import com.dds.base.utils.StatusBarUtils;
 import com.dds.temple.R;
 import com.google.android.material.textfield.TextInputEditText;
@@ -29,6 +31,8 @@ public class Temple1Activity extends AppCompatActivity {
                 finish();
             }
         });
+        TextView viewById = this.findViewById(R.id.textView2);
+        viewById.setText(String.format("server: %s", NetworkUtils.getIPAddress(true)));
     }
 
     // client start

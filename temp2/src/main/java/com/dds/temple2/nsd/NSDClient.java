@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.dds.base.utils.NetworkUtils;
+
 
 public class NSDClient {
     private static final String TAG = "NSDClient";
@@ -114,6 +116,11 @@ public class NSDClient {
 
             @Override
             public void onServiceResolved(NsdServiceInfo nsdServiceInfo2) {
+                String ipAddress = NetworkUtils.getIPAddress(true);
+                if (ipAddress != null && ipAddress.equals(nsdServiceInfo2.getHost().getHostAddress())) {
+                    Log.d(TAG, "onServiceResolved: self ip");
+                    return;
+                }
                 Log.d(NSDClient.TAG, "resolution : " + nsdServiceInfo2.getServiceName() + " \t host_from_server: " + nsdServiceInfo2.getHost() + "\t port from server: " + nsdServiceInfo2.getPort());
                 String hostAddress = nsdServiceInfo2.getHost().getHostAddress();
                 String sb = "found hostAddress ip--> " + hostAddress;

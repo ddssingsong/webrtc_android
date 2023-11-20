@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.dds.temple2.nsd.FinderManager;
+import com.dds.temple2.nsd.IDiscoveryCallBack;
 import com.dds.temple2.nsd.NSDServer;
 
 public class ConnectMultiActivity extends AppCompatActivity {
@@ -18,43 +19,30 @@ public class ConnectMultiActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multi_connect);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+        // start broadcast
         FinderManager.getInstance().init(this);
-        FinderManager.getInstance().startServer(this, new NSDServer.IRegisterCallBack() {
+        FinderManager.getInstance().startServer(this);
+        // start discovery
+        FinderManager.getInstance().startClient(this, new IDiscoveryCallBack() {
             @Override
-            public void onRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
-                Log.d(TAG, "onRegistrationFailed: " + nsdServiceInfo.getServiceName());
+            public void onServiceFound(NsdServiceInfo nsdServiceInfo) {
+                Log.d(TAG, "onServiceFound: " + nsdServiceInfo.toString());
             }
 
             @Override
-            public void onServiceRegistered(NsdServiceInfo nsdServiceInfo) {
-                Log.d(TAG, "onServiceRegistered: " + nsdServiceInfo.getServiceName());
-            }
-
-            @Override
-            public void onServiceUnregistered(NsdServiceInfo nsdServiceInfo) {
-                Log.d(TAG, "onServiceUnregistered: " + nsdServiceInfo.getServiceName());
-            }
-
-            @Override
-            public void onUnregistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
-                Log.d(TAG, "onUnregistrationFailed: " + nsdServiceInfo.getServiceName());
+            public void onServiceLost(NsdServiceInfo nsdServiceInfo) {
+                Log.d(TAG, "onServiceLost: " + nsdServiceInfo.toString());
             }
         });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        finderManager.stopServer();
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // start broadcast
+        FinderManager.getInstance().stopServer();
+        // stop discovery
+        FinderManager.getInstance().stopClient();
     }
 }

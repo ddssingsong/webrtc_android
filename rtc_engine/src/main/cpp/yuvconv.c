@@ -2,7 +2,7 @@
 #include "libyuv.h"
 
 JNIEXPORT void JNICALL
-Java_com_dds_temple1_effect_format_LibYuvBridge_i420ToAbgrInternal(
+Java_com_dds_rtc_effect_format_LibYuvBridge_i420ToAbgrInternal(
     JNIEnv *env,
     jobject obj,
     jobject dataYBuffer, jint strideY,
@@ -45,7 +45,7 @@ Java_com_dds_temple1_effect_format_LibYuvBridge_i420ToAbgrInternal(
 }
 
 JNIEXPORT void JNICALL
-Java_com_dds_temple1_effect_format_LibYuvBridge_abgrToI420Internal(
+Java_com_dds_rtc_effect_format_LibYuvBridge_abgrToI420Internal(
         JNIEnv *env,
         jobject obj,
         jobject rgbaBuffer,

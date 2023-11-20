@@ -29,7 +29,7 @@ public class NSDServer {
 
         void onServiceUnregistered(NsdServiceInfo nsdServiceInfo);
 
-        void onUnregistrationFailed(NsdServiceInfo nsdServiceInfo, int i);
+        void onUnRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i);
     }
 
     private NSDServer() {
@@ -79,7 +79,7 @@ public class NSDServer {
             public void onUnregistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
                 Log.d(NSDServer.TAG, "onUnregistrationFailed serviceInfo: " + nsdServiceInfo + " ,errorCode:" + i);
                 if (NSDServer.this.registerCallBack != null) {
-                    NSDServer.this.registerCallBack.onUnregistrationFailed(nsdServiceInfo, i);
+                    NSDServer.this.registerCallBack.onUnRegistrationFailed(nsdServiceInfo, i);
                 }
             }
         };
@@ -109,7 +109,6 @@ public class NSDServer {
         this.mNsdManager.registerService(this.serviceInfo, NsdManager.PROTOCOL_DNS_SD, this.mRegistrationListener);
         this.mHasRegistered = true;
     }
-
 
     public void setRegisterCallBack(IRegisterCallBack iRegisterCallBack) {
         this.registerCallBack = iRegisterCallBack;

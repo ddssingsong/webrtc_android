@@ -2,6 +2,7 @@ package com.dds.temple2.nsd;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
@@ -11,7 +12,7 @@ import java.net.ServerSocket;
 
 public class FinderManager {
     private static final String TAG = "FinderManager";
-    public static final String SERVER_TYPE = "_nsd-temple._udp";
+    public static final String SERVER_TYPE = "_nsd-rtc._udp";
 
     public static final int SERVER_PORT = 3002;
 
@@ -68,18 +69,37 @@ public class FinderManager {
 
     }
 
-    public void startServer(Context context, NSDServer.IRegisterCallBack iRegisterCallBack) {
+    public void startServer(Context context) {
         String deviceName = Build.PRODUCT + " " + Build.DEVICE;
         String bluetooth_name = Settings.Secure.getString(context.getContentResolver(), "bluetooth_name");
-        NSDServer.getInstance().setRegisterCallBack(iRegisterCallBack);
-        NSDServer.getInstance().startNSDServer(context, "room_" + (bluetooth_name == null ? deviceName : bluetooth_name), localPort);
+        NSDServer.getInstance().setRegisterCallBack(new NSDServer.IRegisterCallBack() {
+            @Override
+            public void onRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
+                Log.d(TAG, "onRegistrationFailed: " + nsdServiceInfo.getServiceName());
+            }
+
+            @Override
+            public void onServiceRegistered(NsdServiceInfo nsdServiceInfo) {
+                Log.d(TAG, "onServiceRegistered: " + nsdServiceInfo.getServiceName());
+            }
+
+            @Override
+            public void onServiceUnregistered(NsdServiceInfo nsdServiceInfo) {
+                Log.d(TAG, "onServiceUnregistered: " + nsdServiceInfo.getServiceName());
+            }
+
+            @Override
+            public void onUnRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
+                Log.d(TAG, "onUnRegistrationFailed: " + nsdServiceInfo.getServiceName());
+            }
+        });
+        NSDServer.getInstance().startNSDServer(context, "device_" + (bluetooth_name == null ? deviceName : bluetooth_name), localPort);
 
     }
 
     public void stopServer() {
         NSDServer.getInstance().stopNSDServer();
     }
-
 
     public void startClient(Context context, IDiscoveryCallBack iDiscoveryCallBack) {
         NSDClient.getInstance().setOnDiscoverCallBack(iDiscoveryCallBack);
