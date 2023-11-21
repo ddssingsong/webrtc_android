@@ -14,7 +14,8 @@ public class VideoEffectorContext {
 
         private boolean transformChanged = true;
 
-        public FrameInfo() {}
+        public FrameInfo() {
+        }
 
         public void update(int width,
                            int height,
@@ -31,7 +32,7 @@ public class VideoEffectorContext {
 
             this.originalWidth = width;
             this.originalHeight = height;
-            this.rotation  = rotation;
+            this.rotation = rotation;
             this.timestamp = timestamp;
 
             if (rotation == 90 || rotation == 270) {
@@ -82,7 +83,8 @@ public class VideoEffectorContext {
 
     private FrameInfo frameInfo = new FrameInfo();
 
-    public VideoEffectorContext() {}
+    public VideoEffectorContext() {
+    }
 
     public FrameInfo getFrameInfo() {
         return this.frameInfo;

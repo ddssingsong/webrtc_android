@@ -17,8 +17,7 @@ import com.dds.rtc.ProxyVideoSink;
 import com.dds.rtc.RTCEngine;
 import com.dds.rtc.RTCPeer;
 import com.dds.temple.R;
-
- import com.dds.temple1.socket.AppRTCClient;
+import com.dds.temple1.socket.AppRTCClient;
 import com.dds.temple1.socket.DirectRTCClient;
 import com.dds.temple1.utils.StatsReportUtil;
 
@@ -189,18 +188,19 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     public void onConnectedToRoom(AppRTCClient.SignalingParameters params) {
         runOnUiThread(() -> {
             boolean initiator = params.initiator;
-            mRtcEngine.createPeerConnection(this, remoteProxyRenderer);
-            mRtcEngine.setVideoCodecType(RTCPeer.VIDEO_CODEC_H264);
+            mIpAddress = params.ipAddress;
+            mRtcEngine.createPeerConnection(mIpAddress, this, remoteProxyRenderer);
+            mRtcEngine.setVideoCodecType(mIpAddress, RTCPeer.VIDEO_CODEC_H264);
             if (initiator) {
                 // create offer
                 mMainHandler.post(() -> logAndToast("create offer"));
-                mRtcEngine.createOffer();
+                mRtcEngine.createOffer(mIpAddress);
             } else {
                 if (params.offerSdp != null) {
-                    mRtcEngine.setRemoteDescription(params.offerSdp);
+                    mRtcEngine.setRemoteDescription(mIpAddress, params.offerSdp);
                     // create answer
                     mMainHandler.post(() -> logAndToast("create answer"));
-                    mRtcEngine.createAnswer();
+                    mRtcEngine.createAnswer(mIpAddress);
                 }
             }
         });
@@ -215,10 +215,10 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
                 Log.e(TAG, "Received remote SDP for non-initialized peer connection.");
                 return;
             }
-            mRtcEngine.setRemoteDescription(sdp);
+            mRtcEngine.setRemoteDescription(mIpAddress, sdp);
             if (!mIsServer) {
                 logAndToast("Creating ANSWER...");
-                mRtcEngine.createAnswer();
+                mRtcEngine.createAnswer(mIpAddress);
             }
         });
 
@@ -231,7 +231,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
                 Log.e(TAG, "Received ICE candidate for a non-initialized peer connection.");
                 return;
             }
-            mRtcEngine.addRemoteIceCandidate(candidate);
+            mRtcEngine.addRemoteIceCandidate(mIpAddress, candidate);
         });
     }
 
@@ -242,7 +242,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
                 Log.e(TAG, "Received ICE candidate removals for a non-initialized peer connection.");
                 return;
             }
-            mRtcEngine.removeRemoteIceCandidates(candidates);
+            mRtcEngine.removeRemoteIceCandidates(mIpAddress, candidates);
         });
     }
 
@@ -314,8 +314,8 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         final long delta = System.currentTimeMillis() - callStartedTimeMs;
         runOnUiThread(() -> {
             logAndToast("DTLS connected, delay=" + delta + "ms");
-            mRtcEngine.enableStatsEvents(true, 1000);
-            mRtcEngine.setBitrateRange(500, 2000);
+            mRtcEngine.enableStatsEvents(mIpAddress, true, 1000);
+            mRtcEngine.setBitrateRange(mIpAddress, 1000, 2000);
         });
 
     }

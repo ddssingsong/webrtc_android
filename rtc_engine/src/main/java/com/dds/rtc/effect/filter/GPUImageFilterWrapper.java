@@ -13,19 +13,21 @@ import java.nio.FloatBuffer;
 
 public class GPUImageFilterWrapper extends FrameImageFilter {
     private static final String TAG = "GPUImageFilterWrapper";
+
     public interface Listener {
         void onInit(GPUImageFilter filter);
+
         void onUpdate(GPUImageFilter filter, VideoEffectorContext vctx);
     }
 
-    private static final FloatBuffer FULL_RECTANGLE_BUF = GlUtil.createFloatBuffer(new float[] {
+    private static final FloatBuffer FULL_RECTANGLE_BUF = GlUtil.createFloatBuffer(new float[]{
             -1.0f, -1.0f, // Bottom left.
             1.0f, -1.0f, // Bottom right.
             -1.0f, 1.0f, // Top left.
             1.0f, 1.0f, // Top right.
     });
 
-    private static final FloatBuffer FULL_RECTANGLE_TEX_BUF = GlUtil.createFloatBuffer(new float[] {
+    private static final FloatBuffer FULL_RECTANGLE_TEX_BUF = GlUtil.createFloatBuffer(new float[]{
             0.0f, 0.0f, // Bottom left.
             1.0f, 0.0f, // Bottom right.
             0.0f, 1.0f, // Top left.
@@ -38,6 +40,7 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
     public GPUImageFilterWrapper(GPUImageFilter filter) {
         this(filter, null);
     }
+
     public GPUImageFilterWrapper(GPUImageFilter filter, Listener listener) {
         this.originalFilter = filter;
         this.listener = listener;
@@ -66,6 +69,7 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
     }
 
     private void resizeTextureIfNeeded(int width, int height) {
+        Log.d(TAG, "resizeTextureIfNeeded: width = " + width + ",height = " + height);
         if (width == 0 || height == 0) {
             throw new IllegalArgumentException("invalid size of texture");
         }
@@ -73,7 +77,7 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
             // not changed,  do nothing
             return;
         }
-        this.width  = width;
+        this.width = width;
         this.height = height;
         resetTexture(width, height);
         attachTextureToFramebuffer();
@@ -82,9 +86,8 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
 
     private void attachTextureToFramebuffer() {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, bufferId);
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER,
-                GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D,
-                textureId, 0);
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
+                GLES20.GL_TEXTURE_2D, textureId, 0);
         final int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
         if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
@@ -96,9 +99,8 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
     private void resetTexture(int width, int height) {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
-                width, height, 0,
-                GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height,
+                0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
     }
 
@@ -110,6 +112,7 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
 
         VideoEffectorContext.FrameInfo info = ctx.getFrameInfo();
         this.originalFilter.onOutputSizeChanged(info.getWidth(), info.getHeight());
+
         resizeTextureIfNeeded(info.getWidth(), info.getHeight());
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);

@@ -32,7 +32,7 @@ public class TCPChannelClient {
     public interface TCPChannelEvents {
         void onTCPConnected(boolean server);
 
-        void onTCPMessage(String message);
+        void onTCPMessage(String ip,String message);
 
         void onTCPError(String description);
 
@@ -174,12 +174,9 @@ public class TCPChannelClient {
                     break;
                 }
 
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.v(TAG, "Receive: " + message);
-                        eventListener.onTCPMessage(message);
-                    }
+                executor.execute(() -> {
+                    Log.v(TAG, "Receive: " + message);
+                    eventListener.onTCPMessage(rawSocket.getInetAddress().getHostAddress(),message);
                 });
             }
 

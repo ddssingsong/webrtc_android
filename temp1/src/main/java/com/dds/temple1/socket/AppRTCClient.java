@@ -66,11 +66,14 @@ public interface AppRTCClient {
         public final List<PeerConnection.IceServer> iceServers;
         public final boolean initiator;
         public final SessionDescription offerSdp;
+        public final String ipAddress;
 
-        public SignalingParameters(List<PeerConnection.IceServer> iceServers, boolean initiator, SessionDescription offerSdp) {
+        public SignalingParameters(List<PeerConnection.IceServer> iceServers, boolean initiator, SessionDescription offerSdp, String ip) {
             this.iceServers = iceServers;
             this.initiator = initiator;
             this.offerSdp = offerSdp;
+            this.ipAddress = ip;
+
         }
     }
 

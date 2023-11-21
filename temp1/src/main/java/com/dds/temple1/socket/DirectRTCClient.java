@@ -212,14 +212,14 @@ public class DirectRTCClient implements AppRTCClient, TCPChannelClient.TCPChanne
                     // Ice servers are not needed for direct connections.
                     new ArrayList<>(),
                     true, // Server side acts as the initiator on direct connections.
-                    null// offerSdp
+                    null, connectionParameters.roomId// offerSdp
             );
             events.onConnectedToRoom(parameters);
         }
     }
 
     @Override
-    public void onTCPMessage(String msg) {
+    public void onTCPMessage(String ip, String msg) {
         try {
             JSONObject json = new JSONObject(msg);
             String type = json.optString("type");
@@ -249,7 +249,7 @@ public class DirectRTCClient implements AppRTCClient, TCPChannelClient.TCPChanne
                             // Ice servers are not needed for direct connections.
                             new ArrayList<>(),
                             false, // This code will only be run on the client side. So, we are not the initiator.
-                            sdp // offerSdp
+                            sdp, ip // offerSdp
                     );
                     roomState = ConnectionState.CONNECTED;
                     events.onConnectedToRoom(parameters);

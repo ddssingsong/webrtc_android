@@ -5,7 +5,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-
 import com.dds.rtc.effect.RTCVideoEffector;
 import com.dds.rtc.effect.VideoEffectProcessor;
 import com.dds.rtc.effect.filter.GPUImageBeautyFilter;
@@ -37,6 +36,7 @@ import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class RTCEngine {
-    private static final String TAG = "RTCEngine";
+    private static final String TAG = RTCLog.createTag("RTCEngine");
     private final EglBase mRootEglBase;
     private PeerConnectionFactory mConnectionFactory;
     // video
@@ -60,7 +60,8 @@ public class RTCEngine {
     private AudioTrack mAudioTrack;
     private AudioSource mAudioSource;
 
-    private RTCPeer mPeer;
+    private final HashMap<String, RTCPeer> peers = new HashMap<>();
+
     // config
     private static final String VIDEO_TRACK_ID = "ARDAMSv0";
     private static final String AUDIO_TRACK_ID = "ARDAMSa0";
@@ -133,7 +134,6 @@ public class RTCEngine {
     }
 
     private VideoTrack createVideoTrack(Context context, VideoSink localSink) {
-
         // 1. create video source
         mVideoSource = mConnectionFactory.createVideoSource(false);
         // 2. create video capture
@@ -206,9 +206,9 @@ public class RTCEngine {
         return audioConstraints;
     }
 
-    public void createPeerConnection(RTCPeer.PeerConnectionEvents events, VideoSink remoteSink) {
+    public void createPeerConnection(String remoteId, RTCPeer.PeerConnectionEvents events, VideoSink remoteSink) {
         executor.execute(() -> {
-            mPeer = new RTCPeer(mConnectionFactory, executor, events);
+            RTCPeer mPeer = new RTCPeer(mConnectionFactory, executor, events, remoteId);
             List<String> mediaStreamLabels = Collections.singletonList("ARDAMS");
             if (mVideoTrack != null) {
                 mPeer.addVideoTrack(mVideoTrack, mediaStreamLabels);
@@ -216,15 +216,16 @@ public class RTCEngine {
             if (mAudioTrack != null) {
                 mPeer.addAudioTrack(mAudioTrack, mediaStreamLabels);
             }
-            mRemoteVideoTrack = getRemoteVideoTrack();
+            mRemoteVideoTrack = getRemoteVideoTrack(mPeer);
             if (mRemoteVideoTrack != null) {
                 mRemoteVideoTrack.setEnabled(true);
                 mRemoteVideoTrack.addSink(remoteSink);
             }
+            peers.put(remoteId, mPeer);
         });
     }
 
-    private @Nullable VideoTrack getRemoteVideoTrack() {
+    private @Nullable VideoTrack getRemoteVideoTrack(RTCPeer mPeer) {
         for (RtpTransceiver transceiver : mPeer.getTransceivers()) {
             MediaStreamTrack track = transceiver.getReceiver().track();
             if (track instanceof VideoTrack) {
@@ -234,46 +235,51 @@ public class RTCEngine {
         return null;
     }
 
-    public void createOffer() {
+    public void createOffer(String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.createOffer();
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.createOffer();
             }
         });
 
     }
 
-    public void createAnswer() {
+    public void createAnswer(String remoteId) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.createAnswer();
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.createAnswer();
             }
         });
 
     }
 
-    public void setRemoteDescription(SessionDescription sdp) {
+    public void setRemoteDescription(String remoteId, SessionDescription sdp) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.setRemoteDescription(sdp);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.setRemoteDescription(sdp);
             }
         });
 
     }
 
-    public void addRemoteIceCandidate(IceCandidate candidate) {
+    public void addRemoteIceCandidate(String remoteId, IceCandidate candidate) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.addRemoteIceCandidate(candidate);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.addRemoteIceCandidate(candidate);
             }
         });
 
     }
 
-    public void removeRemoteIceCandidates(IceCandidate[] candidates) {
+    public void removeRemoteIceCandidates(String remoteId, IceCandidate[] candidates) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.removeRemoteIceCandidates(candidates);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.removeRemoteIceCandidates(candidates);
             }
         });
 
@@ -285,10 +291,12 @@ public class RTCEngine {
 
     private void closeInternal() {
         Log.d(TAG, "Closing peer connection.");
-        if (mPeer != null) {
-            mPeer.dispose();
-            mPeer = null;
+        for (RTCPeer peer : peers.values()) {
+            if (peer != null) {
+                peer.dispose();
+            }
         }
+        peers.clear();
         Log.d(TAG, "Closing audio source.");
         if (mAudioSource != null) {
             mAudioSource.dispose();
@@ -350,14 +358,15 @@ public class RTCEngine {
         });
     }
 
-    public void setBitrateRange(int minBitrate, int maxBitrate) {
+    public void setBitrateRange(String remoteId, int minBitrate, int maxBitrate) {
         executor.execute(() -> {
-            if (mPeer != null) {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
                 if (minBitrate > maxBitrate) {
                     Log.w(TAG, "minBitrate must < maxBitrate.");
                     return;
                 }
-                RtpSender videoSender = mPeer.findVideoSender();
+                RtpSender videoSender = rtcPeer.findVideoSender();
                 if (videoSender == null) {
                     Log.w(TAG, "RtpSender are not ready.");
                     return;
@@ -378,10 +387,11 @@ public class RTCEngine {
 
     }
 
-    public void setVideoCodecType(@RTCPeer.VideoCodeType String videoCodecType) {
+    public void setVideoCodecType(String remoteId, @RTCPeer.VideoCodeType String videoCodecType) {
         executor.execute(() -> {
-            if (mPeer != null) {
-                mPeer.setVideoCodecType(videoCodecType);
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.setVideoCodecType(videoCodecType);
             }
         });
 
@@ -389,13 +399,13 @@ public class RTCEngine {
 
     private final Timer statsTimer = new Timer();
 
-    public void enableStatsEvents(boolean enable, int periodMs) {
+    public void enableStatsEvents(String remoteId, boolean enable, int periodMs) {
         if (enable) {
             try {
                 statsTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        executor.execute(() -> getStats());
+                        executor.execute(() -> getStats(remoteId));
                     }
                 }, 0, periodMs);
             } catch (Exception e) {
@@ -406,11 +416,12 @@ public class RTCEngine {
         }
     }
 
-    private void getStats() {
-        if (mPeer == null) {
+    private void getStats(String remoteId) {
+        RTCPeer rtcPeer = peers.get(remoteId);
+        if (rtcPeer == null) {
             return;
         }
-        mPeer.getStats();
+        rtcPeer.getStats();
     }
 
 

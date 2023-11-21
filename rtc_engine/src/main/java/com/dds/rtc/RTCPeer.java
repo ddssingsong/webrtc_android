@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RTCPeer implements SdpObserver, PeerConnection.Observer {
-    private static final String TAG = "RTCPeer";
+    private static final String TAG = RTCLog.createTag("RTCPeer");
     private final PeerConnectionFactory mFactory;
     private final PeerConnection pc;
     private List<IceCandidate> queuedRemoteCandidates;
@@ -103,6 +103,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
     public void setRemoteDescription(SessionDescription desc) {
         if (pc == null) return;
         String sdp = desc.description;
+        Log.d(TAG, "setRemoteDescription: videoCodecType = " + videoCodecType);
         sdp = preferCodec(sdp, videoCodecType, false);
         SessionDescription sdpRemote = new SessionDescription(desc.type, sdp);
         pc.setRemoteDescription(this, sdpRemote);
@@ -272,6 +273,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         }
         String sdp = desc.description;
         sdp = preferCodec(sdp, videoCodecType, false);
+        Log.d(TAG, "onCreateSuccess: videoCodecType = " + videoCodecType);
         final SessionDescription newDesc = new SessionDescription(desc.type, sdp);
         localDescription = newDesc;
         mExecutor.execute(() -> {

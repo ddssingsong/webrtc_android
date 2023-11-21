@@ -51,9 +51,9 @@ public class VideoEffectProcessor implements VideoProcessor {
     private VideoFrame handleVideoFilter(VideoFrame frame) {
         VideoFrame.Buffer buffer = frame.getBuffer();
         if (buffer instanceof VideoFrame.TextureBuffer) {
-            Log.d(TAG, "handleVideoFilter: TextureBuffer");
+            // nop
         } else if (buffer instanceof VideoFrame.I420Buffer) {
-            Log.d(TAG, "handleVideoFilter: I420Buffer");
+            // nop
             if (rtcVideoEffector.needToProcessFrame()) {
                 VideoFrame.I420Buffer originalI420Buffer = frame.getBuffer().toI420();
                 VideoFrame.I420Buffer effectedI420Buffer = rtcVideoEffector.processByteBufferFrame(originalI420Buffer, frame.getRotation(), frame.getTimestampNs());
