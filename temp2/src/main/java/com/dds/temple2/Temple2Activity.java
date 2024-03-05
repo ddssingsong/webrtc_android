@@ -25,7 +25,7 @@ public class Temple2Activity extends AppCompatActivity {
         super.onPause();
     }
 
-    public void OnCreateRoom(View view) {
+    public void startScan(View view) {
         startActivity(new Intent(this, ConnectMultiActivity.class));
     }
 }
