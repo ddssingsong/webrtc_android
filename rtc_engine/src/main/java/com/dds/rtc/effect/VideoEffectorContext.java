@@ -81,7 +81,7 @@ public class VideoEffectorContext {
         }
     }
 
-    private FrameInfo frameInfo = new FrameInfo();
+    private final FrameInfo frameInfo = new FrameInfo();
 
     public VideoEffectorContext() {
     }

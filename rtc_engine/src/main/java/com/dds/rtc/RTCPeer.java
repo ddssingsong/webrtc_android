@@ -57,7 +57,7 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     private String videoCodecType = VIDEO_CODEC_VP8;
 
-    private String remotePeerId;
+    private final String remotePeerId;
 
     public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events) {
         this(factory, executor, events, null);
@@ -264,6 +264,17 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         return buffer.toString();
     }
 
+    private void reportError(final String errorMessage) {
+        Log.e(TAG, "reportError error: " + errorMessage);
+        mExecutor.execute(() -> {
+            if (!isError) {
+                mEvents.onPeerConnectionError(errorMessage);
+                isError = true;
+            }
+        });
+    }
+
+
     // region ------------------------------SdpObserver------------------------
     @Override
     public void onCreateSuccess(SessionDescription desc) {
@@ -468,14 +479,5 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
         void onPeerConnectionStatsReady(RTCStatsReport report);
     }
 
-    private void reportError(final String errorMessage) {
-        Log.e(TAG, "reportError error: " + errorMessage);
-        mExecutor.execute(() -> {
-            if (!isError) {
-                mEvents.onPeerConnectionError(errorMessage);
-                isError = true;
-            }
-        });
-    }
 
 }

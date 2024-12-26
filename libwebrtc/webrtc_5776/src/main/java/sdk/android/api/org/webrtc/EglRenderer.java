@@ -168,6 +168,9 @@ public class EglRenderer implements VideoSink {
   private final GlTextureFrameBuffer bitmapTextureFramebuffer =
       new GlTextureFrameBuffer(GLES20.GL_RGBA);
 
+    private final GlTextureFrameBuffer frameBuffer = new GlTextureFrameBuffer(GLES20.GL_RGBA);
+    private final GlTextureFrameBuffer frameBuffer1 = new GlTextureFrameBuffer(GLES20.GL_RGBA);
+
   private final Runnable logStatisticsRunnable = new Runnable() {
     @Override
     public void run() {
@@ -661,6 +664,8 @@ public class EglRenderer implements VideoSink {
       if (shouldRenderFrame) {
         GLES20.glClearColor(0 /* red */, 0 /* green */, 0 /* blue */, 0 /* alpha */);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+
+
         frameDrawer.drawFrame(frame, drawer, drawMatrix, 0 /* viewportX */, 0 /* viewportY */,
             eglBase.surfaceWidth(), eglBase.surfaceHeight());
 

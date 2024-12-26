@@ -43,14 +43,15 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     private final ProxyVideoSink remoteProxyRenderer = new ProxyVideoSink();
     private final ProxyVideoSink localProxyVideoSink = new ProxyVideoSink();
     private long callStartedTimeMs;
+    private boolean isSwappedFeeds;
+
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private StatsReportUtil statsReportUtil;
 
     public static final String ARG_ROLE_TYPE = "roleType";
     public static final String ARG_IP_ADDRESS = "ipAddress";
     public static final int TYPE_SERVER = 0;
     public static final int TYPE_CLIENT = 1;
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-
-    private StatsReportUtil statsReportUtil;
 
     public static void launchActivity(Activity activity, int roleType, String ip) {
         Intent intent = new Intent(activity, ConnectActivity.class);
@@ -102,7 +103,17 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         // start init render
         final EglBase eglBase = EglBase.create();
         // full
-        mFullView.init(eglBase.getEglBaseContext(), null);
+        mFullView.init(eglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
+            @Override
+            public void onFirstFrameRendered() {
+
+            }
+
+            @Override
+            public void onFrameResolutionChanged(int videoWidth, int videoHeight, int rotation) {
+
+            }
+        });
         mFullView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
         // pip
         mPipView.init(eglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
@@ -134,22 +145,6 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         mDirectRTCClient.connectToRoom(parameters);
     }
 
-    public void onHungUp(View view) {
-        disconnect();
-    }
-
-    public void OnMicrophone(View view) {
-        Log.d(TAG, "OnMicrophone: no impl");
-    }
-
-    public void OnSwitchCamera(View view) {
-        mRtcEngine.switchCamera();
-    }
-
-    public void OnToggleBeauty(View view) {
-        mRtcEngine.toggleBeautyEffect();
-    }
-
     private void disconnect() {
         remoteProxyRenderer.setTarget(null);
         localProxyVideoSink.setTarget(null);
@@ -172,7 +167,25 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         finish();
     }
 
-    private boolean isSwappedFeeds;
+
+    // region -------------------------------click Event-------------------------------------------
+
+
+    public void onHungUp(View view) {
+        disconnect();
+    }
+
+    public void OnMicrophone(View view) {
+        Log.d(TAG, "OnMicrophone: no impl");
+    }
+
+    public void OnSwitchCamera(View view) {
+        mRtcEngine.switchCamera();
+    }
+
+    public void OnToggleBeauty(View view) {
+        mRtcEngine.toggleBeautyEffect();
+    }
 
     private void setSwappedFeeds(boolean isSwappedFeeds) {
         this.isSwappedFeeds = isSwappedFeeds;
@@ -182,6 +195,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         mPipView.setMirror(!isSwappedFeeds);
     }
 
+    // endregion
 
     // region -------------------------------socket event-------------------------------------------
     @Override
@@ -337,7 +351,10 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     public void onPeerConnectionStatsReady(RTCStatsReport report) {
         Log.d(TAG, "onPeerConnectionStatsReady: " + report);
         String statsReport = statsReportUtil.getStatsReport(report);
-        runOnUiThread(() -> callStatsView.setText(statsReport));
+        runOnUiThread(() -> {
+            callStatsView.setVisibility(View.VISIBLE);
+            callStatsView.setText(statsReport);
+        });
     }
 
     //endregion

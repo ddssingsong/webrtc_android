@@ -12,10 +12,9 @@ import org.webrtc.VideoProcessor;
 import org.webrtc.VideoSink;
 
 public class VideoEffectProcessor implements VideoProcessor {
-    private static final String TAG = "FilterProcessor";
+    private static final String TAG = "VideoEffectProcessor";
     private VideoSink mSink;
-    private RTCVideoEffector rtcVideoEffector;
-
+    private final RTCVideoEffector rtcVideoEffector;
 
     public VideoEffectProcessor(SurfaceTextureHelper helper, RTCVideoEffector rtcVideoEffector) {
         this.rtcVideoEffector = rtcVideoEffector;
@@ -51,11 +50,14 @@ public class VideoEffectProcessor implements VideoProcessor {
     private VideoFrame handleVideoFilter(VideoFrame frame) {
         VideoFrame.Buffer buffer = frame.getBuffer();
         if (buffer instanceof VideoFrame.TextureBuffer) {
-            // nop
+            if (rtcVideoEffector.needToProcessFrame()) {
+                VideoFrame.Buffer buffer1 = rtcVideoEffector.processTextureBufferFrame((VideoFrame.TextureBuffer) buffer);
+                return new VideoFrame(buffer1, frame.getRotation(), frame.getTimestampNs());
+            }
         } else if (buffer instanceof VideoFrame.I420Buffer) {
             // nop
             if (rtcVideoEffector.needToProcessFrame()) {
-                VideoFrame.I420Buffer originalI420Buffer = frame.getBuffer().toI420();
+                VideoFrame.I420Buffer originalI420Buffer = buffer.toI420();
                 VideoFrame.I420Buffer effectedI420Buffer = rtcVideoEffector.processByteBufferFrame(originalI420Buffer, frame.getRotation(), frame.getTimestampNs());
                 VideoFrame effectedVideoFrame = new VideoFrame(
                         effectedI420Buffer, frame.getRotation(), frame.getTimestampNs());

@@ -50,6 +50,7 @@
             android:onClick="OnSwitchCamera"
             android:text="@string/switch_camera"
             tools:ignore="UsingOnClickInXml" />
+
         <Button
             android:id="@+id/btn_beauty"
             android:layout_width="wrap_content"
@@ -63,13 +64,13 @@
         android:id="@+id/callStats"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="5dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="80dp"
-        android:visibility="visible"
         android:alpha="0.6"
         android:background="#33343B"
         android:textColor="@android:color/holo_green_light"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:visibility="gone" />
 
 </FrameLayout>

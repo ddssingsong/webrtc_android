@@ -3,7 +3,6 @@ package com.dds.rtc_demo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 
 import com.dds.base.activity.BaseActivity;
 import com.dds.temple0.Temple0Activity;

@@ -1,21 +1,27 @@
 package com.dds.rtc.effect;
 
 
+import android.opengl.GLES20;
+import android.util.Log;
+
 import com.dds.rtc.effect.filter.FrameImageFilter;
 import com.dds.rtc.effect.filter.GPUImageFilter;
 import com.dds.rtc.effect.filter.GPUImageFilterWrapper;
-import com.dds.rtc.effect.filter.MediaEffectFilter;
+import com.dds.rtc.effect.filter.SkinSmoothFilter;
 import com.dds.rtc.effect.format.YuvByteBufferDumper;
 import com.dds.rtc.effect.format.YuvByteBufferReader;
 
+import org.webrtc.GlRectDrawer;
+import org.webrtc.GlTextureFrameBuffer;
 import org.webrtc.GlUtil;
+import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceTextureHelper;
+import org.webrtc.TextureBufferImpl;
 import org.webrtc.ThreadUtils;
 import org.webrtc.VideoFrame;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class RTCVideoEffector {
@@ -25,14 +31,19 @@ public class RTCVideoEffector {
     public RTCVideoEffector() {
     }
 
-    private VideoEffectorContext context = new VideoEffectorContext();
-    private List<FrameImageFilter> filters = new ArrayList<>();
+    private final VideoEffectorContext context = new VideoEffectorContext();
+    private final List<FrameImageFilter> filters = new ArrayList<>();
     private boolean enabled = true;
 
     private YuvByteBufferReader yuvBytesReader;
     private YuvByteBufferDumper yuvBytesDumper;
 
     private SurfaceTextureHelper helper;
+
+    private final GlRectDrawer textureDrawer = new GlRectDrawer();
+    private GlTextureFrameBuffer frameBuffer;
+    private GlTextureFrameBuffer frameBuffer1;
+    private SkinSmoothFilter smoothFilter;
 
     void init(SurfaceTextureHelper helper) {
 
@@ -51,32 +62,20 @@ public class RTCVideoEffector {
             filter.init();
         }
 
+        frameBuffer = new GlTextureFrameBuffer(GLES20.GL_RGBA);
+        frameBuffer1 = new GlTextureFrameBuffer(GLES20.GL_RGBA);
+        smoothFilter = new SkinSmoothFilter();
+
         GlUtil.checkNoGLES2Error("RTCVideoEffector.init");
     }
 
-    public void addFilter(FrameImageFilter filter) {
-        this.filters.add(filter);
-    }
-
-    // @link EffectFactory
-    public void addMediaEffectFilter(String name) {
-        addMediaEffectFilter(name, null);
-    }
-
-    public void addMediaEffectFilter(String name,
-                                     MediaEffectFilter.Listener listener) {
-        VideoEffectorLogger.d(TAG, "addMediaEffectFilter: " + name +
-                ", listener: " + listener);
-        this.filters.add(new MediaEffectFilter(name, listener));
-    }
 
     public void addGPUImageFilter(GPUImageFilter filter) {
         VideoEffectorLogger.d(TAG, "addGPUImageFilter: " + filter.toString());
         this.filters.add(new GPUImageFilterWrapper(filter));
     }
 
-    public void addGPUImageFilter(GPUImageFilter filter,
-                                  GPUImageFilterWrapper.Listener listener) {
+    public void addGPUImageFilter(GPUImageFilter filter, GPUImageFilterWrapper.Listener listener) {
         VideoEffectorLogger.d(TAG, "addGPUImageFilter: " + filter.toString() +
                 ", listener: " + listener);
         this.filters.add(new GPUImageFilterWrapper(filter, listener));
@@ -94,7 +93,7 @@ public class RTCVideoEffector {
         enabled = false;
     }
 
-    VideoFrame.I420Buffer processByteBufferFrame(VideoFrame.I420Buffer i420Buffer, int rotation, long timestamp) {
+    public VideoFrame.I420Buffer processByteBufferFrame(VideoFrame.I420Buffer i420Buffer, int rotation, long timestamp) {
 
         if (!needToProcessFrame()) {
             return i420Buffer;
@@ -122,6 +121,7 @@ public class RTCVideoEffector {
         // 但是，纹理之间的复制会发生两次
         // 我希望能够打开/关闭此功能，以便在不需要时不使用它
 
+        Log.d(TAG, "processByteBufferFrame: stepTextureId = " + stepTextureId);
         if (context.getFrameInfo().isRotated()) {
             // TODO
         }
@@ -139,11 +139,40 @@ public class RTCVideoEffector {
         return yuvBytesDumper.dump(stepTextureId, width, height, strideY, strideU, strideV);
     }
 
+    public VideoFrame.Buffer processTextureBufferFrame(VideoFrame.TextureBuffer buffer) {
+        int textureId = buffer.getTextureId();
+        float[] finalGlMatrix = RendererCommon.convertMatrixFromAndroidGraphicsMatrix(buffer.getTransformMatrix());
+        int width = buffer.getWidth();
+        int height = buffer.getHeight();
+
+        frameBuffer.setSize(width, height);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer.getFrameBufferId());
+        // draw OES
+        textureDrawer.drawOes(textureId, finalGlMatrix, width, height, 0, 0, width, height);
+
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+
+        textureId = frameBuffer.getTextureId();
+
+
+        if (needToProcessFrame()) {
+            frameBuffer1.setSize(width, height);
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer1.getFrameBufferId());
+            smoothFilter.prepare();
+            smoothFilter.draw(textureId, finalGlMatrix, width, height);
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+            textureId = frameBuffer1.getTextureId();
+        }
+        return new TextureBufferImpl(width, height, VideoFrame.TextureBuffer.Type.RGB, textureId,
+                RendererCommon.convertMatrixToAndroidGraphicsMatrix(finalGlMatrix), helper.getHandler(), null, null);
+    }
+
+
     boolean needToProcessFrame() {
         if (!enabled) {
             return false;
         }
-        if (filters.size() > 0) {
+        if (!filters.isEmpty()) {
             for (FrameImageFilter filter : this.filters) {
                 if (filter.isEnabled()) {
                     return true;
@@ -168,5 +197,12 @@ public class RTCVideoEffector {
         }
         yuvBytesReader.dispose();
         yuvBytesDumper.dispose();
+        if (frameBuffer1 != null) {
+            frameBuffer1.release();
+        }
+        if (smoothFilter != null) {
+            smoothFilter.release();
+        }
     }
+
 }

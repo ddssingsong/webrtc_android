@@ -31,10 +31,8 @@ public class UserHomeActivity extends AppCompatActivity implements SocketManager
         // 设置Nav跟随联动
         NavigationUI.setupWithNavController(navView, navController);
 
-
         // 设置登录状态回调
         SocketManager.getInstance().addUserStateCallback(this, this);
-
 
     }
 

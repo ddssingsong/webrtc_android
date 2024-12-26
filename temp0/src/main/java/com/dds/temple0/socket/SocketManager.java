@@ -115,7 +115,6 @@ public class SocketManager {
 
     }
 
-
     public void addEventCallback(Object object, SocketManager.IEvent event) {
         if (!iEventMap.containsKey(object)) {
             iEventMap.put(object, new WeakReference<>(event));

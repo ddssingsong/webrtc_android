@@ -1,6 +1,7 @@
 package com.dds.rtc;
 
 import android.content.Context;
+import android.media.effect.EffectFactory;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -11,7 +12,7 @@ import com.dds.rtc.effect.filter.GPUImageBeautyFilter;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
-import org.webrtc.Camera1Enumerator;
+import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
 import org.webrtc.DefaultVideoDecoderFactory;
@@ -55,7 +56,6 @@ public class RTCEngine {
     private VideoTrack mRemoteVideoTrack;
     private VideoEffectProcessor mVideoEffectProcessor;
     private RTCVideoEffector rtcVideoEffector;
-    private GPUImageBeautyFilter gpuImageBeautyFilter;
     // audio
     private AudioTrack mAudioTrack;
     private AudioSource mAudioSource;
@@ -80,6 +80,7 @@ public class RTCEngine {
 
     private static final int BPS_IN_KBPS = 1000;
 
+    private final Timer statsTimer = new Timer();
 
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -148,7 +149,7 @@ public class RTCEngine {
         videoTrack.addSink(localSink);
         // add video effects
         rtcVideoEffector = new RTCVideoEffector();
-        gpuImageBeautyFilter = new GPUImageBeautyFilter();
+        GPUImageBeautyFilter gpuImageBeautyFilter = new GPUImageBeautyFilter();
         rtcVideoEffector.addGPUImageFilter(gpuImageBeautyFilter);
         mVideoEffectProcessor = new VideoEffectProcessor(mSurfaceTextureHelper, rtcVideoEffector);
         mVideoSource.setVideoProcessor(mVideoEffectProcessor);
@@ -156,7 +157,7 @@ public class RTCEngine {
     }
 
     private VideoCapturer createVideoCapture(Context context) {
-        VideoCapturer videoCapturer = createCameraCapture(new Camera1Enumerator(false));
+        VideoCapturer videoCapturer = createCameraCapture(new Camera2Enumerator(context));
         Log.d(TAG, "createVideoCapture: " + videoCapturer);
         // You can implement various captures here, such as screen recording and file recording
         return videoCapturer;
@@ -235,60 +236,6 @@ public class RTCEngine {
         return null;
     }
 
-    public void createOffer(String remoteId) {
-        executor.execute(() -> {
-            RTCPeer rtcPeer = peers.get(remoteId);
-            if (rtcPeer != null) {
-                rtcPeer.createOffer();
-            }
-        });
-
-    }
-
-    public void createAnswer(String remoteId) {
-        executor.execute(() -> {
-            RTCPeer rtcPeer = peers.get(remoteId);
-            if (rtcPeer != null) {
-                rtcPeer.createAnswer();
-            }
-        });
-
-    }
-
-    public void setRemoteDescription(String remoteId, SessionDescription sdp) {
-        executor.execute(() -> {
-            RTCPeer rtcPeer = peers.get(remoteId);
-            if (rtcPeer != null) {
-                rtcPeer.setRemoteDescription(sdp);
-            }
-        });
-
-    }
-
-    public void addRemoteIceCandidate(String remoteId, IceCandidate candidate) {
-        executor.execute(() -> {
-            RTCPeer rtcPeer = peers.get(remoteId);
-            if (rtcPeer != null) {
-                rtcPeer.addRemoteIceCandidate(candidate);
-            }
-        });
-
-    }
-
-    public void removeRemoteIceCandidates(String remoteId, IceCandidate[] candidates) {
-        executor.execute(() -> {
-            RTCPeer rtcPeer = peers.get(remoteId);
-            if (rtcPeer != null) {
-                rtcPeer.removeRemoteIceCandidates(candidates);
-            }
-        });
-
-    }
-
-    public void close() {
-        executor.execute(this::closeInternal);
-    }
-
     private void closeInternal() {
         Log.d(TAG, "Closing peer connection.");
         for (RTCPeer peer : peers.values()) {
@@ -335,14 +282,88 @@ public class RTCEngine {
 
     }
 
-    public void switchCamera() {
-        executor.execute(this::switchCameraInternal);
-    }
-
     private void switchCameraInternal() {
         Log.d(TAG, "Switch camera");
         CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) mVideoCapturer;
-        cameraVideoCapturer.switchCamera(null);
+        cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
+            @Override
+            public void onCameraSwitchDone(boolean isFrontCamera) {
+                Log.d(TAG, "onCameraSwitchDone: isFrontCamera = " + isFrontCamera);
+            }
+
+            @Override
+            public void onCameraSwitchError(String errorDescription) {
+
+            }
+        });
+    }
+
+    private void getStats(String remoteId) {
+        RTCPeer rtcPeer = peers.get(remoteId);
+        if (rtcPeer == null) {
+            return;
+        }
+        rtcPeer.getStats();
+    }
+
+
+    // ----------------------------------- public -------------------------------------
+
+    public void createOffer(String remoteId) {
+        executor.execute(() -> {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.createOffer();
+            }
+        });
+    }
+
+    public void createAnswer(String remoteId) {
+        executor.execute(() -> {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.createAnswer();
+            }
+        });
+
+    }
+
+    public void setRemoteDescription(String remoteId, SessionDescription sdp) {
+        executor.execute(() -> {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.setRemoteDescription(sdp);
+            }
+        });
+
+    }
+
+    public void addRemoteIceCandidate(String remoteId, IceCandidate candidate) {
+        executor.execute(() -> {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.addRemoteIceCandidate(candidate);
+            }
+        });
+
+    }
+
+    public void removeRemoteIceCandidates(String remoteId, IceCandidate[] candidates) {
+        executor.execute(() -> {
+            RTCPeer rtcPeer = peers.get(remoteId);
+            if (rtcPeer != null) {
+                rtcPeer.removeRemoteIceCandidates(candidates);
+            }
+        });
+
+    }
+
+    public void close() {
+        executor.execute(this::closeInternal);
+    }
+
+    public void switchCamera() {
+        executor.execute(this::switchCameraInternal);
     }
 
     public void toggleBeautyEffect() {
@@ -397,8 +418,6 @@ public class RTCEngine {
 
     }
 
-    private final Timer statsTimer = new Timer();
-
     public void enableStatsEvents(String remoteId, boolean enable, int periodMs) {
         if (enable) {
             try {
@@ -414,14 +433,6 @@ public class RTCEngine {
         } else {
             statsTimer.cancel();
         }
-    }
-
-    private void getStats(String remoteId) {
-        RTCPeer rtcPeer = peers.get(remoteId);
-        if (rtcPeer == null) {
-            return;
-        }
-        rtcPeer.getStats();
     }
 
 

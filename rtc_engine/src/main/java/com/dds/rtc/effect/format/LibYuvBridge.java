@@ -3,7 +3,7 @@ package com.dds.rtc.effect.format;
 import java.nio.ByteBuffer;
 
 /** 负责在 I420 和 RGBA 之间转换的类。
- *
+ * <p>
  * 我想使用 RGBA 作为内存图像。 libyuv的RGBA转换是内存字节序
  * 顺序相反。
  * I420ToARGB() 的输出字节顺序为 B G R A，I420ToABGR() 为 R G B A。
@@ -16,7 +16,8 @@ public class LibYuvBridge {
         System.loadLibrary("yuvconv");
     }
 
-    public LibYuvBridge() {}
+    public LibYuvBridge() {
+    }
 
     public void i420ToRgba(ByteBuffer dataYBuffer, int strideY,
                            ByteBuffer dataUBuffer, int strideU,

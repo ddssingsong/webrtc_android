@@ -14,7 +14,7 @@ public class YuvByteBufferDumper {
     public static final String TAG = YuvByteBufferDumper.class.getSimpleName();
 
     private int bufferId = -1;
-    private LibYuvBridge libYuv = new LibYuvBridge();
+    private final LibYuvBridge libYuv = new LibYuvBridge();
 
     public YuvByteBufferDumper() {}
 

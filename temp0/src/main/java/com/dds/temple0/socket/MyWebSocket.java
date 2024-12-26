@@ -18,14 +18,13 @@ import java.util.Map;
 
 public class MyWebSocket extends WebSocketClient {
     private static final String TAG = "MyWebSocket";
-    private SocketManager mSocketManager;
+    private final SocketManager mSocketManager;
     private int socketState = SocketState.IDLE;
 
     public interface SocketState {
         int IDLE = 0;
         int CONNECTED = 1;
     }
-
 
     public MyWebSocket(URI serverUri, SocketManager socketManager) {
         super(serverUri);
@@ -98,53 +97,55 @@ public class MyWebSocket extends WebSocketClient {
         }
         if (TextUtils.isEmpty(eventName)) return;
         // 登录成功
-        if (eventName.equals("__login_success")) {
-            handleLogin(map);
-            return;
-        }
-        // 被邀请
-        if (eventName.equals("__invite")) {
-            handleInvite(map);
-            return;
-        }
-        // 取消拨出
-        if (eventName.equals("__cancel")) {
-            handleCancel(map);
-            return;
-        }
-        // 响铃
-        if (eventName.equals("__ring")) {
-            handleRing(map);
-            return;
-        }
-        // 进入房间
-        if (eventName.equals("__peers")) {
-            handlePeers(map);
-            return;
-        }
-        // 新人入房间
-        if (eventName.equals("__new_peer")) {
-            handleNewPeer(map);
-            return;
-        }
-        // 拒绝接听
-        if (eventName.equals("__reject")) {
-            handleReject(map);
-            return;
-        }
-        // offer
-        if (eventName.equals("__offer")) {
-            handleOffer(map);
-            return;
-        }
-        // answer
-        if (eventName.equals("__answer")) {
-            handleAnswer(map);
-            return;
-        }
-        // ice-candidate
-        if (eventName.equals("__ice_candidate")) {
-            handleIceCandidate(map);
+        switch (eventName) {
+            case "__login_success":
+                handleLogin(map);
+                return;
+
+            // 被邀请
+            case "__invite":
+                handleInvite(map);
+                return;
+
+            // 取消拨出
+            case "__cancel":
+                handleCancel(map);
+                return;
+
+            // 响铃
+            case "__ring":
+                handleRing(map);
+                return;
+
+            // 进入房间
+            case "__peers":
+                handlePeers(map);
+                return;
+
+            // 新人入房间
+            case "__new_peer":
+                handleNewPeer(map);
+                return;
+
+            // 拒绝接听
+            case "__reject":
+                handleReject(map);
+                return;
+
+            // offer
+            case "__offer":
+                handleOffer(map);
+                return;
+
+            // answer
+            case "__answer":
+                handleAnswer(map);
+                return;
+
+            // ice-candidate
+            case "__ice_candidate":
+                handleIceCandidate(map);
+                break;
         }
         // 离开房间
         if (eventName.equals("__leave")) {
@@ -555,7 +556,7 @@ public class MyWebSocket extends WebSocketClient {
         final String SEPARATOR = ",";
         StringBuilder sb = new StringBuilder();
         String convertedListStr;
-        if (null != mList && mList.size() > 0) {
+        if (null != mList && !mList.isEmpty()) {
             for (String item : mList) {
                 sb.append(item);
                 sb.append(SEPARATOR);
