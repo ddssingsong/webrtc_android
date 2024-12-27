@@ -51,7 +51,7 @@ public class VideoEffectProcessor implements VideoProcessor {
         VideoFrame.Buffer buffer = frame.getBuffer();
         if (buffer instanceof VideoFrame.TextureBuffer) {
             if (rtcVideoEffector.needToProcessFrame()) {
-                VideoFrame.Buffer buffer1 = rtcVideoEffector.processTextureBufferFrame((VideoFrame.TextureBuffer) buffer);
+                VideoFrame.Buffer buffer1 = rtcVideoEffector.processTextureBufferFrame((VideoFrame.TextureBuffer) buffer,frame.getRotation(), frame.getTimestampNs());
                 return new VideoFrame(buffer1, frame.getRotation(), frame.getTimestampNs());
             }
         } else if (buffer instanceof VideoFrame.I420Buffer) {

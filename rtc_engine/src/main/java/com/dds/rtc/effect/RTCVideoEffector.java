@@ -2,7 +2,6 @@ package com.dds.rtc.effect;
 
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.dds.rtc.effect.filter.FrameImageFilter;
 import com.dds.rtc.effect.filter.GPUImageFilter;
@@ -19,6 +18,7 @@ import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.TextureBufferImpl;
 import org.webrtc.ThreadUtils;
 import org.webrtc.VideoFrame;
+import org.webrtc.VideoFrameDrawer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,55 +113,38 @@ public class RTCVideoEffector {
 
         int stepTextureId = yuvBytesReader.read(i420Buffer);
 
-        // 视频帧图像可能会旋转
-        // 对于统一应用于整个图像的效果，例如灰度和棕褐色滤镜，这不是问题。
-        // 需要指定坐标的效果很难使用。
-
-        // 所以有些情况下需要在过滤前后做一些旋转校正
-        // 但是，纹理之间的复制会发生两次
-        // 我希望能够打开/关闭此功能，以便在不需要时不使用它
-
-        Log.d(TAG, "processByteBufferFrame: stepTextureId = " + stepTextureId);
-        if (context.getFrameInfo().isRotated()) {
-            // TODO
-        }
-
         for (FrameImageFilter filter : filters) {
             if (filter.isEnabled()) {
                 stepTextureId = filter.filter(context, stepTextureId);
             }
         }
 
-        if (context.getFrameInfo().isRotated()) {
-            // TODO
-        }
-
         return yuvBytesDumper.dump(stepTextureId, width, height, strideY, strideU, strideV);
     }
 
-    public VideoFrame.Buffer processTextureBufferFrame(VideoFrame.TextureBuffer buffer) {
-        int textureId = buffer.getTextureId();
+    public VideoFrame.Buffer processTextureBufferFrame(VideoFrame.TextureBuffer buffer, int rotation, long timestamp) {
+        if (!needToProcessFrame()) {
+            return buffer;
+        }
         float[] finalGlMatrix = RendererCommon.convertMatrixFromAndroidGraphicsMatrix(buffer.getTransformMatrix());
         int width = buffer.getWidth();
         int height = buffer.getHeight();
 
+        context.updateFrameInfo(width, height, rotation, timestamp);
+
         frameBuffer.setSize(width, height);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer.getFrameBufferId());
         // draw OES
-        textureDrawer.drawOes(textureId, finalGlMatrix, width, height, 0, 0, width, height);
+        VideoFrameDrawer.drawTexture(textureDrawer, buffer, buffer.getTransformMatrix(), width, height, 0, 0, width, height);
 
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
-        textureId = frameBuffer.getTextureId();
+        int textureId = frameBuffer.getTextureId();
 
-
-        if (needToProcessFrame()) {
-            frameBuffer1.setSize(width, height);
-            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer1.getFrameBufferId());
-            smoothFilter.prepare();
-            smoothFilter.draw(textureId, finalGlMatrix, width, height);
-            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-            textureId = frameBuffer1.getTextureId();
+        for (FrameImageFilter filter : filters) {
+            if (filter.isEnabled()) {
+                textureId = filter.filter(context, textureId);
+            }
         }
         return new TextureBufferImpl(width, height, VideoFrame.TextureBuffer.Type.RGB, textureId,
                 RendererCommon.convertMatrixToAndroidGraphicsMatrix(finalGlMatrix), helper.getHandler(), null, null);

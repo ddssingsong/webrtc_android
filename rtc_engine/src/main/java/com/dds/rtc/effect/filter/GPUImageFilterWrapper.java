@@ -59,7 +59,7 @@ public class GPUImageFilterWrapper extends FrameImageFilter {
 
         textureId = GlUtil.generateTexture(GLES20.GL_TEXTURE_2D);
 
-        final int buffers[] = new int[1];
+        final int[] buffers = new int[1];
         GLES20.glGenFramebuffers(1, buffers, 0);
         bufferId = buffers[0];
 
