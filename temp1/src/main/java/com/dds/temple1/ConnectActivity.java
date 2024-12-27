@@ -43,6 +43,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
     private final ProxyVideoSink remoteProxyRenderer = new ProxyVideoSink();
     private final ProxyVideoSink localProxyVideoSink = new ProxyVideoSink();
     private long callStartedTimeMs;
+
     private boolean isSwappedFeeds;
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
@@ -130,8 +131,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         mPipView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         mPipView.setOnClickListener(v -> setSwappedFeeds(!isSwappedFeeds));
 
-        localProxyVideoSink.setTarget(mPipView);
-        remoteProxyRenderer.setTarget(mFullView);
+        setSwappedFeeds(true);
 
         mRtcEngine = new RTCEngine(getApplicationContext(), eglBase, localProxyVideoSink);
 
@@ -330,6 +330,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
             logAndToast("DTLS connected, delay=" + delta + "ms");
             mRtcEngine.enableStatsEvents(mIpAddress, true, 1000);
             mRtcEngine.setBitrateRange(mIpAddress, 1000, 2000);
+            setSwappedFeeds(false);
         });
 
     }
