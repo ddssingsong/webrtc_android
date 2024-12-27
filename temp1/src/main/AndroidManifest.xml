@@ -15,15 +15,14 @@
 
         <activity
             android:name="com.dds.temple1.ConnectActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|mcc|mnc|navigation|keyboard|screenLayout"
             android:exported="false"
             android:label="local network"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name="com.dds.temple1.Temple1Activity"
             android:exported="false"
             android:label="ConnectActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
     </application>
 

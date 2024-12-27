@@ -60,7 +60,7 @@ interface CameraSession {
     // Perform mirror and rotation around (0.5, 0.5) since that is the center of the texture.
     transformMatrix.preTranslate(/* dx= */ 0.5f, /* dy= */ 0.5f);
     if (mirror) {
-      transformMatrix.preScale(/* sx= */ -1f, /* sy= */ 1f);
+//      transformMatrix.preScale(/* sx= */ -1f, /* sy= */ 1f);
     }
     transformMatrix.preRotate(rotation);
     transformMatrix.preTranslate(/* dx= */ -0.5f, /* dy= */ -0.5f);

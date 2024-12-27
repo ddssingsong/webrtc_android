@@ -6,7 +6,6 @@ import android.opengl.GLES20;
 import com.dds.rtc.effect.filter.FrameImageFilter;
 import com.dds.rtc.effect.filter.GPUImageFilter;
 import com.dds.rtc.effect.filter.GPUImageFilterWrapper;
-import com.dds.rtc.effect.filter.SkinSmoothFilter;
 import com.dds.rtc.effect.format.YuvByteBufferDumper;
 import com.dds.rtc.effect.format.YuvByteBufferReader;
 
@@ -43,7 +42,6 @@ public class RTCVideoEffector {
     private final GlRectDrawer textureDrawer = new GlRectDrawer();
     private GlTextureFrameBuffer frameBuffer;
     private GlTextureFrameBuffer frameBuffer1;
-    private SkinSmoothFilter smoothFilter;
 
     void init(SurfaceTextureHelper helper) {
 
@@ -64,7 +62,6 @@ public class RTCVideoEffector {
 
         frameBuffer = new GlTextureFrameBuffer(GLES20.GL_RGBA);
         frameBuffer1 = new GlTextureFrameBuffer(GLES20.GL_RGBA);
-        smoothFilter = new SkinSmoothFilter();
 
         GlUtil.checkNoGLES2Error("RTCVideoEffector.init");
     }
@@ -126,7 +123,6 @@ public class RTCVideoEffector {
         if (!needToProcessFrame()) {
             return buffer;
         }
-        float[] finalGlMatrix = RendererCommon.convertMatrixFromAndroidGraphicsMatrix(buffer.getTransformMatrix());
         int width = buffer.getWidth();
         int height = buffer.getHeight();
 
@@ -147,7 +143,7 @@ public class RTCVideoEffector {
             }
         }
         return new TextureBufferImpl(width, height, VideoFrame.TextureBuffer.Type.RGB, textureId,
-                RendererCommon.convertMatrixToAndroidGraphicsMatrix(finalGlMatrix), helper.getHandler(), null, null);
+                buffer.getTransformMatrix(), helper.getHandler(), null, null);
     }
 
 
@@ -178,13 +174,13 @@ public class RTCVideoEffector {
         for (FrameImageFilter filter : filters) {
             filter.dispose();
         }
+        if (frameBuffer != null) {
+            frameBuffer.release();
+        }
         yuvBytesReader.dispose();
         yuvBytesDumper.dispose();
         if (frameBuffer1 != null) {
             frameBuffer1.release();
-        }
-        if (smoothFilter != null) {
-            smoothFilter.release();
         }
     }
 

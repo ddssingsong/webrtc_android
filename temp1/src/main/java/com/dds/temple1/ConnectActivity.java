@@ -191,8 +191,8 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         this.isSwappedFeeds = isSwappedFeeds;
         localProxyVideoSink.setTarget(isSwappedFeeds ? mFullView : mPipView);
         remoteProxyRenderer.setTarget(isSwappedFeeds ? mPipView : mFullView);
-        mFullView.setMirror(isSwappedFeeds);
-        mPipView.setMirror(!isSwappedFeeds);
+        mFullView.setMirror(!isSwappedFeeds);
+        mPipView.setMirror(isSwappedFeeds);
     }
 
     // endregion
