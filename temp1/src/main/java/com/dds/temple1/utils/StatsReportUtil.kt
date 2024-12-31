@@ -39,12 +39,14 @@ class StatsReportUtil {
         var videoOutHeight = 0L
         var videoOutFrameRate = 0L
 
+        var rtt = 0.0
+
         val statsMap = report.statsMap
         for (stats in statsMap.values) {
+            // inbound-rtp
             if (stats.type == "inbound-rtp") {
                 val members = stats.members
                 val mediaType = members["kind"]
-
                 if (mediaType == "video") {
                     if (videoInFound) {
                         Log.w(TAG, "Already found inbound video track")
@@ -95,7 +97,9 @@ class StatsReportUtil {
                     lastBytesReceivedAudio = bytes
                     audioInFound = true
                 }
-            } else if (stats.type == "outbound-rtp") {
+            }
+            // outbound-rtp
+            else if (stats.type == "outbound-rtp") {
                 val map = stats.members
                 val mediaType = map["kind"]
 
@@ -150,6 +154,17 @@ class StatsReportUtil {
                     audioOutFound = true
                 }
             }
+            // candidate-pair
+
+            else if (stats.type == "candidate-pair") {
+                val map = stats.members
+                val state = map["state"]
+                if (state == "succeeded") {
+                    rtt = (map["totalRoundTripTime"] as Double) * STATS_INTERVAL_MS
+                }
+
+            }
+
         }
 
         if (!audioInFound) {
@@ -170,18 +185,21 @@ class StatsReportUtil {
             lastBytesSentVideo = BigInteger.ZERO
         }
 
-        return " Receiving\n" +
+        return " Sending\n" +
+                "  Video Codec: $videoOutCodec\n" +
+                "   Quality: ${videoOutWidth}x$videoOutHeight @ $videoOutFrameRate fps\n" +
+                "   Bitrate: $videoOutBytesDelta kbps\n" +
+                "  Audio Codec: $audioOutCodec\n" +
+                "   Bitrate: $audioOutBytesDelta kbps\n" +
+                " Receiving\n" +
                 "  Video Codec: $videoInCodec\n" +
                 "   Quality: ${videoInWidth}x$videoInHeight @ $videoInFrameRate fps\n" +
                 "   Bitrate: $videoInBytesDelta kbps\n" +
                 "  Audio Codec: $audioInCodec\n" +
                 "   Bitrate: $audioInBytesDelta kbps\n\n" +
-                " Sending\n" +
-                "  Video Codec: $videoOutCodec\n" +
-                "   Quality: ${videoOutWidth}x$videoOutHeight @ $videoOutFrameRate fps\n" +
-                "   Bitrate: $videoOutBytesDelta kbps\n" +
-                "  Audio Codec: $audioOutCodec\n" +
-                "   Bitrate: $audioOutBytesDelta kbps\n"
+                " Network:\n" +
+                " RTT: $rtt ms"
+
     }
 
     companion object {
