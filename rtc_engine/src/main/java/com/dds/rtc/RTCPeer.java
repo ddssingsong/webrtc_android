@@ -59,22 +59,24 @@ public class RTCPeer implements SdpObserver, PeerConnection.Observer {
 
     private final String remotePeerId;
 
-    public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events) {
-        this(factory, executor, events, null);
+    public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events,
+                   List<PeerConnection.IceServer> iceServers) {
+        this(factory, executor, events, iceServers, null);
     }
 
-    public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events, String remoteId) {
+    public RTCPeer(PeerConnectionFactory factory, ExecutorService executor, PeerConnectionEvents events,
+                   List<PeerConnection.IceServer> iceServers, String remoteId) {
         this.mFactory = factory;
         mExecutor = executor;
         mEvents = events;
-        pc = createPeerConnection();
         queuedRemoteCandidates = new ArrayList<>();
         isInitiator = false;
         remotePeerId = remoteId;
+        pc = createPeerConnection(iceServers);
     }
 
-    public PeerConnection createPeerConnection() {
-        return mFactory.createPeerConnection(new ArrayList<>(), this);
+    public PeerConnection createPeerConnection(List<PeerConnection.IceServer> iceServers) {
+        return mFactory.createPeerConnection(iceServers, this);
     }
 
     public void createOffer() {

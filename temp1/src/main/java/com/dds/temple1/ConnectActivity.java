@@ -203,7 +203,7 @@ public class ConnectActivity extends AppCompatActivity implements AppRTCClient.S
         runOnUiThread(() -> {
             boolean initiator = params.initiator;
             mIpAddress = params.ipAddress;
-            mRtcEngine.createPeerConnection(mIpAddress, this, remoteProxyRenderer);
+            mRtcEngine.createPeerConnection(mIpAddress, this, remoteProxyRenderer,null);
             mRtcEngine.setVideoCodecType(mIpAddress, RTCPeer.VIDEO_CODEC_H264);
             if (initiator) {
                 // create offer

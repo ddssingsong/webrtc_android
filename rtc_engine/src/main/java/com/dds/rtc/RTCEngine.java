@@ -21,6 +21,7 @@ import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStreamTrack;
+import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpParameters;
 import org.webrtc.RtpSender;
@@ -36,6 +37,7 @@ import org.webrtc.VideoTrack;
 import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +79,8 @@ public class RTCEngine {
             "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/";
     private static final String DISABLE_WEBRTC_AGC_FIELDTRIAL =
             "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/";
+
+    private final List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 
     private static final int BPS_IN_KBPS = 1000;
 
@@ -207,9 +211,19 @@ public class RTCEngine {
         return audioConstraints;
     }
 
-    public void createPeerConnection(String remoteId, RTCPeer.PeerConnectionEvents events, VideoSink remoteSink) {
+
+    public void createPeerConnection(String remoteId, RTCPeer.PeerConnectionEvents events, VideoSink remoteSink, List<RTCIceServer> servers) {
         executor.execute(() -> {
-            RTCPeer mPeer = new RTCPeer(mConnectionFactory, executor, events, remoteId);
+            if (servers != null) {
+                for (RTCIceServer server : servers) {
+                    PeerConnection.IceServer iceServer = PeerConnection.IceServer.builder(server.url)
+                            .setUsername(server.username)
+                            .setPassword(server.password)
+                            .createIceServer();
+                    iceServers.add(iceServer);
+                }
+            }
+            RTCPeer mPeer = new RTCPeer(mConnectionFactory, executor, events, iceServers, remoteId);
             List<String> mediaStreamLabels = Collections.singletonList("ARDAMS");
             if (mVideoTrack != null) {
                 mPeer.addVideoTrack(mVideoTrack, mediaStreamLabels);
