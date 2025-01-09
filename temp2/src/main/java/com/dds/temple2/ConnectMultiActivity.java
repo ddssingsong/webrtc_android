@@ -5,6 +5,10 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.dds.temple2.lancomm.LanCommManager;
+import com.dds.temple2.lancomm.data.Device;
+import com.dds.temple2.lancomm.inter.DeviceListener;
+
 public class ConnectMultiActivity extends AppCompatActivity {
     private static final String TAG = "ConnectMultiActivity";
 
@@ -13,6 +17,23 @@ public class ConnectMultiActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multi_connect);
 
+    }
+
+
+
+    private void initSocket(){
+        LanCommManager.getBroadcaster().broadcast("dddd".getBytes());
+        LanCommManager.getReceiver().addDeviceListener(new DeviceListener() {
+            @Override
+            public void onDeviceAdd(Device device) {
+
+            }
+
+            @Override
+            public void onDeviceRemove(Device device) {
+
+            }
+        });
     }
 
 
